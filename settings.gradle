@@ -1,0 +1,4 @@
+include ':android'
+include ':shared'
+
+rootProject.name='RadioRecord'
