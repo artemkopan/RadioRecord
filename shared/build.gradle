@@ -41,9 +41,12 @@ android {
 
 
 kotlin {
+    repositories {
+        maven {
+            url = uri("https://dl.bintray.com/chrynan/chrynan")
+        }
+    }
     targets {
-        jvm()
-
         // iPhone simulator    : presets.iosX64
         // real iDevice 32 bit : presets.iosArm32
         // real iDevice 64 bit : presets.iosArm64
@@ -82,27 +85,32 @@ kotlin {
 
             // KTOR
             implementation "io.ktor:ktor-client-core:$ktor_version"
+            implementation "io.ktor:ktor-client-json:$ktor_version"
+            implementation "io.ktor:ktor-client-serialization:$ktor_version"
         }
 
         androidMain.dependencies {
-            //api 'org.jetbrains.kotlin:kotlin-stdlib'
             implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
             implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
 
-
             // COROUTINE
-            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
-            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
+            api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
+            api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
 
             // SERIALIZATION
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializer_version"
 
             // KTOR
-            implementation "io.ktor:ktor-client-android:$ktor_version"
+            implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+            implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+            implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"
+            implementation "com.squareup.okhttp3:logging-interceptor:4.4.0"
 
             // SQL Delight
             implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
+
+            // INJECT
+            implementation("javax.inject:javax.inject:$injecx_version")
         }
 
         iosMain.dependencies {
@@ -116,6 +124,10 @@ kotlin {
 
             // KTOR
             implementation "io.ktor:ktor-client-ios:$ktor_version"
+            implementation "io.ktor:ktor-client-core-native:$ktor_version"
+            implementation "io.ktor:ktor-client-json-native:$ktor_version"
+            implementation "io.ktor:ktor-client-serialization-native:$ktor_version"
+
 
             // SQL Delight
             implementation "com.squareup.sqldelight:ios-driver:$sqldelight_version"

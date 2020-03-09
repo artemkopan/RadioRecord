@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -29,13 +30,7 @@ android {
     }
 
     packagingOptions {
-        pickFirst 'META-INF/ktor-http.kotlin_module'
-        pickFirst 'META-INF/ktor-utils.kotlin_module'
-        pickFirst 'META-INF/kotlinx-coroutines-core.kotlin_module'
-        pickFirst 'META-INF/kotlinx-serialization-runtime.kotlin_module'
-        pickFirst 'META-INF/ktor-io.kotlin_module'
-        pickFirst 'META-INF/ktor-http-cio.kotlin_module'
-        pickFirst 'META-INF/ktor-client-core.kotlin_module'
+        exclude 'META-INF/*.kotlin_module'
     }
 }
 
@@ -43,12 +38,15 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':shared')
 
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.2.0'
 
+    // DI
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

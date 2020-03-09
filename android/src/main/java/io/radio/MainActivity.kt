@@ -1,16 +1,27 @@
 package io.radio
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
-import io.radio.shared.platformName
+import io.radio.shared.common.IoDispatcher
+import io.radio.shared.network.RestApiService
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainActivity : FragmentActivity(R.layout.main_activity){
+class MainActivity : FragmentActivity(R.layout.main_activity) {
 
+    @Inject
+    lateinit var restApiService: RestApiService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Toast.makeText(this, platformName(), Toast.LENGTH_LONG).show()
+        di { inject(this@MainActivity) }
+
+        GlobalScope.launch(IoDispatcher) {
+            restApiService.getStations()
+            restApiService.getPodcastById(restApiService.getPodcasts().first().id)
+        }
+
     }
 
 }
