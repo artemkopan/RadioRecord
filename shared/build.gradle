@@ -3,7 +3,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
 apply plugin: 'com.android.library'
 
-// It is necessay because we need to have access to context on CommonCode to use SQLDelight database
+// It is necessary because we need to have access to context on CommonCode to use SQLDelight database
 android {
     compileSdkVersion 29
     defaultConfig {
@@ -41,31 +41,26 @@ android {
 
 
 kotlin {
-    repositories {
-        maven {
-            url = uri("https://dl.bintray.com/chrynan/chrynan")
-        }
-    }
     targets {
         // iPhone simulator    : presets.iosX64
         // real iDevice 32 bit : presets.iosArm32
         // real iDevice 64 bit : presets.iosArm64
-        def iosPreset = presets.iosX64
+//        def iosPreset = presets.iosX64
 
-        fromPreset(iosPreset, 'ios') {
-            binaries {
-                framework {
-                    // Disable bitcode embedding for the simulator build.
-                    if (iosPreset == presets.iosX64) {
-                        embedBitcode("disable")
-                    }
-                }
-            }
-            //compilations.main.outputKinds('FRAMEWORK')
-            compilations.each {
-                it.extraOpts("-linkerOpts", "-lsqlite3")
-            }
-        }
+//        fromPreset(iosPreset, 'ios') {
+//            binaries {
+//                framework {
+//                    // Disable bitcode embedding for the simulator build.
+//                    if (iosPreset == presets.iosX64) {
+//                        embedBitcode("disable")
+//                    }
+//                }
+//            }
+//            //compilations.main.outputKinds('FRAMEWORK')
+//            compilations.each {
+//                it.extraOpts("-linkerOpts", "-lsqlite3")
+//            }
+//        }
 
         fromPreset(presets.android, 'android')
 
@@ -87,6 +82,7 @@ kotlin {
             implementation "io.ktor:ktor-client-core:$ktor_version"
             implementation "io.ktor:ktor-client-json:$ktor_version"
             implementation "io.ktor:ktor-client-serialization:$ktor_version"
+            implementation "io.ktor:ktor-client-logging:$ktor_version"
         }
 
         androidMain.dependencies {
@@ -104,13 +100,23 @@ kotlin {
             implementation "io.ktor:ktor-client-okhttp:$ktor_version"
             implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
             implementation "io.ktor:ktor-client-serialization-jvm:$ktor_version"
-            implementation "com.squareup.okhttp3:logging-interceptor:4.4.0"
+            implementation "io.ktor:ktor-client-logging-jvm:$ktor_version"
 
             // SQL Delight
             implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
 
             // INJECT
             implementation("javax.inject:javax.inject:$injecx_version")
+
+            // ANDROIDX
+            implementation "androidx.fragment:fragment-ktx:$fragment_version"
+            implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
+            implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
+
+            // DI
+            implementation "com.google.dagger:dagger:$dagger_version"
+            compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$dagger_assisted_version"
+
         }
 
         iosMain.dependencies {
@@ -127,6 +133,7 @@ kotlin {
             implementation "io.ktor:ktor-client-core-native:$ktor_version"
             implementation "io.ktor:ktor-client-json-native:$ktor_version"
             implementation "io.ktor:ktor-client-serialization-native:$ktor_version"
+            implementation "io.ktor:ktor-client-logging-native:$ktor_version"
 
 
             // SQL Delight
