@@ -34,6 +34,10 @@ android {
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -52,9 +56,14 @@ dependencies {
     implementation "androidx.navigation:navigation-ui:$nav_version"
 
     implementation "androidx.recyclerview:recyclerview:1.1.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
 
     implementation 'com.google.android.material:material:1.2.0-alpha05'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.1'
+
+    implementation ("com.github.bumptech.glide:glide:4.11.0") {
+        exclude group: "com.android.support"
+    }
 
     // DI
     implementation "com.google.dagger:dagger:$dagger_version"

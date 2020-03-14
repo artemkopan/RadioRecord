@@ -1,10 +1,9 @@
 package io.radio.shared.presentation.viewmodel
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import io.radio.shared.presentation.State
+import kotlinx.coroutines.*
 
 open class BaseViewModel : ViewModel() {
 
@@ -16,7 +15,9 @@ open class BaseViewModel : ViewModel() {
     }
 
 
-
-
-
+    protected inline fun <T : Any> MutableLiveData<State<T>>.launch(crossinline onLoad: suspend () -> T) =
+        scope.launch(CoroutineExceptionHandler { _, throwable -> value = State.Fail(throwable) }) {
+            value = State.Loading
+            value = State.Success(onLoad())
+        }
 }

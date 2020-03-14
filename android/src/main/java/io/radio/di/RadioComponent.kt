@@ -6,7 +6,7 @@ import android.content.res.Resources
 import dagger.BindsInstance
 import dagger.Component
 import io.radio.presentation.MainActivity
-import io.radio.presentation.stations.StationsFragment
+import io.radio.presentation.home.HomeFragment
 import javax.inject.Singleton
 
 @Component(modules = [RadioProvidersModule::class, RadioBindsModule::class, ViewModelsModule::class, AssistedViewModelsModule::class])
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 interface RadioComponent {
 
     fun inject(activity: MainActivity)
-    fun inject(fragment: StationsFragment)
+    fun inject(fragment: HomeFragment)
 
     @Component.Builder
     interface Builder {

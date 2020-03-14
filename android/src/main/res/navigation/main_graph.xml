@@ -8,9 +8,9 @@
 
     <fragment
         android:id="@+id/stationsFragment"
-        android:name="io.radio.presentation.stations.StationsFragment"
+        android:name="io.radio.presentation.home.HomeFragment"
         android:label="StationsFragment"
-        tools:layout="@layout/fragment_stations" />
+        tools:layout="@layout/fragment_home" />
 
 
 </navigation>
