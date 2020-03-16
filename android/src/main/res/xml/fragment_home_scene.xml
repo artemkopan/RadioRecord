@@ -56,10 +56,12 @@
     </ConstraintSet>
 
     <Transition
-        motion:autoTransition="animateToEnd"
+        motion:autoTransition="none"
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@+id/start"
         motion:duration="@android:integer/config_longAnimTime" />
+
+
 
 
 </MotionScene>

@@ -7,7 +7,12 @@ import androidx.fragment.app.createViewModelLazy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import dagger.Lazy
+import io.radio.shared.common.MainDispatcher
+import io.radio.shared.common.lazyNonSafety
 import io.radio.shared.presentation.viewmodel.factory.InjectingSavedStateViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import javax.inject.Inject
 
 
@@ -18,6 +23,13 @@ open class BaseFragment : Fragment {
 
     @Inject
     lateinit var factory: Lazy<InjectingSavedStateViewModelFactory>
+
+    protected val viewScope by lazyNonSafety { CoroutineScope(SupervisorJob() + MainDispatcher) }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewScope.coroutineContext.cancelChildren()
+    }
 
     @MainThread
     protected inline fun <reified VM : ViewModel> Fragment.viewModels(
