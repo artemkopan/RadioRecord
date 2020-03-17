@@ -6,4 +6,10 @@
     <dimen name="item_preview_small_size">62dp</dimen>
     <dimen name="item_margin">8dp</dimen>
 
+    <dimen name="indicator_width_selected">16dp</dimen>
+    <dimen name="indicator_size">8dp</dimen>
+    <dimen name="indicator_size_neg">-8dp</dimen> <!--used for motion layout animation-->
+    <dimen name="indicator_margin">2dp</dimen>
+    <dimen name="anim_title_translation">@dimen/indicator_size</dimen>
+
 </resources>

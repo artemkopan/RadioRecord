@@ -2,6 +2,7 @@
 
 package io.radio.shared.presentation.view
 
+import androidx.annotation.FloatRange
 import androidx.annotation.IdRes
 import io.radio.shared.presentation.view.MotionCommand.*
 import io.radio.shared.presentation.view.MotionCommand.Set
@@ -24,6 +25,7 @@ class MotionLayoutStateManager(
                     is Await -> motionLayout.awaitTransitionComplete(it.transitionId)
                     is Set -> motionLayout.setTransition(it.beginId, it.endId)
                     is ToState -> motionLayout.transitionToState(it.stateId)
+                    is Progress -> motionLayout.progress = it.progress
                 }
             }
         }
@@ -48,4 +50,5 @@ sealed class MotionCommand {
     class Await(@IdRes val transitionId: Int) : MotionCommand()
     class Set(@IdRes val beginId: Int, @IdRes val endId: Int) : MotionCommand()
     class ToState(@IdRes val stateId: Int) : MotionCommand()
+    class Progress(@FloatRange(from = 0.0, to = 1.0) val progress: Float) : MotionCommand()
 }

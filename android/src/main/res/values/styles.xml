@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccentInactive">@color/colorAccentInactive</item>
         <item name="android:windowBackground">@android:color/white</item>
 
     </style>
@@ -20,6 +21,25 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="layoutManager">androidx.recyclerview.widget.GridLayoutManager</item>
         <item name="spanCount">3</item>
+    </style>
+
+    <style name="Widget.Home" />
+
+    <style name="Widget.Home.Title">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/default_margin</item>
+        <item name="android:layout_marginTop">@dimen/default_margin</item>
+        <item name="android:textAppearance">?textAppearanceHeadline5</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="fontFamily">@font/montserrat_semi_bold</item>
+    </style>
+
+    <style name="Widget.Home.CircleIndicator">
+        <item name="android:layout_width">@dimen/indicator_size</item>
+        <item name="android:layout_height">@dimen/indicator_size</item>
+        <item name="srcCompat">@drawable/sh_indicator</item>
+        <item name="android:alpha">0</item>
     </style>
 
 

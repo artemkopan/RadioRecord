@@ -14,25 +14,47 @@
         android:id="@+id/searchButton"
         android:layout_width="@dimen/searchIconSize"
         android:layout_height="@dimen/searchIconSize"
-        android:layout_marginTop="@dimen/default_margin"
         android:layout_marginEnd="@dimen/default_margin"
+        app:layout_constraintBottom_toBottomOf="@id/stationsTitleView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/stationsTitleView"
         app:srcCompat="@drawable/ic_search" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/titleView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_margin"
-        android:layout_marginTop="@dimen/default_margin"
+        android:id="@+id/stationsTitleView"
+        style="@style/Widget.Home.Title"
         android:text="@string/stations"
-        android:textAppearance="?textAppearanceHeadline5"
-        android:textColor="?android:textColorPrimary"
-        app:fontFamily="@font/montserrat_semi_bold"
+        app:layout_constraintEnd_toStartOf="@id/searchButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/podcastsTitleView"
+        style="@style/Widget.Home.Title"
+        android:alpha="0"
+        android:text="@string/podcasts"
+        app:layout_constraintEnd_toStartOf="@id/searchButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/circleIndicatorsStations"
+        style="@style/Widget.Home.CircleIndicator"
+        android:layout_width="@dimen/indicator_width_selected"
+        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginTop="@dimen/item_margin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/stationsTitleView"
+        tools:alpha="1" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/circleIndicatorsPodcasts"
+        style="@style/Widget.Home.CircleIndicator"
+        android:layout_marginStart="@dimen/indicator_margin"
+        app:layout_constraintStart_toEndOf="@id/circleIndicatorsStations"
+        app:layout_constraintTop_toTopOf="@id/circleIndicatorsStations"
+        tools:alpha="1" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pagerView"
@@ -42,7 +64,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleView" />
+        app:layout_constraintTop_toBottomOf="@id/circleIndicatorsStations" />
 
 
 </io.radio.shared.presentation.view.MultiListenerMotionLayout>

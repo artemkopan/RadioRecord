@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">RadioRecord</string>
     <string name="stations">Stations</string>
+    <string name="podcasts">Podcasts</string>
 </resources>

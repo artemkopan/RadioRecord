@@ -3,56 +3,50 @@
     xmlns:motion="http://schemas.android.com/apk/res-auto">
 
     <ConstraintSet android:id="@+id/start">
-        <Constraint
-            android:id="@+id/searchButton"
-            android:layout_width="@dimen/searchIconSize"
-            android:layout_height="@dimen/searchIconSize"
-            android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
-            android:alpha="0.2"
-            android:translationX="16dp"
-            motion:layout_constraintBottom_toBottomOf="@+id/titleView"
-            motion:layout_constraintEnd_toEndOf="parent"
-            motion:layout_constraintTop_toTopOf="@+id/titleView" />
+        <Constraint android:id="@+id/searchButton">
+            <Transform android:translationX="32dp" />
+            <PropertySet android:alpha="0.2" />
+        </Constraint>
 
+        <Constraint android:id="@+id/stationsTitleView">
+            <Transform android:translationX="-60dp" />
+            <PropertySet
+                android:alpha="0.2"
+                android:translationX="-40dp" />
+        </Constraint>
+
+        <Constraint android:id="@+id/pagerView">
+            <PropertySet android:visibility="gone" />
+        </Constraint>
         <Constraint
-            android:id="@+id/titleView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:id="@+id/circleIndicators"
+            android:layout_width="22dp"
+            android:layout_height="12dp"
             android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="@dimen/default_margin"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:alpha="0.2"
-            android:translationX="-40dp"
-            motion:layout_constraintEnd_toStartOf="@+id/searchButton"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toTopOf="parent" />
+            motion:layout_constraintTop_toBottomOf="@id/stationsTitleView" />
 
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
-        <Constraint
-            android:id="@+id/searchButton"
-            android:layout_width="@dimen/searchIconSize"
-            android:layout_height="@dimen/searchIconSize"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:layout_marginRight="@dimen/default_margin"
-            motion:layout_constraintBottom_toBottomOf="@+id/titleView"
-            motion:layout_constraintEnd_toEndOf="parent"
-            motion:layout_constraintTop_toTopOf="@+id/titleView" />
+        <Constraint android:id="@+id/searchButton">
+            <PropertySet android:alpha="1" />
+        </Constraint>
 
-        <Constraint
-            android:id="@+id/titleView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginTop="@dimen/default_margin"
-            android:layout_marginEnd="@dimen/default_margin"
-            motion:layout_constraintEnd_toStartOf="@+id/searchButton"
-            motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint android:id="@+id/stationsTitleView">
+            <PropertySet android:alpha="1" />
+        </Constraint>
 
+        <Constraint android:id="@+id/pagerView">
+            <PropertySet android:visibility="visible" />
+        </Constraint>
+
+        <Constraint android:id="@+id/circleIndicatorsStations">
+            <PropertySet android:alpha="1" />
+        </Constraint>
+        <Constraint android:id="@+id/circleIndicatorsPodcasts">
+            <PropertySet android:alpha="1" />
+        </Constraint>
     </ConstraintSet>
 
     <Transition
@@ -61,7 +55,76 @@
         motion:constraintSetStart="@+id/start"
         motion:duration="@android:integer/config_longAnimTime" />
 
+    <ConstraintSet android:id="@+id/stationsTitle">
 
+        <Constraint android:id="@+id/podcastsTitleView">
+            <Transform android:translationY="@dimen/anim_title_translation" />
+            <PropertySet android:alpha="0" />
+        </Constraint>
+
+        <Constraint android:id="@+id/stationsTitleView">
+            <PropertySet android:alpha="1" />
+        </Constraint>
+
+        <Constraint android:id="@+id/circleIndicatorsStations">
+            <Layout
+                android:layout_width="@dimen/indicator_width_selected"
+                android:layout_height="@dimen/indicator_size" />
+            <CustomAttribute
+                motion:attributeName="colorFilter"
+                motion:customColorValue="?colorAccent" />
+        </Constraint>
+
+        <Constraint android:id="@+id/circleIndicatorsPodcasts">
+            <Layout
+                android:layout_width="@dimen/indicator_size"
+                android:layout_height="@dimen/indicator_size" />
+            <CustomAttribute
+                motion:attributeName="colorFilter"
+                motion:customColorValue="?colorAccentInactive" />
+        </Constraint>
+
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/podcastsTitle">
+
+        <Constraint android:id="@+id/podcastsTitleView">
+            <PropertySet android:alpha="1" />
+        </Constraint>
+
+        <Constraint android:id="@+id/stationsTitleView">
+            <Transform android:translationY="@dimen/anim_title_translation" />
+            <PropertySet android:alpha="0" />
+        </Constraint>
+
+        <Constraint android:id="@+id/circleIndicatorsStations">
+            <Layout
+                android:layout_width="@dimen/indicator_size"
+                android:layout_height="@dimen/indicator_size" />
+            <CustomAttribute
+                motion:attributeName="colorFilter"
+                motion:customColorValue="?colorAccentInactive" />
+        </Constraint>
+
+        <Constraint android:id="@+id/circleIndicatorsPodcasts">
+            <Transform android:translationX="@dimen/indicator_size_neg" />
+            <Layout
+                android:layout_width="@dimen/indicator_width_selected"
+                android:layout_height="@dimen/indicator_size" />
+            <CustomAttribute
+                motion:attributeName="colorFilter"
+                motion:customColorValue="?colorAccent" />
+        </Constraint>
+
+    </ConstraintSet>
+
+    <Transition
+        motion:constraintSetEnd="@id/podcastsTitle"
+        motion:constraintSetStart="@id/stationsTitle"
+        motion:duration="@android:integer/config_mediumAnimTime">
+
+    </Transition>
 
 
 </MotionScene>

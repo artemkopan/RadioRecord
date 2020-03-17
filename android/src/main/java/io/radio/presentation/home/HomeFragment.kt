@@ -2,6 +2,7 @@ package io.radio.presentation.home
 
 import android.os.Bundle
 import android.view.View
+import androidx.viewpager2.widget.ViewPager2
 import io.radio.R
 import io.radio.di
 import io.radio.shared.common.lazyNonSafety
@@ -33,11 +34,21 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         layoutStateManager.send(
             Set(R.id.start, R.id.end),
             ToState(R.id.animateToEnd),
-            Await(R.id.end)
+            Await(R.id.animateToEnd),
+            Set(R.id.stationsTitle, R.id.podcastsTitle)
         )
 
         val pagesAdapter = HomePagesAdapter(this)
         pagerView.adapter = pagesAdapter
+        pagerView.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                layoutStateManager.send(Progress((position + positionOffset) / (pagesAdapter.itemCount - 1)))
+            }
+        })
     }
 
 }
