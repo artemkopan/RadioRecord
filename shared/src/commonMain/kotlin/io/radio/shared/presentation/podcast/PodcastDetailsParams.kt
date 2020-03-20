@@ -1,7 +1,7 @@
-package io.radio.presentation.podcast.details
+package io.radio.shared.presentation.podcast
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import io.radio.shared.common.Parcelable
+import io.radio.shared.common.Parcelize
 
 @Parcelize
 data class PodcastDetailsParams(

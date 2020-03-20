@@ -1,4 +1,4 @@
-package io.radio.shared.presentation.viewmodel.factory
+package io.radio.shared.common.viewmodel.factory
 
 import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory

@@ -1,4 +1,4 @@
-package io.radio.shared.presentation
+package io.radio.shared.common
 
 sealed class State<out T: Any> {
 

@@ -6,8 +6,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import io.radio.presentation.podcast.details.PodcastDetailsViewModel
-import io.radio.shared.presentation.viewmodel.ViewModelKey
-import io.radio.shared.presentation.viewmodel.factory.AssistedSavedStateViewModelFactory
+import io.radio.shared.common.viewmodel.ViewModelKey
+import io.radio.shared.common.viewmodel.factory.AssistedSavedStateViewModelFactory
 
 @AssistedModule
 @Module(includes = [AssistedInject_AssistedViewModelsModule::class])

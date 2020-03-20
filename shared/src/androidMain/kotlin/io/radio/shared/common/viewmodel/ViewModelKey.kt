@@ -1,4 +1,4 @@
-package io.radio.shared.presentation.viewmodel
+package io.radio.shared.common.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey

@@ -5,9 +5,9 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import io.radio.presentation.home.HomeViewModel
-import io.radio.presentation.podcast.PodcastsViewModel
 import io.radio.presentation.station.StationsViewModel
-import io.radio.shared.presentation.viewmodel.ViewModelKey
+import io.radio.shared.common.viewmodel.ViewModelKey
+import io.radio.shared.presentation.podcast.PodcastsViewModel
 
 @Module
 abstract class ViewModelsModule {

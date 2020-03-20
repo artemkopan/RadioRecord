@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import dagger.Lazy
 import io.radio.shared.common.MainDispatcher
 import io.radio.shared.common.lazyNonSafety
-import io.radio.shared.presentation.viewmodel.factory.InjectingSavedStateViewModelFactory
+import io.radio.shared.common.viewmodel.factory.InjectingSavedStateViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren

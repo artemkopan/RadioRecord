@@ -7,7 +7,7 @@ import io.radio.R
 import io.radio.di
 import io.radio.presentation.home.postScrolledFraction
 import io.radio.shared.common.Logger
-import io.radio.shared.presentation.State
+import io.radio.shared.common.State
 import io.radio.shared.presentation.fragment.BaseFragment
 import io.radio.shared.presentation.view.SizeScrollOffsetListener
 import io.radio.shared.presentation.view.addScrollOffsetListener

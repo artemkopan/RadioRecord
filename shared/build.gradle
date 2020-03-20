@@ -2,6 +2,8 @@ apply plugin: 'org.jetbrains.kotlin.multiplatform'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android-extensions'
+
 
 // It is necessary because we need to have access to context on CommonCode to use SQLDelight database
 android {
@@ -16,6 +18,10 @@ android {
         release {
             minifyEnabled false
         }
+    }
+
+    androidExtensions {
+        experimental = true
     }
 
     // By default the android gradle plugin expects to find the kotlin source files in
@@ -41,30 +47,10 @@ android {
 
 
 kotlin {
-    targets {
-        // iPhone simulator    : presets.iosX64
-        // real iDevice 32 bit : presets.iosArm32
-        // real iDevice 64 bit : presets.iosArm64
-//        def iosPreset = presets.iosX64
 
-//        fromPreset(iosPreset, 'ios') {
-//            binaries {
-//                framework {
-//                    // Disable bitcode embedding for the simulator build.
-//                    if (iosPreset == presets.iosX64) {
-//                        embedBitcode("disable")
-//                    }
-//                }
-//            }
-//            //compilations.main.outputKinds('FRAMEWORK')
-//            compilations.each {
-//                it.extraOpts("-linkerOpts", "-lsqlite3")
-//            }
-//        }
+    android()
+//    ios()
 
-        fromPreset(presets.android, 'android')
-
-    }
 
     sourceSets {
         commonMain.dependencies {

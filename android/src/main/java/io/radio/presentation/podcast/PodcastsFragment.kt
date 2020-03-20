@@ -12,10 +12,10 @@ import io.radio.di
 import io.radio.presentation.home.postScrolledFraction
 import io.radio.presentation.routeDetails
 import io.radio.shared.common.*
-import io.radio.shared.presentation.State
 import io.radio.shared.presentation.fragment.BaseFragment
 import io.radio.shared.presentation.imageloader.ImageLoaderParams
 import io.radio.shared.presentation.imageloader.loadImageDrawable
+import io.radio.shared.presentation.podcast.PodcastsViewModel
 import io.radio.shared.presentation.view.SizeScrollOffsetListener
 import io.radio.shared.presentation.view.addScrollOffsetListener
 import io.radio.shared.presentation.view.updateScrollOffsetListener
