@@ -26,6 +26,8 @@ class MotionLayoutStateManager(
                     is Set -> motionLayout.setTransition(it.beginId, it.endId)
                     is ToState -> motionLayout.transitionToState(it.stateId)
                     is Progress -> motionLayout.progress = it.progress
+                    ToStart -> motionLayout.transitionToStart()
+                    ToEnd -> motionLayout.transitionToEnd()
                 }
             }
         }
@@ -50,5 +52,7 @@ sealed class MotionCommand {
     class Await(@IdRes val transitionId: Int) : MotionCommand()
     class Set(@IdRes val beginId: Int, @IdRes val endId: Int) : MotionCommand()
     class ToState(@IdRes val stateId: Int) : MotionCommand()
+    object ToStart : MotionCommand()
+    object ToEnd : MotionCommand()
     class Progress(@FloatRange(from = 0.0, to = 1.0) val progress: Float) : MotionCommand()
 }

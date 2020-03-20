@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: "androidx.navigation.safeargs.kotlin"
+
 
 android {
     compileSdkVersion 29
@@ -51,6 +53,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$android_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$android_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$android_lifecycle_version"
+    implementation "androidx.palette:palette:$android_palette_version"
 
     implementation "androidx.navigation:navigation-fragment-ktx:$android_nav_version"
     implementation "androidx.navigation:navigation-ui:$android_nav_version"

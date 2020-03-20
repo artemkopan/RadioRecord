@@ -3,13 +3,18 @@
 
     <dimen name="default_margin">16dp</dimen>
     <dimen name="searchIconSize">32dp</dimen>
-    <dimen name="item_preview_small_size">62dp</dimen>
-    <dimen name="item_margin">8dp</dimen>
+    <dimen name="itemPreviewSmallSize">62dp</dimen>
+    <dimen name="itemMargin">8dp</dimen>
 
-    <dimen name="indicator_width_selected">16dp</dimen>
-    <dimen name="indicator_size">8dp</dimen>
-    <dimen name="indicator_size_neg">-8dp</dimen> <!--used for motion layout animation-->
-    <dimen name="indicator_margin">2dp</dimen>
-    <dimen name="anim_title_translation">@dimen/indicator_size</dimen>
+    <dimen name="indicatorWidthSelected">16dp</dimen>
+    <dimen name="indicatorSize">8dp</dimen>
+    <dimen name="indicatorSizeNeg">-8dp</dimen> <!--used for motion layout animation-->
+    <dimen name="indicatorMargin">2dp</dimen>
+    <dimen name="animTitleTranslation">@dimen/indicatorSize</dimen>
+
+    <dimen name="headerElevationOffset">24dp</dimen>
+
+    <dimen name="podcastDetailsHeaderHeight">196dp</dimen>
+    <dimen name="podcastDetailsCornerSize">46dp</dimen>
 
 </resources>

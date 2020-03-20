@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<io.radio.shared.presentation.view.MultiListenerMotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootLayout"
@@ -10,51 +10,7 @@
     app:layoutDescription="@xml/fragment_home_scene"
     tools:ignore="MissingConstraints">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/searchButton"
-        android:layout_width="@dimen/searchIconSize"
-        android:layout_height="@dimen/searchIconSize"
-        android:layout_marginEnd="@dimen/default_margin"
-        app:layout_constraintBottom_toBottomOf="@id/stationsTitleView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/stationsTitleView"
-        app:srcCompat="@drawable/ic_search" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/stationsTitleView"
-        style="@style/Widget.Home.Title"
-        android:text="@string/stations"
-        app:layout_constraintEnd_toStartOf="@id/searchButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/podcastsTitleView"
-        style="@style/Widget.Home.Title"
-        android:alpha="0"
-        android:text="@string/podcasts"
-        app:layout_constraintEnd_toStartOf="@id/searchButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/circleIndicatorsStations"
-        style="@style/Widget.Home.CircleIndicator"
-        android:layout_width="@dimen/indicator_width_selected"
-        android:layout_marginStart="@dimen/default_margin"
-        android:layout_marginTop="@dimen/item_margin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/stationsTitleView"
-        tools:alpha="1" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/circleIndicatorsPodcasts"
-        style="@style/Widget.Home.CircleIndicator"
-        android:layout_marginStart="@dimen/indicator_margin"
-        app:layout_constraintStart_toEndOf="@id/circleIndicatorsStations"
-        app:layout_constraintTop_toTopOf="@id/circleIndicatorsStations"
-        tools:alpha="1" />
+    <include layout="@layout/include_home_header" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pagerView"
@@ -64,7 +20,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/circleIndicatorsStations" />
+        app:layout_constraintTop_toBottomOf="@+id/headerLayout" />
+
+    <View
+        android:id="@+id/pagerElevation"
+        style="@style/Widget.Shadow"
+        android:layout_marginTop="@dimen/default_margin"
+        android:alpha="0"
+        android:stateListAnimator="@animator/view_shadow_states"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+        tools:alpha="1" />
 
 
-</io.radio.shared.presentation.view.MultiListenerMotionLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

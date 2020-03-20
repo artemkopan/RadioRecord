@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.radio.shared.presentation.fragment
 
 import android.os.Bundle
@@ -68,5 +70,7 @@ open class BaseFragment : Fragment {
         }
     }
 
-
 }
+
+inline fun BaseFragment.popBack() = requireActivity().onBackPressedDispatcher.onBackPressed()
+

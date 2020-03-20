@@ -3,10 +3,13 @@
 package io.radio.shared.presentation.imageloader
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Size
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.engine.GlideException
@@ -18,14 +21,28 @@ import io.radio.shared.common.Logger
 import io.radio.shared.presentation.imageloader.ImageLoaderParams.Scale.*
 import java.io.File
 
-
 @SuppressLint("CheckResult")
 fun ImageView.loadImage(
     source: Any,
     params: ImageLoaderParams = defaultParams
 ) {
+    context.loadImage(source, params).into(this)
+}
 
-    val creator = Glide.with(context)
+fun Context.loadImageDrawable(
+    source: Any,
+    params: ImageLoaderParams = defaultParams,
+    size: Size
+): Drawable {
+    return loadImage(source, params).submit(size.width, size.height).get()
+}
+
+fun Context.loadImage(
+    source: Any,
+    params: ImageLoaderParams = defaultParams
+): RequestBuilder<Drawable> {
+
+    val creator = Glide.with(this)
         .run {
             when (source) {
                 is File -> load(source)
@@ -54,20 +71,39 @@ fun ImageView.loadImage(
         creator.override(params.resize.width, params.resize.height)
     }
 
-    when (params.scale) {
-        CenterCrop -> creator.centerCrop()
-        CenterInside -> creator.centerInside()
-        None -> {
-            /*no-op*/
+
+    val transformations: List<BitmapTransformation>
+
+    if (params.transformations.isEmpty()) {
+        when (params.scale) {
+            CenterCrop -> creator.centerCrop()
+            CenterInside -> creator.centerInside()
+            None -> {
+                /*no-op*/
+            }
         }
+        transformations = emptyList()
+    } else {
+        transformations = mutableListOf<BitmapTransformation>()
+            .apply {
+                when (params.scale) {
+                    CenterCrop -> add(com.bumptech.glide.load.resource.bitmap.CenterCrop())
+                    CenterInside -> add(com.bumptech.glide.load.resource.bitmap.CenterInside())
+                    None -> {
+                        //no-op
+                    }
+                }
+                addAll(params.transformations.map { it.bitmapTransformation })
+            }
     }
 
+
     when {
-        params.transformations.size == 1 -> {
-            creator.transform(params.transformations.first().bitmapTransformation)
+        transformations.size == 1 -> {
+            creator.transform(transformations.first())
         }
-        params.transformations.size > 1 -> {
-            creator.transform(MultiTransformation(params.transformations.map { it.bitmapTransformation }))
+        transformations.size > 1 -> {
+            creator.transform(MultiTransformation(transformations))
         }
     }
 
@@ -104,8 +140,10 @@ fun ImageView.loadImage(
         creator.onlyRetrieveFromCache(true)
     }
     callbackWrapper?.let { creator.addListener(it) }
-    creator.into(this)
+
+    return creator
 }
+
 
 val defaultParams = ImageLoaderParams()
 

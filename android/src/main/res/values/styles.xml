@@ -9,6 +9,7 @@
         <item name="colorAccentInactive">@color/colorAccentInactive</item>
         <item name="android:windowBackground">@android:color/white</item>
 
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
 
@@ -36,11 +37,23 @@
     </style>
 
     <style name="Widget.Home.CircleIndicator">
-        <item name="android:layout_width">@dimen/indicator_size</item>
-        <item name="android:layout_height">@dimen/indicator_size</item>
+        <item name="android:layout_width">@dimen/indicatorSize</item>
+        <item name="android:layout_height">@dimen/indicatorSize</item>
         <item name="srcCompat">@drawable/sh_indicator</item>
-        <item name="android:alpha">0</item>
     </style>
 
+    <style name="Widget.Shadow">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">10dp</item>
+        <item name="android:background">@drawable/bg_shadow_bottom</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.PodcastDetails.HeaderBackground" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">@dimen/podcastDetailsCornerSize</item>
+    </style>
 
 </resources>

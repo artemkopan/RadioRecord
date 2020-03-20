@@ -4,11 +4,12 @@ import android.R.attr.angle
 import android.graphics.*
 import androidx.annotation.ColorInt
 import androidx.palette.graphics.Palette
+import com.bumptech.glide.load.Key
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.util.Util
+import io.radio.shared.common.getDarkerColor
 import io.radio.shared.presentation.imageloader.ImageTransformation
-import java.nio.ByteBuffer
 import java.security.MessageDigest
 
 
@@ -29,18 +30,10 @@ class ShadowTransformation private constructor(
         get() = this
 
     override fun updateDiskCacheKey(messageDigest: MessageDigest) {
-        val floatCapacity = java.lang.Float.SIZE / java.lang.Byte.SIZE
-        val intCapacity = Integer.SIZE / java.lang.Byte.SIZE
-        val longCapacity = java.lang.Long.SIZE
-
-        val messages: ArrayList<ByteArray> = ArrayList()
-        messages.add(ID_BYTES)
-        messages.add(ByteBuffer.allocate(floatCapacity).putFloat(shadowParams.radius).array())
-        messages.add(ByteBuffer.allocate(floatCapacity).putFloat(elevation).array())
-        messages.add(ByteBuffer.allocate(intCapacity).putInt(angle).array())
-        messages.add(ByteBuffer.allocate(intCapacity).putInt(shadowColor).array())
-        messages.add(ByteBuffer.allocate(longCapacity).putLong(System.currentTimeMillis()).array())
-        messages.forEach { messageDigest.update(it) }
+        messageDigest.update(
+            (ID + elevation + shadowParams + shadowMargins + roundCornerRadius + color + defaultColor)
+                .toByteArray(Key.CHARSET)
+        )
     }
 
     override fun transform(
@@ -85,12 +78,6 @@ class ShadowTransformation private constructor(
         canvas.drawRoundRect(shadowRectF, roundCornerRadius, roundCornerRadius, shadowPaint)
         canvas.drawBitmap(source, null, bitmapRectF, null)
 
-
-        //todo add pool
-//        if (source != bitmap) {
-//            pool.put(bitmap)
-//        }
-
         return bitmap
     }
 
@@ -100,14 +87,6 @@ class ShadowTransformation private constructor(
         } else {
             color
         }
-    }
-
-    private fun getDarkerColor(color: Int): Int {
-        val hsv = FloatArray(3)
-        Color.colorToHSV(color, hsv)
-        hsv[1] = hsv[1] + 0.1f
-        hsv[2] = hsv[2] - 0.1f
-        return Color.HSVToColor(hsv)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -154,7 +133,6 @@ class ShadowTransformation private constructor(
         const val AUTO_DETECT = -1
 
         private const val ID = "io.radio.shared.presentation.imageloader.transformations.Shadow"
-        private val ID_BYTES = ID.toByteArray()
 
         fun create(
             elevation: Float,

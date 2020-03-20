@@ -15,9 +15,10 @@ import io.radio.shared.presentation.imageloader.transformations.ShadowTransforma
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_station.*
 
-class PodcastsAdapter : ListAdapter<RadioPodcast, PodcastsAdapter.PodcastHolder>(
-    Diff
-) {
+class PodcastsAdapter(private val onClickEvent: (RadioPodcast) -> Unit) :
+    ListAdapter<RadioPodcast, PodcastsAdapter.PodcastHolder>(
+        Diff
+    ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PodcastHolder {
         return PodcastHolder(
@@ -27,6 +28,7 @@ class PodcastsAdapter : ListAdapter<RadioPodcast, PodcastsAdapter.PodcastHolder>
 
     override fun onBindViewHolder(holder: PodcastHolder, position: Int) {
         holder.bind(getItem(position))
+        holder.itemView.setOnClickListener { onClickEvent(getItem(holder.adapterPosition)) }
     }
 
     class PodcastHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),

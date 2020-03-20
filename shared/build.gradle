@@ -114,7 +114,7 @@ kotlin {
             implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$android_lifecycle_version"
             implementation "androidx.recyclerview:recyclerview:$android_recycler_version"
             implementation "androidx.constraintlayout:constraintlayout:$android_constraint_version"
-            implementation "androidx.palette:palette:1.0.0"
+            implementation "androidx.palette:palette:$android_palette_version"
             implementation "com.google.android.material:material:$android_material_version"
 
             implementation ("com.github.bumptech.glide:glide:4.11.0") {

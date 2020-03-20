@@ -1,9 +1,10 @@
 package io.radio.shared.presentation.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.radio.shared.presentation.State
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.sendBlocking
 
 open class BaseViewModel : ViewModel() {
 
@@ -15,9 +16,10 @@ open class BaseViewModel : ViewModel() {
     }
 
 
-    protected inline fun <T : Any> MutableLiveData<State<T>>.launch(crossinline onLoad: suspend () -> T) =
-        scope.launch(CoroutineExceptionHandler { _, throwable -> value = State.Fail(throwable) }) {
-            value = State.Loading
-            value = State.Success(onLoad())
+    protected inline fun <T : Any> SendChannel<State<T>>.perform(crossinline onLoad: suspend () -> T) {
+        sendBlocking(State.Loading)
+        scope.launch(CoroutineExceptionHandler { _, throwable -> sendBlocking(State.Fail(throwable)) }) {
+            sendBlocking(State.Success(onLoad()))
         }
+    }
 }
