@@ -5,7 +5,10 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import io.radio.di.DaggerRadioComponent
 import io.radio.di.RadioComponent
+import io.radio.presentation.presentationModule
 import io.radio.shared.common.Logger
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 import timber.log.Timber
 
 class RadioApp : Application() {
@@ -20,6 +23,11 @@ class RadioApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        startKoin {
+            androidContext(this@RadioApp)
+            modules(presentationModule)
+        }
+
         Timber.plant(Timber.DebugTree())
         Logger.addPrinter(object : Logger.Printer {
             override fun log(priority: Int, tag: String, message: String, t: Throwable?) {

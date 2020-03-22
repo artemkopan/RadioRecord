@@ -109,7 +109,8 @@ kotlin {
             // DI
             implementation "com.google.dagger:dagger:$android_dagger_version"
             compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$android_dagger_assisted_version"
-
+            api "org.koin:koin-core:$android_koin_version"
+            api "org.koin:koin-android:$android_koin_version"
         }
 
         iosMain.dependencies {
