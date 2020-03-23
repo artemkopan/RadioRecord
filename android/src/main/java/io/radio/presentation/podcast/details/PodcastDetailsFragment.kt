@@ -7,20 +7,28 @@ import androidx.core.view.doOnPreDraw
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.google.android.material.circularreveal.CircularRevealCompat
 import io.radio.R
-import io.radio.shared.presentation.fragment.BaseFragment
-import io.radio.shared.presentation.fragment.popBack
-import io.radio.shared.presentation.imageloader.ImageLoaderParams
-import io.radio.shared.presentation.imageloader.Resize
-import io.radio.shared.presentation.imageloader.loadImage
-import io.radio.shared.presentation.imageloader.transformations.BlurTransformation
-import io.radio.shared.presentation.imageloader.transformations.GranularRoundedCornersTransformation
+import io.radio.shared.base.Logger
+import io.radio.shared.base.fragment.BaseFragment
+import io.radio.shared.base.fragment.popBack
+import io.radio.shared.base.viewmodel.koin.getStateViewModel
+import io.radio.shared.imageloader.ImageLoaderParams
+import io.radio.shared.imageloader.Resize
+import io.radio.shared.imageloader.loadImage
+import io.radio.shared.imageloader.transformations.BlurTransformation
+import io.radio.shared.imageloader.transformations.GranularRoundedCornersTransformation
+import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
 import kotlinx.android.synthetic.main.fragment_podcast_details.*
+import org.koin.android.ext.android.getKoin
 
 class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         postponeEnterTransition()
+
+        val stateViewModel =
+            getKoin().getStateViewModel<PodcastDetailsViewModel>(this, bundle = requireArguments())
+        Logger.d(stateViewModel.toString())
     }
 
 
@@ -55,7 +63,10 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                 ImageLoaderParams(
                     animate = ImageLoaderParams.Animation.CrossFade,
                     scale = ImageLoaderParams.Scale.CenterCrop,
-                    resize = Resize(it.width, it.height),
+                    resize = Resize(
+                        it.width,
+                        it.height
+                    ),
                     transformations = listOf(
                         BlurTransformation.create(
                             requireContext(),

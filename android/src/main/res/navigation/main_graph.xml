@@ -23,7 +23,7 @@
         tools:layout="@layout/fragment_podcast_details" >
         <argument
             android:name="params"
-            app:argType="io.radio.shared.presentation.podcast.PodcastDetailsParams" />
+            app:argType="io.radio.shared.presentation.podcast.details.PodcastDetailsParams" />
     </fragment>
 
 

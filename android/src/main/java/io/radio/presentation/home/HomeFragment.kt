@@ -4,19 +4,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2
 import io.radio.R
-import io.radio.di
-import io.radio.shared.presentation.fragment.BaseFragment
+import io.radio.shared.base.fragment.BaseFragment
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.include_home_header.*
 
 class HomeFragment : BaseFragment(R.layout.fragment_home), HomePagerContentScroller {
-
-    private val viewModel: HomeViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        di { inject(this@HomeFragment) }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

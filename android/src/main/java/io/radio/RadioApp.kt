@@ -1,31 +1,19 @@
 package io.radio
 
 import android.app.Application
-import android.content.Context
-import androidx.fragment.app.Fragment
-import io.radio.di.DaggerRadioComponent
-import io.radio.di.RadioComponent
-import io.radio.presentation.presentationModule
-import io.radio.shared.common.Logger
+import io.radio.di.*
+import io.radio.shared.base.Logger
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
 class RadioApp : Application() {
 
-    val component: RadioComponent by lazy {
-        DaggerRadioComponent.builder()
-            .application(this)
-            .context(this)
-            .resources(resources)
-            .build()
-    }
-
     override fun onCreate() {
         super.onCreate()
         startKoin {
             androidContext(this@RadioApp)
-            modules(presentationModule)
+            modules(dataModule, networkModule, mappersModule, repositoryModule, presentationModule)
         }
 
         Timber.plant(Timber.DebugTree())
@@ -36,12 +24,4 @@ class RadioApp : Application() {
         })
     }
 
-}
-
-fun Fragment.di(func: RadioComponent.() -> Unit) {
-    requireContext().di(func)
-}
-
-fun Context.di(func: RadioComponent.() -> Unit) {
-    func((applicationContext as RadioApp).component)
 }

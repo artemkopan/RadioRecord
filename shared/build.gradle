@@ -91,9 +91,6 @@ kotlin {
             // SQL Delight
             implementation "com.squareup.sqldelight:android-driver:$sqldelight_version"
 
-            // INJECT
-            implementation("javax.inject:javax.inject:$android_injecx_version")
-
             // ANDROIDX
             implementation "androidx.fragment:fragment-ktx:$android_fragment_version"
             implementation "androidx.lifecycle:lifecycle-viewmodel:$android_lifecycle_version"
@@ -106,9 +103,8 @@ kotlin {
             implementation ("com.github.bumptech.glide:glide:4.11.0") {
                 exclude group: "com.android.support"
             }
+
             // DI
-            implementation "com.google.dagger:dagger:$android_dagger_version"
-            compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:$android_dagger_assisted_version"
             api "org.koin:koin-core:$android_koin_version"
             api "org.koin:koin-android:$android_koin_version"
         }

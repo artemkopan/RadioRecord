@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.radio.R
+import io.radio.shared.imageloader.ImageLoaderParams
+import io.radio.shared.imageloader.loadImage
+import io.radio.shared.imageloader.transformations.RoundedCornersTransformation
+import io.radio.shared.imageloader.transformations.ShadowTransformation
 import io.radio.shared.model.RadioPodcast
-import io.radio.shared.presentation.imageloader.ImageLoaderParams
-import io.radio.shared.presentation.imageloader.loadImage
-import io.radio.shared.presentation.imageloader.transformations.RoundedCornersTransformation
-import io.radio.shared.presentation.imageloader.transformations.ShadowTransformation
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_station.*
 
@@ -41,11 +41,19 @@ class PodcastsAdapter(private val onClickEvent: (RadioPodcast) -> Unit) :
                     scale = ImageLoaderParams.Scale.CenterCrop,
                     animate = ImageLoaderParams.Animation.CrossFade,
                     transformations = listOf(
-                        RoundedCornersTransformation(roundingRadius = 20),
+                        RoundedCornersTransformation(
+                            roundingRadius = 20
+                        ),
                         ShadowTransformation.create(
                             elevation = 40f,
-                            shadowParams = ShadowTransformation.ShadowParams(20f, dy = 10f),
-                            shadowMargins = ShadowTransformation.Margins(left = 20f, right = 20f),
+                            shadowParams = ShadowTransformation.ShadowParams(
+                                20f,
+                                dy = 10f
+                            ),
+                            shadowMargins = ShadowTransformation.Margins(
+                                left = 20f,
+                                right = 20f
+                            ),
                             roundCornerRadius = 20f
                         )
                     )
