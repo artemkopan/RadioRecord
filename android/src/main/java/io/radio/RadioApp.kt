@@ -13,7 +13,14 @@ class RadioApp : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@RadioApp)
-            modules(dataModule, networkModule, mappersModule, repositoryModule, presentationModule)
+            modules(
+                dataModule,
+                networkModule,
+                mappersModule,
+                repositoryModule,
+                domainModule,
+                presentationModule
+            )
         }
 
         Timber.plant(Timber.DebugTree())

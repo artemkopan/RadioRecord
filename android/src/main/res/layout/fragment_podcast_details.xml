@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?colorPrimarySurface">
 
     <com.google.android.material.circularreveal.cardview.CircularRevealCardView
         android:id="@+id/podcastDetailsHeader"
@@ -32,10 +33,62 @@
         android:fitsSystemWindows="true"
         android:outlineProvider="none"
         android:translationZ="12dp"
+        app:contentInsetStartWithNavigation="@dimen/defaultMargin"
         app:elevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_left_arrow" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/podcastDetailsTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/defaultMargin"
+        android:outlineProvider="none"
+        android:shadowColor="?colorAccent"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1"
+        android:textAppearance="?textAppearanceHeadline6"
+        android:translationZ="@dimen/translationZ"
+        app:fontFamily="@font/montserrat_semi_bold"
+        app:layout_constraintBottom_toBottomOf="@id/podcastDetailsCoverView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/podcastDetailsCoverView"
+        app:layout_constraintTop_toTopOf="@id/podcastDetailsCoverView"
+        app:layout_constraintVertical_bias="0.2"
+        tools:text="Some Radion Station" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/podcastTracksRecycler"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/defaultMargin"
+        android:layout_marginEnd="@dimen/defaultMargin"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/podcastDetailsTracksPaddingTop"
+        android:paddingBottom="@dimen/podcastDetailsTracksPaddingBottom"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/podcastDetailsHeader"
+        tools:listitem="@layout/item_track" />
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/podcastDetailsCoverView"
+        android:layout_width="@dimen/podcastDetailsCoverSize"
+        android:layout_height="@dimen/podcastDetailsCoverSize"
+        android:layout_marginTop="@dimen/podcastDetailsCoverMarginTop"
+        android:outlineProvider="none"
+        android:transitionName="cover_view"
+        android:translationX="@dimen/podcastDetailsCoverTranslationX"
+        android:translationZ="@dimen/translationZ"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/podcastDetailsHeader"
+        tools:src="@tools:sample/avatars" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

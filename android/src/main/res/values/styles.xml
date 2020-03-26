@@ -29,8 +29,8 @@
     <style name="Widget.Home.Title">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">@dimen/default_margin</item>
-        <item name="android:layout_marginTop">@dimen/default_margin</item>
+        <item name="android:layout_marginStart">@dimen/defaultMargin</item>
+        <item name="android:layout_marginTop">@dimen/defaultMargin</item>
         <item name="android:textAppearance">?textAppearanceHeadline5</item>
         <item name="android:textColor">?android:textColorPrimary</item>
         <item name="fontFamily">@font/montserrat_semi_bold</item>
@@ -53,7 +53,7 @@
         <item name="cornerSizeTopLeft">0dp</item>
         <item name="cornerSizeTopRight">0dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
-        <item name="cornerSizeBottomRight">@dimen/podcastDetailsCornerSize</item>
+        <item name="cornerSizeBottomRight">@dimen/podcastDetailsHeaderCornerSize</item>
     </style>
 
 </resources>

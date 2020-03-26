@@ -5,10 +5,10 @@ import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.State
 import io.radio.shared.base.toEvent
 import io.radio.shared.base.viewmodel.ViewModel
-import io.radio.shared.data.AppResources
-import io.radio.shared.data.image.ImageLightness
-import io.radio.shared.data.image.ImageProcessor
-import io.radio.shared.data.repositories.station.RadioRepository
+import io.radio.shared.domain.image.ImageLightness
+import io.radio.shared.domain.image.ImageProcessor
+import io.radio.shared.domain.repositories.station.RadioRepository
+import io.radio.shared.domain.resources.AppResources
 import io.radio.shared.model.RadioPodcast
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -38,9 +38,11 @@ class PodcastsViewModel constructor(
             withContext(IoDispatcher) {
                 val image = imageProcessor.getImage(podcast.cover, 100, 100)
                 val palette = imageProcessor.generatePalette(image)
+                val isDark = imageProcessor.getLightness(palette) == ImageLightness.Dark
 
                 PodcastDetailsParams(
                     podcast.id,
+                    podcast.name,
                     podcast.cover,
                     imageProcessor.getDarkerColor(
                         imageProcessor.getDominantColor(
@@ -48,7 +50,7 @@ class PodcastsViewModel constructor(
                             appResources.accentColor
                         )
                     ),
-                    if (imageProcessor.getLightness(palette) == ImageLightness.Dark) {
+                    if (isDark) {
                         appResources.primaryColor
                     } else {
                         appResources.accentColor

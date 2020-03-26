@@ -8,7 +8,16 @@ import org.koin.dsl.module
 
 val presentationModule = module {
 
-    factory { (params: ViewModelParams) -> PodcastDetailsViewModel(params) }
+    factory { (params: ViewModelParams) ->
+        PodcastDetailsViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            params
+        )
+    }
 
     factory { PodcastsViewModel(get(), get(), get()) }
     factory { StationsViewModel(get()) }

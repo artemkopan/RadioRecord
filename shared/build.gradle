@@ -44,13 +44,20 @@ android {
     }
 }
 
-
+kotlin.sourceSets.all {
+    languageSettings {
+        enableLanguageFeature("InlineClasses")
+        useExperimentalAnnotation 'kotlin.contracts.ExperimentalContracts'
+        useExperimentalAnnotation 'kotlinx.coroutines.ExperimentalCoroutinesApi'
+        useExperimentalAnnotation 'kotlinx.coroutines.ObsoleteCoroutinesApi'
+        useExperimentalAnnotation 'kotlin.time.ExperimentalTime'
+    }
+}
 
 kotlin {
 
     android()
 //    ios()
-
 
     sourceSets {
         commonMain.dependencies {
@@ -94,13 +101,14 @@ kotlin {
             // ANDROIDX
             implementation "androidx.fragment:fragment-ktx:$android_fragment_version"
             implementation "androidx.lifecycle:lifecycle-viewmodel:$android_lifecycle_version"
+            implementation "androidx.lifecycle:lifecycle-common-java8:$android_lifecycle_version"
             implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$android_lifecycle_version"
             implementation "androidx.recyclerview:recyclerview:$android_recycler_version"
             implementation "androidx.constraintlayout:constraintlayout:$android_constraint_version"
             implementation "androidx.palette:palette:$android_palette_version"
             implementation "com.google.android.material:material:$android_material_version"
 
-            implementation ("com.github.bumptech.glide:glide:4.11.0") {
+            implementation("com.github.bumptech.glide:glide:4.11.0") {
                 exclude group: "com.android.support"
             }
 
@@ -146,7 +154,6 @@ kotlin {
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializer_version"
             }
         }
-
     }
 }
 

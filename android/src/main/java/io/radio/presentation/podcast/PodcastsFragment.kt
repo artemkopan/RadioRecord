@@ -3,6 +3,9 @@ package io.radio.presentation.podcast
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.navigation.Navigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import com.google.android.material.transition.Hold
 import io.radio.R
 import io.radio.presentation.home.postScrolledFraction
 import io.radio.presentation.routeDetails
@@ -17,18 +20,27 @@ import io.radio.shared.view.updateScrollOffsetListener
 import kotlinx.android.synthetic.main.fragment_podcasts.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
 
     private val viewModel: PodcastsViewModel by viewModels()
+    private var selectedExtra: WeakReference<Navigator.Extras>? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        exitTransition = Hold()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val podcastsAdapter = PodcastsAdapter {
-            viewModel.onPodcastSelected(it)
+        val podcastsAdapter = PodcastsAdapter(resources) { _, _, pos, item, extra ->
+            (parentFragment as PodcastsSharedElementSupport).setSelectedPos(pos.value)
+            selectedExtra = WeakReference(FragmentNavigatorExtras(extra.asTransitionExtraPair()))
+            viewModel.onPodcastSelected(item)
         }
+
         radioPodcastRecycleView.adapter = podcastsAdapter
         radioPodcastRecycleView.addScrollOffsetListener(
             SizeScrollOffsetListener(
@@ -36,24 +48,21 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
             ) { postScrolledFraction(it) }
         )
 
-        viewModel.openPodcastFlow
-            .onEach {
-                when (it) {
-                    is State.Success -> {
-                        it.result.performContentIfNotHandled { params ->
-                            viewScope.launch {
-                                routeDetails(params)
-                            }
-                        }
-                    }
-                    is State.Fail -> {
-
-                    }
-                    State.Loading -> {
-
+        viewModel.openPodcastFlow.onEach {
+            when (it) {
+                is State.Success -> {
+                    it.result.performContentIfNotHandled { params ->
+                        routeDetails(params, selectedExtra?.get())
                     }
                 }
-            }.launchIn(viewScope)
+                is State.Fail -> {
+
+                }
+                State.Loading -> {
+
+                }
+            }
+        }.launchIn(viewScope)
 
         viewModel.podcastsFlow.onEach {
             Logger.d("Podcasts new state: $it")

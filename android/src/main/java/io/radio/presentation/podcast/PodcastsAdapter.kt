@@ -1,24 +1,37 @@
 package io.radio.presentation.podcast
 
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import io.radio.R
-import io.radio.shared.imageloader.ImageLoaderParams
-import io.radio.shared.imageloader.loadImage
-import io.radio.shared.imageloader.transformations.RoundedCornersTransformation
-import io.radio.shared.imageloader.transformations.ShadowTransformation
+import io.radio.shared.base.extensions.lazyNonSafety
+import io.radio.shared.base.imageloader.CacheStrategy
+import io.radio.shared.base.imageloader.ImageLoaderParams
+import io.radio.shared.base.imageloader.loadImage
+import io.radio.shared.base.imageloader.transformations.RoundedCornersTransformation
+import io.radio.shared.base.imageloader.transformations.ShadowTransformation
+import io.radio.shared.base.recycler.ItemHolder
+import io.radio.shared.base.recycler.plugins.ClickItemAdapterEvent
+import io.radio.shared.base.recycler.plugins.ClickItemAdapterPlugin
 import io.radio.shared.model.RadioPodcast
-import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_station.*
 
-class PodcastsAdapter(private val onClickEvent: (RadioPodcast) -> Unit) :
-    ListAdapter<RadioPodcast, PodcastsAdapter.PodcastHolder>(
-        Diff
-    ) {
+class PodcastsAdapter(
+    private val resources: Resources,
+    onClickEvent: ClickItemAdapterEvent<RadioPodcast>
+) : ListAdapter<RadioPodcast, PodcastsAdapter.PodcastHolder>(Diff) {
+
+    private val roundingCorner by lazyNonSafety {
+        resources.getDimensionPixelSize(R.dimen.itemCornerRadius)
+    }
+
+    private val clickPlugin =
+        ClickItemAdapterPlugin<RadioPodcast>(
+            onClickEvent
+        ) { getItem(it) }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PodcastHolder {
         return PodcastHolder(
@@ -28,33 +41,37 @@ class PodcastsAdapter(private val onClickEvent: (RadioPodcast) -> Unit) :
 
     override fun onBindViewHolder(holder: PodcastHolder, position: Int) {
         holder.bind(getItem(position))
-        holder.itemView.setOnClickListener { onClickEvent(getItem(holder.adapterPosition)) }
+        holder.stationPreviewImage.transitionName = "preview_$position"
+        clickPlugin.bindOnClickListener(
+            holder,
+            holder.itemView,
+            extras = holder.stationPreviewImage to holder.stationPreviewImage.transitionName
+        )
     }
 
-    class PodcastHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),
-        LayoutContainer {
+    inner class PodcastHolder(override val containerView: View) : ItemHolder<RadioPodcast>(containerView) {
 
-        fun bind(item: RadioPodcast) {
+        override fun bind(item: RadioPodcast, payloads: List<Any>) {
             stationPreviewImage.loadImage(
                 item.cover,
                 ImageLoaderParams(
+                    cacheStrategy = CacheStrategy.All,
                     scale = ImageLoaderParams.Scale.CenterCrop,
-                    animate = ImageLoaderParams.Animation.CrossFade,
                     transformations = listOf(
                         RoundedCornersTransformation(
-                            roundingRadius = 20
+                            roundingRadius = roundingCorner
                         ),
                         ShadowTransformation.create(
                             elevation = 40f,
                             shadowParams = ShadowTransformation.ShadowParams(
-                                20f,
+                                roundingCorner.toFloat(),
                                 dy = 10f
                             ),
                             shadowMargins = ShadowTransformation.Margins(
                                 left = 20f,
                                 right = 20f
                             ),
-                            roundCornerRadius = 20f
+                            roundCornerRadius = roundingCorner.toFloat()
                         )
                     )
                 )

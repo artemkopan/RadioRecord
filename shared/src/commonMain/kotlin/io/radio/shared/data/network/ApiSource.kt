@@ -9,6 +9,7 @@ import io.radio.shared.data.network.reponse.DataResultResponse
 import io.radio.shared.data.network.reponse.RadioPodcastDetailsResponse
 import io.radio.shared.data.network.reponse.RadioPodcastResponse
 import io.radio.shared.data.network.reponse.RadioStationResponse
+import io.radio.shared.domain.configs.NetworkConfiguration
 import io.radio.shared.model.RadioPodcast
 import io.radio.shared.model.RadioPodcastDetails
 import io.radio.shared.model.RadioStation

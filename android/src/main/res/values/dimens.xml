@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="default_margin">16dp</dimen>
+    <dimen name="defaultMargin">16dp</dimen>
     <dimen name="searchIconSize">32dp</dimen>
     <dimen name="itemPreviewSmallSize">62dp</dimen>
     <dimen name="itemMargin">8dp</dimen>
+    <dimen name="itemCornerRadius">8dp</dimen>
 
     <dimen name="indicatorWidthSelected">16dp</dimen>
     <dimen name="indicatorSize">8dp</dimen>
@@ -14,7 +15,18 @@
 
     <dimen name="headerElevationOffset">24dp</dimen>
 
+    <dimen name="podcastDetailsHeaderCornerSize">46dp</dimen>
     <dimen name="podcastDetailsHeaderHeight">196dp</dimen>
-    <dimen name="podcastDetailsCornerSize">46dp</dimen>
+    <dimen name="podcastDetailsCoverSize">144dp</dimen>
+    <dimen name="podcastDetailsCoverTranslationX">-24dp</dimen>
+    <dimen name="podcastDetailsCoverMarginTop">80dp</dimen>
+
+    <dimen name="podcastDetailsTracksPaddingTop">24dp</dimen> <!--default margin + extra space -->
+    <dimen name="podcastDetailsTracksPaddingBottom">@dimen/defaultMargin</dimen>
+
+    <dimen name="translationZ">12dp</dimen>
+    <dimen name="itemTrackHeight">64dp</dimen>
+    <dimen name="itemTrackPlayProgressSize">30dp</dimen>
+
 
 </resources>

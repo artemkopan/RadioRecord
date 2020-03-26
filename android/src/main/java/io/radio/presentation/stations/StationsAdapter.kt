@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.radio.R
-import io.radio.shared.imageloader.ImageLoaderParams
-import io.radio.shared.imageloader.loadImage
+import io.radio.shared.base.imageloader.ImageLoaderParams
+import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.model.RadioStation
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_station.*

@@ -2,7 +2,7 @@ package io.radio.shared.presentation.stations
 
 import io.radio.shared.base.State
 import io.radio.shared.base.viewmodel.ViewModel
-import io.radio.shared.data.repositories.station.RadioRepository
+import io.radio.shared.domain.repositories.station.RadioRepository
 import io.radio.shared.model.RadioStation
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow

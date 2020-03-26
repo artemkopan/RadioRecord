@@ -15,7 +15,7 @@ open class BaseFragment : Fragment {
     constructor() : super()
     constructor(contentLayoutId: Int) : super(contentLayoutId)
 
-    protected val viewScope by lazyNonSafety {
+    val viewScope by lazyNonSafety {
         CoroutineScope(SupervisorJob() + MainDispatcher)
     }
 

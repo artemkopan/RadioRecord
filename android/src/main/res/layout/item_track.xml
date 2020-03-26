@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/trackContainerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/itemTrackHeight"
+    android:layout_marginTop="@dimen/itemMargin">
+
+    <io.radio.views.PlayButton
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="@dimen/defaultMargin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/avd_play_to_pause" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/progressBar"
+        android:layout_width="@dimen/itemTrackPlayProgressSize"
+        android:layout_height="@dimen/itemTrackPlayProgressSize"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/titleView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/avd_progress_bar_medium"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/titleView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/itemMargin"
+        android:textAppearance="?textAppearanceSubtitle1"
+        app:fontFamily="@font/montserrat_medium"
+        app:layout_constraintBottom_toTopOf="@+id/subTitleView"
+        app:layout_constraintEnd_toStartOf="@+id/timeView"
+        app:layout_constraintStart_toEndOf="@id/playButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_goneMarginBottom="@dimen/itemMargin"
+        tools:text="Song" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/subTitleView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="@dimen/itemMargin"
+        android:textAppearance="?textAppearanceBody2"
+        app:fontFamily="@font/montserrat_regular"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/timeView"
+        app:layout_constraintStart_toEndOf="@id/playButton"
+        app:layout_constraintTop_toBottomOf="@id/titleView"
+        tools:text="Song" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/timeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/itemMargin"
+        android:textAppearance="?textAppearanceCaption"
+        app:fontFamily="@font/montserrat_light"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/warningIcon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_goneMarginEnd="@dimen/defaultMargin"
+        tools:text="10:45" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/warningIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="@dimen/itemMargin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_error"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

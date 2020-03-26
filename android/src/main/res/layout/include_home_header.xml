@@ -12,7 +12,7 @@
         android:id="@+id/searchButton"
         android:layout_width="@dimen/searchIconSize"
         android:layout_height="@dimen/searchIconSize"
-        android:layout_marginEnd="@dimen/default_margin"
+        android:layout_marginEnd="@dimen/defaultMargin"
         app:layout_constraintBottom_toBottomOf="@id/stationsTitleView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/stationsTitleView"
@@ -39,7 +39,7 @@
         android:id="@+id/circleIndicatorsStations"
         style="@style/Widget.Home.CircleIndicator"
         android:layout_width="@dimen/indicatorWidthSelected"
-        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginStart="@dimen/defaultMargin"
         android:layout_marginTop="@dimen/itemMargin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/stationsTitleView" />
