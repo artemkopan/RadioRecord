@@ -7,6 +7,7 @@ import androidx.navigation.fragment.findNavController
 import io.radio.R
 import io.radio.presentation.podcast.PodcastsFragment
 import io.radio.presentation.podcast.details.PodcastDetailsFragmentArgs
+import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 
 inline fun PodcastsFragment.routeDetails(params: PodcastDetailsParams, extras: Navigator.Extras?) {
@@ -16,4 +17,8 @@ inline fun PodcastsFragment.routeDetails(params: PodcastDetailsParams, extras: N
         null,
         extras
     )
+}
+
+inline fun BaseFragment.routePlayer() {
+    findNavController().navigate(R.id.playerFragment)
 }

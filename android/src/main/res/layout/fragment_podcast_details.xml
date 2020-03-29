@@ -32,12 +32,12 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         android:outlineProvider="none"
-        android:translationZ="12dp"
+        android:translationZ="@dimen/translationZ"
         app:contentInsetStartWithNavigation="@dimen/defaultMargin"
         app:elevation="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_left_arrow" />
+        app:navigationIcon="@drawable/ic_left_arrow_primary" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/podcastDetailsTitle"

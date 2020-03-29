@@ -19,31 +19,42 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoRendererEventListener
 import io.radio.shared.base.Logger
-import io.radio.shared.domain.player.BasePlayerController
-import io.radio.shared.domain.player.PlayerController
+import io.radio.shared.base.extensions.asCoroutineDispatcher
+import io.radio.shared.domain.formatters.TrackFormatter
+import io.radio.shared.domain.player.*
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
 import io.radio.shared.model.TrackSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 
 class AndroidPlayerController(
+    trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase,
+    trackFormatter: TrackFormatter,
     private val context: Context,
-    trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase
-) : BasePlayerController(trackMediaInfoCreatorUseCase), PlayerController {
+    //initialize in constructor for using kotlin interfaces delegate
+    private val handlerThread: HandlerThread = HandlerThread("ExoPlayerThread").also { it.start() },
+    private val scope: CoroutineScope = CoroutineScope(
+        SupervisorJob() + handlerThread.asCoroutineDispatcher("ExoPlayer")
+    ),
+    private val basePlayerController: BasePlayerController = BasePlayerController(
+        scope,
+        trackMediaInfoCreatorUseCase,
+        trackFormatter
+    )
+) : PlayerController by basePlayerController {
 
-    private val handlerThread by lazy {
-        HandlerThread("ExoPlayerThread").also { it.start() }
-    }
-    private val handler = Handler(handlerThread.looper)
-
-    private var _exoPlayer: ExoPlayer? = null
-    private val exoPlayer: ExoPlayer
+    private var _exoPlayer: SimpleExoPlayer? = null
+    private val exoPlayer: SimpleExoPlayer
         get() {
             if (_exoPlayer == null) {
                 _exoPlayer = initPlayer()
@@ -51,22 +62,33 @@ class AndroidPlayerController(
             return _exoPlayer!!
         }
 
-    override val scope: CoroutineScope =
-        CoroutineScope(SupervisorJob() + handler.asCoroutineDispatcher("ExoPlayer"))
-
     init {
-        playerStates.asFlow()
+        basePlayerController.playerActionsFlow
             .onEach {
+                Logger.d("New player action: $it")
                 when (it) {
-                    is PlayerState.Preparing -> consumePreparing(it.source)
-                    PlayerState.Release -> consumeRelease()
-                    PlayerState.Play -> consumePlay()
-                    PlayerState.Pause -> consumePause()
+                    is PlayerAction.Preparing -> consumePreparing(it.source)
+                    PlayerAction.Release -> consumeRelease()
+                    PlayerAction.Play -> consumePlay()
+                    PlayerAction.Pause -> consumePause()
+                    is PlayerAction.SetPosition -> consumeSetPosition(it.positionMs)
+                    is PlayerAction.SeekTo -> consumeSeekTo(it.offsetMs)
                 }
             }
             .launchIn(scope)
+
+        scope.launch {
+            ticker(1000L, 0L, scope.coroutineContext).consumeEach {
+                updateTimeLine()
+            }
+        }
+
     }
 
+    override fun destroy() {
+        basePlayerController.destroy()
+        scope.cancel()
+    }
 
     private fun consumePreparing(trackSource: TrackSource) {
         val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
@@ -101,6 +123,31 @@ class AndroidPlayerController(
         exoPlayer.playWhenReady = false
     }
 
+    private fun updateTimeLine() {
+        _exoPlayer?.let {
+            if (it.playbackState != STATE_READY) {
+                return
+            }
+            basePlayerController.postSideEffects(
+                PlayerSideEffect.TrackPosition(
+                    it.contentPosition.toDuration(DurationUnit.MILLISECONDS),
+                    it.bufferedPosition.toDuration(DurationUnit.MILLISECONDS),
+                    it.contentDuration.toDuration(DurationUnit.MILLISECONDS)
+                )
+            )
+        }
+    }
+
+    private fun consumeSeekTo(offsetMs: Long) {
+        _exoPlayer?.let {
+            it.seekTo(it.currentPosition + offsetMs)
+        }
+    }
+
+    private fun consumeSetPosition(position: Long) {
+        _exoPlayer?.seekTo(position)
+    }
+
     private val eventListener = object : Player.EventListener {
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -109,13 +156,16 @@ class AndroidPlayerController(
                 STATE_READY,
                 STATE_ENDED -> {
                     if (playWhenReady) {
-                        sendPlayTrack()
+                        basePlayerController.postState(PlayerState.PlayTrack)
+                        basePlayerController.postSideEffects(
+                            PlayerSideEffect.MetaData(PlayerMetaData(exoPlayer.audioSessionId))
+                        )
                     } else {
-                        sendPauseTrack()
+                        basePlayerController.postState(PlayerState.PauseTrack)
                     }
                 }
                 STATE_BUFFERING -> {
-                    sendBufferingTrack()
+                    basePlayerController.postState(PlayerState.BufferingTrack)
                 }
                 STATE_IDLE -> {
                     //no-op
@@ -125,15 +175,23 @@ class AndroidPlayerController(
 
         override fun onPlayerError(error: ExoPlaybackException) {
             Logger.e("onPlayerError() called with: error = $error", error)
-            sendError(error)
+            basePlayerController.postState(PlayerState.Error(error))
         }
+
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+            Logger.d("onTimelineChanged() called with: timeline = $timeline, reason = $reason")
+            updateTimeLine()
+        }
+
+        override fun onPositionDiscontinuity(reason: Int) {
+            Logger.d("onPositionDiscontinuity() called with: reason = $reason")
+            updateTimeLine()
+        }
+
     }
 
     private fun initPlayer(): SimpleExoPlayer {
-        val rendersFactory =
-            AudioRenderersFactory(
-                context
-            )
+        val rendersFactory = AudioRenderersFactory(context)
         rendersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF)
 
         val audioAttributes: AudioAttributes = AudioAttributes.Builder()
@@ -141,7 +199,9 @@ class AndroidPlayerController(
             .setContentType(C.CONTENT_TYPE_MUSIC)
             .build()
 
-        val player = SimpleExoPlayer.Builder(context).build()
+        val player = SimpleExoPlayer.Builder(context, rendersFactory)
+            .setLooper(handlerThread.looper)
+            .build()
 
         player.setAudioAttributes(audioAttributes, true)
         player.addListener(eventListener)
@@ -150,6 +210,7 @@ class AndroidPlayerController(
 
 
     private class AudioRenderersFactory(context: Context) : DefaultRenderersFactory(context) {
+
         override fun buildVideoRenderers(
             context: Context,
             extensionRendererMode: Int,

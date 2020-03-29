@@ -1,6 +1,7 @@
 package io.radio.di
 
 import io.radio.shared.base.viewmodel.ViewModelParams
+import io.radio.shared.presentation.player.PlayerViewModel
 import io.radio.shared.presentation.podcast.PodcastsViewModel
 import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
 import io.radio.shared.presentation.stations.StationsViewModel
@@ -21,5 +22,6 @@ val presentationModule = module {
 
     factory { PodcastsViewModel(get(), get(), get()) }
     factory { StationsViewModel(get()) }
+    factory { PlayerViewModel(get(), get(), get(), get()) }
 
 }

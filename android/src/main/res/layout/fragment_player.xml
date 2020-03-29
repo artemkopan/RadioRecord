@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?colorPrimarySurface">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/playerToolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        app:contentInsetStartWithNavigation="@dimen/defaultMargin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ic_left_arrow_accent" />
+
+    <com.chibde.visualizer.CircleBarVisualizer
+        android:id="@+id/playerAudioVisualizer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/playerCoverImage"
+        app:layout_constraintEnd_toEndOf="@id/playerCoverImage"
+        app:layout_constraintStart_toStartOf="@id/playerCoverImage"
+        app:layout_constraintTop_toTopOf="@id/playerCoverImage" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/playerCoverImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/playerSeekBar"
+        app:layout_constraintDimensionRatio="w,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playerToolbar"
+        app:layout_constraintVertical_bias="@dimen/playerCoverVerticalBias"
+        app:layout_constraintWidth_percent="@dimen/playerCoverWidthPercent"
+        tools:scaleType="centerCrop"
+        tools:src="@tools:sample/backgrounds/scenic" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/playerTitleView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/defaultMargin"
+        android:layout_marginTop="@dimen/defaultMargin"
+        android:layout_marginEnd="@dimen/defaultMargin"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        app:fontFamily="@font/montserrat_semi_bold"
+        app:layout_constraintBottom_toTopOf="@+id/playerSubTitleView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playerCoverImage"
+        app:layout_constraintVertical_bias="0.25"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Some title" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/playerSubTitleView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/itemMargin"
+        android:layout_marginBottom="@dimen/itemMargin"
+        android:ellipsize="end"
+        android:gravity="center_horizontal"
+        android:scrollbars="vertical"
+        android:textAppearance="?textAppearanceSubtitle1"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@id/playerCurrentDurationView"
+        app:layout_constraintEnd_toEndOf="@id/playerTitleView"
+        app:layout_constraintStart_toStartOf="@id/playerTitleView"
+        app:layout_constraintTop_toBottomOf="@id/playerTitleView"
+        tools:text="@tools:sample/lorem/random" />
+
+    <io.radio.views.PlayButton
+        android:id="@+id/playerPlayButton"
+        style="@style/Widget.Player.Buttons"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/playerSkipPreviousButton"
+        style="@style/Widget.Player.Buttons.Secondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/playerPlayButton"
+        app:srcCompat="@drawable/ic_skip_previous" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/playerSkipNextButton"
+        style="@style/Widget.Player.Buttons.Secondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/playerPlayButton"
+        app:srcCompat="@drawable/ic_skip_next" />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/playerSeekBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/itemMargin"
+        app:layout_constraintBottom_toTopOf="@+id/playerPlayButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/playerTotalDurationView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/defaultMargin"
+        android:textAppearance="?textAppearanceCaption"
+        app:fontFamily="@font/montserrat_light"
+        app:layout_constraintBottom_toTopOf="@+id/playerSeekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="54:00" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/playerCurrentDurationView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/defaultMargin"
+        android:textAppearance="?textAppearanceCaption"
+        app:fontFamily="@font/montserrat_light"
+        app:layout_constraintBottom_toTopOf="@+id/playerSeekBar"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="00:00" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

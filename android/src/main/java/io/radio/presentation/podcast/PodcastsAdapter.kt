@@ -12,7 +12,6 @@ import io.radio.shared.base.imageloader.CacheStrategy
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.RoundedCornersTransformation
-import io.radio.shared.base.imageloader.transformations.ShadowTransformation
 import io.radio.shared.base.recycler.ItemHolder
 import io.radio.shared.base.recycler.plugins.ClickItemAdapterEvent
 import io.radio.shared.base.recycler.plugins.ClickItemAdapterPlugin
@@ -49,7 +48,8 @@ class PodcastsAdapter(
         )
     }
 
-    inner class PodcastHolder(override val containerView: View) : ItemHolder<RadioPodcast>(containerView) {
+    inner class PodcastHolder(override val containerView: View) :
+        ItemHolder<RadioPodcast>(containerView) {
 
         override fun bind(item: RadioPodcast, payloads: List<Any>) {
             stationPreviewImage.loadImage(
@@ -60,18 +60,6 @@ class PodcastsAdapter(
                     transformations = listOf(
                         RoundedCornersTransformation(
                             roundingRadius = roundingCorner
-                        ),
-                        ShadowTransformation.create(
-                            elevation = 40f,
-                            shadowParams = ShadowTransformation.ShadowParams(
-                                roundingCorner.toFloat(),
-                                dy = 10f
-                            ),
-                            shadowMargins = ShadowTransformation.Margins(
-                                left = 20f,
-                                right = 20f
-                            ),
-                            roundCornerRadius = roundingCorner.toFloat()
                         )
                     )
                 )

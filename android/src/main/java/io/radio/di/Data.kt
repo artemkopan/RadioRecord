@@ -12,6 +12,6 @@ val dataModule = module {
 
     single<SystemConfig> { SystemConfigImpl() }
     single<AppResources> { AppResourcesImpl(get()) }
-    single<PlayerController> { AndroidPlayerController(get(), get()) }
+    single<PlayerController> { AndroidPlayerController(get(), get(), get()) }
 
 }

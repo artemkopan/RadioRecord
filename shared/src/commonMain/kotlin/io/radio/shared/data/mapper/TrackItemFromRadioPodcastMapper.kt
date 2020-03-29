@@ -1,6 +1,8 @@
 package io.radio.shared.data.mapper
 
 import io.radio.shared.base.Mapper
+import io.radio.shared.base.toOptional
+import io.radio.shared.model.CoverImage
 import io.radio.shared.model.RadioPodcastDetailsItem
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackSource
@@ -13,8 +15,11 @@ class TrackItemFromRadioPodcastMapper : Mapper<TrackItem, RadioPodcastDetailsIte
             from.id,
             from.title,
             from.song,
+            (params as? CoverImage).toOptional(),
             time.toDuration(DurationUnit.SECONDS),
             TrackSource.Progressive(from.link)
         )
     }
+
 }
+

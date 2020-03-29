@@ -2,26 +2,37 @@ package io.radio.shared.base.recycler
 
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.SavedStateRegistry
 
 class RecyclerViewStateController(
-    private val stateRegistryOwner: SavedStateRegistryOwner,
+    viewLifecycleOwner: LifecycleOwner,
+    private val savedStateRegistry: SavedStateRegistry,
     private val recyclerView: RecyclerView
 ) {
 
     init {
-        stateRegistryOwner.savedStateRegistry.registerSavedStateProvider(REGISTRY) {
-            Bundle(1).apply {
-                getLayoutManager().onSaveInstanceState()?.let {
-                    putParcelable(KEY_STATE, it)
+        viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                savedStateRegistry.registerSavedStateProvider(REGISTRY) {
+                    Bundle(1).apply {
+                        getLayoutManager().onSaveInstanceState()?.let {
+                            putParcelable(KEY_STATE, it)
+                        }
+                    }
                 }
             }
-        }
+
+            override fun onDestroy(owner: LifecycleOwner) {
+                savedStateRegistry.unregisterSavedStateProvider(REGISTRY)
+            }
+        })
     }
 
     fun restoreState(): Boolean {
-        stateRegistryOwner.savedStateRegistry.consumeRestoredStateForKey(REGISTRY)
+        savedStateRegistry.consumeRestoredStateForKey(REGISTRY)
             ?.getParcelable<Parcelable>(KEY_STATE)
             ?.let {
                 getLayoutManager().onRestoreInstanceState(it)

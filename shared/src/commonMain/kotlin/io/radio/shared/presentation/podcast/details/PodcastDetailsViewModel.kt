@@ -11,13 +11,13 @@ import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.domain.repositories.station.RadioRepository
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
+import io.radio.shared.model.CoverImage
 import io.radio.shared.model.RadioPodcastDetails
 import io.radio.shared.model.TrackMediaInfo
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -41,16 +41,21 @@ class PodcastDetailsViewModel constructor(
     private val trackItemsFlowInner = defaultTrackItemsChannel.asFlow()
         .combine(playerController.observeTrackInfo(), tracksCombiner())
 
-    val trackItemsFlow: Flow<List<TrackMediaInfo>> get() = trackItemsFlowInner.debounce(150L)
+    val trackItemsFlow: Flow<List<TrackMediaInfo>> get() = trackItemsFlowInner
 
     init {
         podcastDetailsChannel.perform {
-            repository.getPodcast(podcastId).also {
+            repository.getPodcast(podcastId).also { details ->
                 withContext(IoDispatcher) {
-                    it.items
+                    details.items
                         .map {
                             trackMediaInfoCreatorUseCase.execute(
-                                TrackMediaInfoCreatorUseCase.Params(trackMapper.map(it))
+                                TrackMediaInfoCreatorUseCase.Params(
+                                    trackMapper.map(
+                                        it,
+                                        CoverImage(details.cover)
+                                    )
+                                )
                             )
                         }
                         .let { defaultTrackItemsChannel.send(it) }

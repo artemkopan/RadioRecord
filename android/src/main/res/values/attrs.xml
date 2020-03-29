@@ -2,6 +2,11 @@
 <resources>
 
 
-    <attr name="colorAccentInactive"  format="color"/>
+    <attr name="colorAccentInactive" format="color" />
+
+    <declare-styleable name="CircleBarVisualizer">
+        <attr name="cbv_barColor" format="color" />
+        <attr name="cbv_circleColor" format="color" />
+    </declare-styleable>
 
 </resources>

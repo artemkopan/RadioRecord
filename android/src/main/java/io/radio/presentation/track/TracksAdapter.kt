@@ -12,7 +12,6 @@ import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import io.radio.R
-import io.radio.shared.base.Logger
 import io.radio.shared.base.recycler.ItemHolder
 import io.radio.shared.base.recycler.inflate
 import io.radio.shared.base.recycler.plugins.ClickItemAdapterEvent
@@ -66,7 +65,7 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaInfo>
             titleView.text = item.track.title
             subTitleView.text = item.track.subTitle
             subTitleView.isVisible = item.track.subTitle.isNotEmpty()
-            timeView.text = item.playTimeFormatted
+            timeView.text = item.durationFormatted
 
             fun animatePlayPauseButton() = payloads.contains(PlayPausePayload)
 
@@ -108,7 +107,6 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaInfo>
             progressBar.isVisible = isProgress
             playButton.isInvisible = isProgress
             playButton.isEnabled = !isProgress
-            Logger.d("${progressBar.parent} $progressBar ${progressBar.isVisible} ${progressBar.alpha}")
         }
 
         private fun switchError(isShow: Boolean, payloads: List<Any>) {

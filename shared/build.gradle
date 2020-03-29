@@ -50,6 +50,7 @@ kotlin.sourceSets.all {
         useExperimentalAnnotation 'kotlin.contracts.ExperimentalContracts'
         useExperimentalAnnotation 'kotlinx.coroutines.ExperimentalCoroutinesApi'
         useExperimentalAnnotation 'kotlinx.coroutines.ObsoleteCoroutinesApi'
+        useExperimentalAnnotation 'kotlinx.coroutines.FlowPreview'
         useExperimentalAnnotation 'kotlin.time.ExperimentalTime'
     }
 }

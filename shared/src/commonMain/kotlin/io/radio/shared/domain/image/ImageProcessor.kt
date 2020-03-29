@@ -13,4 +13,15 @@ interface ImageProcessor {
 
     suspend fun getDarkerColor(color: Int): Int
 
+    suspend fun getDominantColor(
+        source: Any,
+        defaultColor: Int,
+        width: Int = 100,
+        height: Int = 100
+    ): Int {
+        val image = getImage(source, 100, 100)
+        val palette = generatePalette(image)
+        return getDominantColor(palette, defaultColor)
+    }
+
 }

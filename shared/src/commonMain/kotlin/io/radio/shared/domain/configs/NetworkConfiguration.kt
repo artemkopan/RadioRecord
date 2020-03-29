@@ -30,7 +30,14 @@ abstract class BaseNetworkConfiguration<out TEngine, TConfig>(private val system
 
             install(JsonFeature) {
                 acceptContentTypes = listOf(ContentType.Any)
-                serializer = KotlinxSerializer(Json(JsonConfiguration(useArrayPolymorphism = true)))
+                serializer = KotlinxSerializer(
+                    Json(
+                        JsonConfiguration(
+                            ignoreUnknownKeys = true,
+                            useArrayPolymorphism = true
+                        )
+                    )
+                )
             }
 
             if (systemConfig.isNetworkLogsEnabled) {

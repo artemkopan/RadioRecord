@@ -20,11 +20,18 @@
         android:id="@+id/podcastDetailsFragment"
         android:name="io.radio.presentation.podcast.details.PodcastDetailsFragment"
         android:label="PodcastDetailsFragment"
-        tools:layout="@layout/fragment_podcast_details" >
+        tools:layout="@layout/fragment_podcast_details">
         <argument
             android:name="params"
             app:argType="io.radio.shared.presentation.podcast.details.PodcastDetailsParams" />
     </fragment>
+
+
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="io.radio.presentation.player.PlayerFragment"
+        android:label="PlayerFragment"
+        tools:layout="@layout/fragment_player" />
 
 
 </navigation>

@@ -29,4 +29,9 @@
     <dimen name="itemTrackPlayProgressSize">30dp</dimen>
 
 
+    <item name="playerCoverVerticalBias" format="float" type="dimen">0.25</item>
+    <item name="playerCoverWidthPercent" format="float" type="dimen">0.54</item>
+
+    <integer name="radioItemsCount">3</integer>
+
 </resources>

@@ -6,14 +6,14 @@ import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.doOnPreDraw
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import com.google.android.material.circularreveal.CircularRevealCompat
 import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialFadeThrough
+import com.google.android.material.transition.MaterialSharedAxis
 import io.radio.R
+import io.radio.presentation.routePlayer
 import io.radio.presentation.track.TracksAdapter
 import io.radio.shared.base.State
 import io.radio.shared.base.fragment.BaseFragment
-import io.radio.shared.base.fragment.FragmentTransitionsController
 import io.radio.shared.base.fragment.popBack
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.Resize
@@ -27,20 +27,20 @@ import io.radio.shared.base.viewmodel.koin.viewModels
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
 import kotlinx.android.synthetic.main.fragment_podcast_details.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 
 class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
 
     private val viewModel by viewModels<PodcastDetailsViewModel>()
-    private val transitionsController = FragmentTransitionsController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = MaterialContainerTransform(requireContext()).apply {
             scrimColor = Color.TRANSPARENT
         }
-        transitionsController.registerSharedEnterElementTransition()
         setEnterSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(
                 names: MutableList<String>?,
@@ -50,6 +50,10 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                 sharedElements[names.first()] = podcastDetailsCoverView
             }
         })
+        enterTransition = MaterialSharedAxis.create(requireContext(), MaterialSharedAxis.Z, false)
+        returnTransition = MaterialFadeThrough.create(requireContext())
+        exitTransition = returnTransition
+
         postponeEnterTransition()
     }
 
@@ -63,7 +67,6 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         podcastDetailsHeader.setCardBackgroundColor(params.headerColor)
 
         podcastDetailsHeader.doOnPreDraw {
-            startAnimation(it)
             loadHeader(params, it)
             loadCover(params) {
                 startPostponedEnterTransition()
@@ -73,9 +76,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         podcastDetailsTitle.setTextColor(params.toolbarColor)
         podcastDetailsTitle.text = params.name
 
-        transitionsController.awaitTransitionAnimationComplete {
-            initTracksAdapter()
-        }
+        initTracksAdapter()
 
         viewModel.podcastDetailsFlow
             .onEach {
@@ -98,34 +99,25 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         val tracksAdapter = TracksAdapter { _, viewId, _, trackMediaInfo, _ ->
             when (viewId.id) {
                 R.id.playButton -> viewModel.onPlayClick(trackMediaInfo)
-                R.id.trackContainerLayout -> viewModel.onTrackClick(trackMediaInfo)
+                R.id.trackContainerLayout -> {
+                    routePlayer()
+                    viewModel.onTrackClick(trackMediaInfo)
+                }
             }
         }
         tracksAdapter.setHasStableIds(true)
         podcastTracksRecycler.adapter = tracksAdapter
         podcastTracksRecycler.setHasFixedSize(true)
-        val stateController = RecyclerViewStateController(this, podcastTracksRecycler)
+        val stateController = RecyclerViewStateController(
+            viewLifecycleOwner,
+            savedStateRegistry,
+            podcastTracksRecycler
+        )
 
         viewModel.trackItemsFlow
+            .onStart { delay((ANIM_DURATION * 1.2).toLong()) } //wait start animation
             .onEach { tracksAdapter.submitList(it) { stateController.restoreState() } }
             .launchIn(viewScope)
-    }
-
-    private fun startAnimation(it: View) {
-        val finalRadius = it.width.coerceAtLeast(it.height) * 1.2f
-
-        CircularRevealCompat.createCircularReveal(
-            podcastDetailsHeader,
-            0f,
-            0f,
-            0f,
-            finalRadius
-        )
-            .apply {
-                interpolator = FastOutSlowInInterpolator()
-            }
-            .setDuration(500L)
-            .start()
     }
 
     private fun loadHeader(
@@ -171,7 +163,10 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                 )
             )
         )
+    }
 
+    private companion object {
+        const val ANIM_DURATION = 500L
     }
 
 }

@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
-
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
@@ -29,6 +29,11 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+        freeCompilerArgs += [
+                "-Xuse-experimental=kotlin.time.ExperimentalTime",
+                "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
+                "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"]
     }
 
     packagingOptions {
@@ -64,6 +69,7 @@ dependencies {
 
     implementation "com.google.android.material:material:$android_material_version"
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.1'
+    implementation 'com.chibde:audiovisualizer:2.2.0'
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
 

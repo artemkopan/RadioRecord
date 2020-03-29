@@ -7,25 +7,25 @@ import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaState
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class TrackMediaInfoProcessUseCase(
     private val playerController: PlayerController
-) : UseCase<TrackItem, Unit> {
+) : UseCase<TrackItem, Unit>, UseCasesBiParams<TrackItem, Boolean, Unit> {
 
-    private val mutex = Mutex()
+    override suspend fun execute(track: TrackItem) {
+        execute(track, true)
+    }
 
-    override suspend fun execute(track: TrackItem) = withContext(IoDispatcher) {
-        mutex.withLock execution@{
+    override suspend fun execute(track: TrackItem, autoPlay: Boolean) =
+        withContext(IoDispatcher) execution@{
             val trackOpt = playerController.observeTrackInfo().first()
             if (trackOpt.isEmpty()) {
                 Logger.d(
                     TAG,
                     "The player controller does not have any tracks...prepare new: [$track]"
                 )
-                playerController.prepare(track)
+                playerController.prepare(track, autoPlay)
                 return@execution
             }
 
@@ -36,7 +36,7 @@ class TrackMediaInfoProcessUseCase(
                     "The player controller has another track...release current [$currentTrack] and prepare new [$track]"
                 )
                 playerController.release()
-                playerController.prepare(track)
+                playerController.prepare(track, autoPlay)
                 return@execution
             }
 
@@ -48,11 +48,10 @@ class TrackMediaInfoProcessUseCase(
                 TrackMediaState.Preparing -> return@execution //track is already preparing, skip
                 TrackMediaState.Play -> playerController.pause()
                 TrackMediaState.Pause -> playerController.play()
-                is TrackMediaState.Error -> playerController.prepare(currentTrack.track)
+                is TrackMediaState.Error -> playerController.prepare(currentTrack.track, autoPlay)
                 else -> throw NotImplementedError("The ${currentTrack.state} is not implemented")
             }
         }
-    }
 
     companion object {
         private const val TAG = "TrackMediaInfoProcessUseCase"

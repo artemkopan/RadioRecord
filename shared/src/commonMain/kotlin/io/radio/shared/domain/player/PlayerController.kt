@@ -1,32 +1,42 @@
 package io.radio.shared.domain.player
 
-import io.radio.shared.base.MainDispatcher
+import io.radio.shared.base.Logger
 import io.radio.shared.base.Optional
 import io.radio.shared.base.getOrThrow
 import io.radio.shared.base.toOptional
+import io.radio.shared.domain.formatters.TrackFormatter
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaInfo
 import io.radio.shared.model.TrackMediaState
-import io.radio.shared.model.TrackSource
+import io.radio.shared.model.TrackMediaTimeLine
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 interface PlayerController {
 
     fun observeTrackInfo(): Flow<Optional<TrackMediaInfo>>
 
-    fun prepare(trackItem: TrackItem)
+    fun observeTrackTimeLine(): Flow<Optional<TrackMediaTimeLine>>
+
+    fun observePlayerMetaData(): Flow<Optional<PlayerMetaData>>
+
+    fun prepare(trackItem: TrackItem, autoPlay: Boolean)
 
     fun release()
 
     fun destroy()
+
+    fun setPosition(positionMs: Long)
+
+    fun seekTo(offsetMs: Long)
 
     fun play()
 
@@ -34,74 +44,135 @@ interface PlayerController {
 
 }
 
-abstract class BasePlayerController(
-    private val trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase
-) : PlayerController {
+open class BasePlayerController(
+    private val playerScope: CoroutineScope,
+    private val trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase,
+    private val trackFormatter: TrackFormatter
+) : PlayerController, PlayerStatesMediator {
 
-    protected open val scope = CoroutineScope(SupervisorJob() + MainDispatcher)
-    protected val playerStates = BroadcastChannel<PlayerState>(1)
-
+    private val actionMutex = Mutex()
     private val trackInfoChannel = ConflatedBroadcastChannel<Optional<TrackMediaInfo>>(
         Optional.empty()
     )
+    private val trackTimeLineChannel = ConflatedBroadcastChannel<Optional<TrackMediaTimeLine>>(
+        Optional.empty()
+    )
+    private val metaDataChannel = ConflatedBroadcastChannel<Optional<PlayerMetaData>>(
+        Optional.empty()
+    )
+
+    private val playerActionsChannel = BroadcastChannel<PlayerAction>(1)
+    override val playerActionsFlow: Flow<PlayerAction> = playerActionsChannel.asFlow().buffer()
 
     override fun observeTrackInfo(): Flow<Optional<TrackMediaInfo>> = trackInfoChannel.asFlow()
+    override fun observeTrackTimeLine(): Flow<Optional<TrackMediaTimeLine>> =
+        trackTimeLineChannel.asFlow()
 
-    override fun destroy() {
-        scope.cancel()
-    }
+    override fun observePlayerMetaData(): Flow<Optional<PlayerMetaData>> = metaDataChannel.asFlow()
 
-    override fun prepare(trackItem: TrackItem) {
-        scope.launch {
-            trackInfoChannel.send(
-                trackMediaInfoCreatorUseCase.execute(
-                    TrackMediaInfoCreatorUseCase.Params(
-                        trackItem,
-                        TrackMediaState.Preparing
-                    )
-                ).toOptional()
-            )
-            playerStates.send(PlayerState.Preparing(trackItem.source))
-            playerStates.send(PlayerState.Play)
+    override fun prepare(trackItem: TrackItem, autoPlay: Boolean) {
+        playerScope.launch {
+            actionMutex.withLock {
+                trackInfoChannel.send(
+                    trackMediaInfoCreatorUseCase.execute(
+                        TrackMediaInfoCreatorUseCase.Params(
+                            trackItem,
+                            TrackMediaState.Preparing
+                        )
+                    ).toOptional()
+                )
+                playerActionsChannel.send(PlayerAction.Preparing(trackItem.source))
+                if (autoPlay) {
+                    playerActionsChannel.send(PlayerAction.Play)
+                }
+            }
         }
     }
 
     override fun release() {
-        scope.launch {
-            playerStates.send(PlayerState.Release)
-            trackInfoChannel.send(Optional.empty())
+        playerScope.launch {
+            actionMutex.withLock {
+                playerActionsChannel.send(PlayerAction.Release)
+                trackInfoChannel.send(Optional.empty())
+                trackTimeLineChannel.send(Optional.empty())
+                metaDataChannel.send(Optional.empty())
+            }
         }
     }
 
+    override fun destroy() {
+        Logger.w("Destroy method is not implemented")
+    }
+
     override fun play() {
-        scope.launch {
-            playerStates.send(PlayerState.Play)
+        playerScope.launch {
+            actionMutex.withLock {
+                playerActionsChannel.send(PlayerAction.Play)
+            }
         }
     }
 
     override fun pause() {
-        scope.launch {
-            playerStates.send(PlayerState.Pause)
+        playerScope.launch {
+            actionMutex.withLock {
+                playerActionsChannel.send(PlayerAction.Pause)
+            }
         }
     }
 
-    protected fun sendPlayTrack() {
-        scope.launch { trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Play) }) }
+    override fun setPosition(positionMs: Long) {
+        playerScope.launch {
+            actionMutex.withLock {
+                playerActionsChannel.send(PlayerAction.SetPosition(positionMs))
+            }
+        }
     }
 
-    protected fun sendPauseTrack() {
-        scope.launch { trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Pause) }) }
+    override fun seekTo(offsetMs: Long) {
+        playerScope.launch {
+            actionMutex.withLock {
+                playerActionsChannel.send(PlayerAction.SeekTo(offsetMs))
+            }
+        }
     }
 
-    protected fun sendBufferingTrack() {
-        scope.launch { trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Buffering) }) }
+    override fun postState(state: PlayerState) {
+        playerScope.launch {
+            when (state) {
+                PlayerState.PlayTrack -> {
+                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Play) })
+                }
+                PlayerState.PauseTrack -> {
+                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Pause) })
+                }
+                PlayerState.BufferingTrack -> {
+                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Buffering) })
+                }
+                is PlayerState.Error -> {
+                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Error(state.throwable)) })
+                }
+            }
+        }
     }
 
-    protected fun sendError(throwable: Throwable) {
-        scope.launch {
-            trackInfoChannel.send(copyTrack {
-                copy(state = TrackMediaState.Error(throwable))
-            })
+    override fun postSideEffects(effect: PlayerSideEffect) {
+        playerScope.launch {
+            when (effect) {
+                is PlayerSideEffect.MetaData -> {
+                    metaDataChannel.send(effect.value.toOptional())
+                }
+                is PlayerSideEffect.TrackPosition -> {
+                    trackTimeLineChannel.send(
+                        TrackMediaTimeLine(
+                            effect.currentPosition,
+                            effect.bufferedPosition,
+                            effect.contentPosition,
+                            trackFormatter.formatDuration(effect.currentPosition),
+                            trackFormatter.formatDuration(effect.contentPosition)
+                        ).toOptional()
+                    )
+                }
+            }
         }
     }
 
@@ -112,12 +183,6 @@ abstract class BasePlayerController(
             .toOptional()
     }
 
-    protected sealed class PlayerState {
-
-        class Preparing(val source: TrackSource) : PlayerState()
-        object Release : PlayerState()
-        object Play : PlayerState()
-        object Pause : PlayerState()
-
-    }
 }
+
+
