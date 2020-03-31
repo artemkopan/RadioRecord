@@ -19,18 +19,21 @@
     <dimen name="podcastDetailsHeaderHeight">196dp</dimen>
     <dimen name="podcastDetailsCoverSize">144dp</dimen>
     <dimen name="podcastDetailsCoverTranslationX">-24dp</dimen>
-    <dimen name="podcastDetailsCoverMarginTop">80dp</dimen>
+    <dimen name="podcastDetailsCoverMarginTop">0dp</dimen>
 
     <dimen name="podcastDetailsTracksPaddingTop">24dp</dimen> <!--default margin + extra space -->
     <dimen name="podcastDetailsTracksPaddingBottom">@dimen/defaultMargin</dimen>
 
+    <dimen name="elevationDefault">6dp</dimen>
     <dimen name="translationZ">12dp</dimen>
+
     <dimen name="itemTrackHeight">64dp</dimen>
     <dimen name="itemTrackPlayProgressSize">30dp</dimen>
 
 
+    <item name="playerTitleVerticalBias" format="float" type="dimen">0.25</item>
     <item name="playerCoverVerticalBias" format="float" type="dimen">0.25</item>
-    <item name="playerCoverWidthPercent" format="float" type="dimen">0.54</item>
+    <item name="playerCoverWidthPercent" format="float" type="dimen">0.45</item>
 
     <integer name="radioItemsCount">3</integer>
 

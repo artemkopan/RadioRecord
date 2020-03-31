@@ -8,16 +8,17 @@ import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlin.time.milliseconds
 
 class TrackMediaInfoProcessUseCase(
     private val playerController: PlayerController
-) : UseCase<TrackItem, Unit>, UseCasesBiParams<TrackItem, Boolean, Unit> {
+) : UseCase<TrackItem, Unit>, UseCasesBiParams<TrackItem, TrackMediaInfoProcessParams, Unit> {
 
     override suspend fun execute(track: TrackItem) {
-        execute(track, true)
+        execute(track, TrackMediaInfoProcessParams())
     }
 
-    override suspend fun execute(track: TrackItem, autoPlay: Boolean) =
+    override suspend fun execute(track: TrackItem, params: TrackMediaInfoProcessParams) =
         withContext(IoDispatcher) execution@{
             val trackOpt = playerController.observeTrackInfo().first()
             if (trackOpt.isEmpty()) {
@@ -25,7 +26,7 @@ class TrackMediaInfoProcessUseCase(
                     TAG,
                     "The player controller does not have any tracks...prepare new: [$track]"
                 )
-                playerController.prepare(track, autoPlay)
+                playerController.prepare(track, params.autoPlay)
                 return@execution
             }
 
@@ -36,7 +37,7 @@ class TrackMediaInfoProcessUseCase(
                     "The player controller has another track...release current [$currentTrack] and prepare new [$track]"
                 )
                 playerController.release()
-                playerController.prepare(track, autoPlay)
+                playerController.prepare(track, params.autoPlay)
                 return@execution
             }
 
@@ -44,11 +45,28 @@ class TrackMediaInfoProcessUseCase(
 
             when (currentTrack.state) {
                 TrackMediaState.None -> throw IllegalArgumentException("Exception in implementation, state can not be none")
-                TrackMediaState.Buffering,
+                TrackMediaState.Buffering -> {
+                    //no-op
+                }
                 TrackMediaState.Preparing -> return@execution //track is already preparing, skip
-                TrackMediaState.Play -> playerController.pause()
-                TrackMediaState.Pause -> playerController.play()
-                is TrackMediaState.Error -> playerController.prepare(currentTrack.track, autoPlay)
+                TrackMediaState.Play -> {
+                    if (!params.justPrepare) {
+                        playerController.pause()
+                    }
+                }
+                TrackMediaState.Pause -> {
+                    if (!params.justPrepare) {
+                        playerController.play()
+                    }
+                }
+                TrackMediaState.Ended -> {
+                    playerController.setPosition(0.0.milliseconds)
+                    playerController.play()
+                }
+                is TrackMediaState.Error -> playerController.prepare(
+                    currentTrack.track,
+                    params.autoPlay
+                )
                 else -> throw NotImplementedError("The ${currentTrack.state} is not implemented")
             }
         }
@@ -56,4 +74,10 @@ class TrackMediaInfoProcessUseCase(
     companion object {
         private const val TAG = "TrackMediaInfoProcessUseCase"
     }
+
 }
+
+data class TrackMediaInfoProcessParams(
+    val autoPlay: Boolean = true,
+    val justPrepare: Boolean = false
+)

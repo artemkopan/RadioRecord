@@ -9,19 +9,20 @@ import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.domain.player.PlayerMetaData
 import io.radio.shared.domain.resources.AppResources
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
+import io.radio.shared.domain.usecases.track.TrackUpdatePositionUseCase
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaState
 import io.radio.shared.model.TrackMediaTimeLine
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.DurationUnit
-import kotlin.time.seconds
 
 class PlayerViewModel(
-    private val playerController: PlayerController,
+    playerController: PlayerController,
     private val trackMediaInfoProcessUseCase: TrackMediaInfoProcessUseCase,
+    private val trackUpdatePositionUseCase: TrackUpdatePositionUseCase,
     appResources: AppResources,
     imageProcessor: ImageProcessor
 ) : ViewModel() {
@@ -35,7 +36,11 @@ class PlayerViewModel(
     val trackMediaStateFlow: Flow<Optional<TrackMediaState>> =
         playerController.observeTrackInfo().map { it.data?.state.toOptional() }
 
-    val trackTimeLine: Flow<Optional<TrackMediaTimeLine>> = playerController.observeTrackTimeLine()
+    private val scrubbingTimeFormattedChannel = BroadcastChannel<String>(1)
+    val scrubbingTimeFormattedFlow: Flow<String> get() = scrubbingTimeFormattedChannel.asFlow()
+
+    val trackTimeLineFlow: Flow<Optional<TrackMediaTimeLine>> =
+        playerController.observeTrackTimeLine()
 
     private val visualizationColorChannel = ConflatedBroadcastChannel(appResources.accentColor)
     val visualizationColorFlow: Flow<Int> get() = visualizationColorChannel.asFlow()
@@ -60,9 +65,14 @@ class PlayerViewModel(
         }
     }
 
-    fun onPositionChanged(position: Int) {
+    fun onPositionChanged(position: Int, isScrubbing: Boolean) {
         scope.launch {
-            playerController.setPosition(position.seconds.toLong(DurationUnit.MILLISECONDS))
+            scrubbingTimeFormattedChannel.send(
+                trackUpdatePositionUseCase.execute(
+                    position,
+                    isScrubbing
+                )
+            )
         }
     }
 

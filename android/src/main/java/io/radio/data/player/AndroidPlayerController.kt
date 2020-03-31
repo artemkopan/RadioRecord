@@ -13,9 +13,11 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.text.TextOutput
 import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoRendererEventListener
 import io.radio.shared.base.Logger
@@ -33,6 +35,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -71,8 +74,8 @@ class AndroidPlayerController(
                     PlayerAction.Release -> consumeRelease()
                     PlayerAction.Play -> consumePlay()
                     PlayerAction.Pause -> consumePause()
-                    is PlayerAction.SetPosition -> consumeSetPosition(it.positionMs)
-                    is PlayerAction.SeekTo -> consumeSeekTo(it.offsetMs)
+                    is PlayerAction.SetPosition -> consumeSetPosition(it.position)
+                    is PlayerAction.SeekTo -> consumeSeekTo(it.offset)
                 }
             }
             .launchIn(scope)
@@ -91,8 +94,7 @@ class AndroidPlayerController(
     }
 
     private fun consumePreparing(trackSource: TrackSource) {
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-            context,
+        val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory(
             Util.getUserAgent(context, "RadioRecord")
         )
 
@@ -101,7 +103,10 @@ class AndroidPlayerController(
                 ProgressiveMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(trackSource.link.toUri())
             }
-            is TrackSource.Hls -> TODO()
+            is TrackSource.Hls -> {
+                HlsMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(trackSource.link.toUri())
+            }
             else -> throw NotImplementedError()
         }
 
@@ -125,7 +130,7 @@ class AndroidPlayerController(
 
     private fun updateTimeLine() {
         _exoPlayer?.let {
-            if (it.playbackState != STATE_READY) {
+            if (it.playbackState != STATE_READY || !it.playWhenReady) {
                 return
             }
             basePlayerController.postSideEffects(
@@ -138,23 +143,21 @@ class AndroidPlayerController(
         }
     }
 
-    private fun consumeSeekTo(offsetMs: Long) {
+    private fun consumeSeekTo(offset: Duration) {
         _exoPlayer?.let {
-            it.seekTo(it.currentPosition + offsetMs)
+            it.seekTo(it.currentPosition + offset.toLong(DurationUnit.MILLISECONDS))
         }
     }
 
-    private fun consumeSetPosition(position: Long) {
-        _exoPlayer?.seekTo(position)
+    private fun consumeSetPosition(position: Duration) {
+        _exoPlayer?.seekTo(position.toLong(DurationUnit.MILLISECONDS))
     }
 
     private val eventListener = object : Player.EventListener {
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            Logger.d("onPlayerStateChanged() called with: playWhenReady = $playWhenReady, playbackState = $playbackState")
             when (playbackState) {
-                STATE_READY,
-                STATE_ENDED -> {
+                STATE_READY -> {
                     if (playWhenReady) {
                         basePlayerController.postState(PlayerState.PlayTrack)
                         basePlayerController.postSideEffects(
@@ -164,9 +167,8 @@ class AndroidPlayerController(
                         basePlayerController.postState(PlayerState.PauseTrack)
                     }
                 }
-                STATE_BUFFERING -> {
-                    basePlayerController.postState(PlayerState.BufferingTrack)
-                }
+                STATE_ENDED -> basePlayerController.postState(PlayerState.EndedTrack)
+                STATE_BUFFERING -> basePlayerController.postState(PlayerState.BufferingTrack)
                 STATE_IDLE -> {
                     //no-op
                 }
@@ -174,17 +176,14 @@ class AndroidPlayerController(
         }
 
         override fun onPlayerError(error: ExoPlaybackException) {
-            Logger.e("onPlayerError() called with: error = $error", error)
             basePlayerController.postState(PlayerState.Error(error))
         }
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-            Logger.d("onTimelineChanged() called with: timeline = $timeline, reason = $reason")
             updateTimeLine()
         }
 
         override fun onPositionDiscontinuity(reason: Int) {
-            Logger.d("onPositionDiscontinuity() called with: reason = $reason")
             updateTimeLine()
         }
 
@@ -203,11 +202,21 @@ class AndroidPlayerController(
             .setLooper(handlerThread.looper)
             .build()
 
+        player.addAnalyticsListener(AudioEventLogger())
         player.setAudioAttributes(audioAttributes, true)
         player.addListener(eventListener)
         return player
     }
 
+    private class AudioEventLogger : EventLogger(null, TAG) {
+        override fun logd(msg: String) {
+            Logger.d(TAG, msg)
+        }
+
+        override fun loge(msg: String, tr: Throwable?) {
+            Logger.e(TAG, msg, tr)
+        }
+    }
 
     private class AudioRenderersFactory(context: Context) : DefaultRenderersFactory(context) {
 
@@ -243,5 +252,9 @@ class AndroidPlayerController(
         ) {
             //noting
         }
+    }
+
+    private companion object {
+        const val TAG = "ExoPlayer"
     }
 }

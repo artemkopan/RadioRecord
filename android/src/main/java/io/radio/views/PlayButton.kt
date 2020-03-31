@@ -28,6 +28,8 @@ class PlayButton @JvmOverloads constructor(
         AnimatedVectorDrawableCompat.create(context, R.drawable.avd_play_to_pause)!!
     }
 
+    private var isPlay: Boolean? = null
+
     init {
         setImageDrawable(play)
     }
@@ -41,10 +43,14 @@ class PlayButton @JvmOverloads constructor(
     }
 
     fun play(animate: Boolean) {
+        if (isPlay == true) return
+        isPlay = true
         morph(if (animate) pauseToPlayAnim else play)
     }
 
     fun pause(animate: Boolean) {
+        if (isPlay == false) return
+        isPlay = false
         morph(if (animate) playToPauseAnim else pause)
     }
 

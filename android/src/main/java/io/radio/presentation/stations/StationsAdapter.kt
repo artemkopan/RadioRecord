@@ -9,13 +9,17 @@ import androidx.recyclerview.widget.RecyclerView
 import io.radio.R
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.loadImage
+import io.radio.shared.base.recycler.plugins.ClickItemAdapterEvent
+import io.radio.shared.base.recycler.plugins.ClickItemAdapterPlugin
 import io.radio.shared.model.RadioStation
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_station.*
 
-class StationsAdapter : ListAdapter<RadioStation, StationsAdapter.StationHolder>(
-    Diff
-) {
+class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<RadioStation>) :
+    ListAdapter<RadioStation, StationsAdapter.StationHolder>(Diff) {
+
+    private val clickPlugin =
+        ClickItemAdapterPlugin<RadioStation>(onClickItemAdapterEvent, { getItem(it) })
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StationHolder {
         return StationHolder(
@@ -25,6 +29,7 @@ class StationsAdapter : ListAdapter<RadioStation, StationsAdapter.StationHolder>
 
     override fun onBindViewHolder(holder: StationHolder, position: Int) {
         holder.bind(getItem(position))
+        clickPlugin.bindOnClickListener(holder, holder.itemView)
     }
 
     class StationHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),

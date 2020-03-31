@@ -9,11 +9,12 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/podcastDetailsHeader"
         android:layout_width="0dp"
-        android:layout_height="@dimen/podcastDetailsHeaderHeight"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:padding="0dp"
+        app:cardElevation="@dimen/elevationDefault"
         app:cardPreventCornerOverlap="false"
         app:contentPadding="0dp"
-        app:cardElevation="@dimen/elevationDefault"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,8 +23,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/podcastDetailsHeaderImage"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:src="@tools:sample/backgrounds/scenic" />
+            android:layout_height="?actionBarSize" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -43,9 +43,14 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/podcastDetailsTitle"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/defaultMargin"
+        android:layout_height="?actionBarSize"
+        android:layout_marginEnd="?actionBarSize"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="2"
         android:outlineProvider="none"
+        android:paddingStart="0dp"
+        android:paddingEnd="@dimen/defaultMargin"
         android:shadowColor="?colorAccent"
         android:shadowDx="1"
         android:shadowDy="1"
@@ -53,12 +58,10 @@
         android:textAppearance="?textAppearanceHeadline6"
         android:translationZ="@dimen/translationZ"
         app:fontFamily="@font/montserrat_semi_bold"
-        app:layout_constraintBottom_toBottomOf="@id/podcastDetailsCoverView"
+        app:layout_constraintBottom_toBottomOf="@id/podcastDetailsHeader"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/podcastDetailsCoverView"
-        app:layout_constraintTop_toTopOf="@id/podcastDetailsCoverView"
-        app:layout_constraintVertical_bias="0.2"
-        tools:text="Some Radion Station" />
+        app:layout_constraintStart_toEndOf="@+id/podcastDetailsCoverView"
+        tools:text="@tools:sample/lorem/random" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/podcastTracksRecycler"
@@ -68,7 +71,6 @@
         android:layout_marginEnd="@dimen/defaultMargin"
         android:clipToPadding="false"
         android:orientation="vertical"
-        android:paddingTop="@dimen/podcastDetailsTracksPaddingTop"
         android:paddingBottom="@dimen/podcastDetailsTracksPaddingBottom"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -80,15 +82,14 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/podcastDetailsCoverView"
-        android:layout_width="@dimen/podcastDetailsCoverSize"
-        android:layout_height="@dimen/podcastDetailsCoverSize"
-        android:layout_marginTop="@dimen/podcastDetailsCoverMarginTop"
+        android:layout_width="?actionBarSize"
+        android:layout_height="?actionBarSize"
         android:outlineProvider="none"
+        android:padding="8dp"
         android:transitionName="cover_view"
-        android:translationX="@dimen/podcastDetailsCoverTranslationX"
         android:translationZ="@dimen/translationZ"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/podcastDetailsToolbar"
+        app:layout_constraintBottom_toBottomOf="@id/podcastDetailsHeader"
+        app:layout_constraintStart_toEndOf="@id/podcastDetailsToolbar"
         tools:src="@tools:sample/avatars" />
 
 

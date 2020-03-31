@@ -5,45 +5,54 @@ import android.os.Parcelable
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryOwner
+import io.radio.shared.base.Logger
 
 class RecyclerViewStateController(
-    viewLifecycleOwner: LifecycleOwner,
-    private val savedStateRegistry: SavedStateRegistry,
-    private val recyclerView: RecyclerView
+    private val savedStateRegistryOwner: SavedStateRegistryOwner,
+    private val layoutManagerCall: () -> RecyclerView.LayoutManager?
 ) {
 
+    private val savedStateRegistry get() = savedStateRegistryOwner.savedStateRegistry
+
+    //Use it when savedState is not called and a list is restored in async way
+    private var temporaryState: Parcelable? = null
+
     init {
-        viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+        savedStateRegistryOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 savedStateRegistry.registerSavedStateProvider(REGISTRY) {
                     Bundle(1).apply {
-                        getLayoutManager().onSaveInstanceState()?.let {
+                        getLayoutManager()?.onSaveInstanceState()?.let {
                             putParcelable(KEY_STATE, it)
                         }
                     }
                 }
             }
 
-            override fun onDestroy(owner: LifecycleOwner) {
-                savedStateRegistry.unregisterSavedStateProvider(REGISTRY)
+            override fun onStop(owner: LifecycleOwner) {
+                temporaryState = getLayoutManager()?.onSaveInstanceState()
             }
+
         })
     }
 
     fun restoreState(): Boolean {
-        savedStateRegistry.consumeRestoredStateForKey(REGISTRY)
-            ?.getParcelable<Parcelable>(KEY_STATE)
-            ?.let {
-                getLayoutManager().onRestoreInstanceState(it)
-                return true
-            }
+        (restoreParcelable() ?: temporaryState)?.let {
+            getLayoutManager()?.onRestoreInstanceState(it) ?: return false
+            return true
+        }
         return false
     }
 
-    private fun getLayoutManager(): RecyclerView.LayoutManager {
-        return requireNotNull(recyclerView.layoutManager) {
-            "Set up a layout manager first"
+    private fun restoreParcelable() = savedStateRegistry.consumeRestoredStateForKey(REGISTRY)
+        ?.getParcelable<Parcelable>(KEY_STATE)
+
+    private fun getLayoutManager(): RecyclerView.LayoutManager? {
+        return layoutManagerCall().also {
+            if (it == null) {
+                Logger.e("Set up a layout manager first")
+            }
         }
     }
 

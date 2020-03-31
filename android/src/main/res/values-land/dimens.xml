@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <item name="playerTitleVerticalBias" format="float" type="dimen">0.05</item>
     <item name="playerCoverVerticalBias" format="float" type="dimen">0.0</item>
     <item name="playerCoverWidthPercent" format="float" type="dimen">0.15</item>
 

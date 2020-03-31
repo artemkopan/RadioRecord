@@ -6,6 +6,7 @@ import io.radio.shared.domain.image.ImageProcessor
 import io.radio.shared.domain.image.ImageProcessorImpl
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
+import io.radio.shared.domain.usecases.track.TrackUpdatePositionUseCase
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -15,5 +16,6 @@ val domainModule = module {
 
     factory { TrackMediaInfoCreatorUseCase(get()) }
     factory { TrackMediaInfoProcessUseCase(get()) }
+    factory { TrackUpdatePositionUseCase(get(), get()) }
 
 }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.time.Duration
 
 interface PlayerController {
 
@@ -34,9 +35,9 @@ interface PlayerController {
 
     fun destroy()
 
-    fun setPosition(positionMs: Long)
+    fun setPosition(position: Duration)
 
-    fun seekTo(offsetMs: Long)
+    fun seekTo(offset: Duration)
 
     fun play()
 
@@ -120,18 +121,18 @@ open class BasePlayerController(
         }
     }
 
-    override fun setPosition(positionMs: Long) {
+    override fun setPosition(position: Duration) {
         playerScope.launch {
             actionMutex.withLock {
-                playerActionsChannel.send(PlayerAction.SetPosition(positionMs))
+                playerActionsChannel.send(PlayerAction.SetPosition(position))
             }
         }
     }
 
-    override fun seekTo(offsetMs: Long) {
+    override fun seekTo(offset: Duration) {
         playerScope.launch {
             actionMutex.withLock {
-                playerActionsChannel.send(PlayerAction.SeekTo(offsetMs))
+                playerActionsChannel.send(PlayerAction.SeekTo(offset))
             }
         }
     }
@@ -147,6 +148,9 @@ open class BasePlayerController(
                 }
                 PlayerState.BufferingTrack -> {
                     trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Buffering) })
+                }
+                PlayerState.EndedTrack -> {
+                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Ended) })
                 }
                 is PlayerState.Error -> {
                     trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Error(state.throwable)) })

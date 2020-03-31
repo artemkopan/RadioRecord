@@ -15,6 +15,7 @@ sealed class TrackMediaState {
     object Buffering : TrackMediaState()
     object Play : TrackMediaState()
     object Pause : TrackMediaState()
+    object Ended : TrackMediaState()
     class Error(val throwable: Throwable) : TrackMediaState()
 
 }

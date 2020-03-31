@@ -86,6 +86,7 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaInfo>
                     playButton.pause(animatePlayPauseButton())
                     switchError(false, payloads)
                 }
+                TrackMediaState.Ended,
                 TrackMediaState.Pause -> {
                     switchProgress(false)
                     playButton.play(animatePlayPauseButton())
@@ -96,7 +97,7 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaInfo>
                     playButton.play(false)
                     switchError(true, payloads)
                 }
-                else -> throw NotImplementedError()
+                else -> throw NotImplementedError("Not implemented state: ${item.state}")
             }
         }
 

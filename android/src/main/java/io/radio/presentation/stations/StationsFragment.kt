@@ -5,6 +5,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import io.radio.R
 import io.radio.presentation.home.postScrolledFraction
+import io.radio.presentation.routePlayer
 import io.radio.shared.base.Logger
 import io.radio.shared.base.State
 import io.radio.shared.base.fragment.BaseFragment
@@ -23,13 +24,28 @@ class StationsFragment : BaseFragment(R.layout.fragment_stations) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val stationsAdapter = StationsAdapter()
+        val stationsAdapter = StationsAdapter { _, _, _, item, _ ->
+            viewModel.onStationClicked(item)
+        }
         radioStationsRecycleView.adapter = stationsAdapter
         radioStationsRecycleView.addScrollOffsetListener(
             SizeScrollOffsetListener(
                 resources.getDimensionPixelOffset(R.dimen.headerElevationOffset).toFloat()
             ) { postScrolledFraction(it) }
         )
+
+        viewModel.openStationStateFlow.subscribe {
+            when (it) {
+                is State.Success -> {
+                    it.result.performContentIfNotHandled {
+                        routePlayer()
+                    }
+                }
+                is State.Fail -> {
+                    //TODO
+                }
+            }
+        }
 
         viewModel.stationsFlow
             .onEach {
@@ -43,6 +59,7 @@ class StationsFragment : BaseFragment(R.layout.fragment_stations) {
                     is State.Fail -> {
                         radioStationsRecycleView.isVisible = false
                         progressBar.isVisible = false
+                        //TODO
                     }
                     is State.Loading -> {
                         radioStationsRecycleView.isVisible = false

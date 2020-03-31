@@ -18,8 +18,8 @@ sealed class PlayerAction {
     object Release : PlayerAction()
     object Play : PlayerAction()
     object Pause : PlayerAction()
-    data class SetPosition(val positionMs: Long) : PlayerAction()
-    data class SeekTo(val offsetMs: Long) : PlayerAction()
+    data class SetPosition(val position: Duration) : PlayerAction()
+    data class SeekTo(val offset: Duration) : PlayerAction()
 
 }
 
@@ -28,6 +28,7 @@ sealed class PlayerState {
     object PlayTrack : PlayerState()
     object PauseTrack : PlayerState()
     object BufferingTrack : PlayerState()
+    object EndedTrack: PlayerState()
     data class Error(val throwable: Throwable) : PlayerState()
 
 }

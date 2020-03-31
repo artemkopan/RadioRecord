@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.ViewCompat
 import androidx.core.view.doOnPreDraw
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
@@ -13,13 +14,14 @@ import io.radio.R
 import io.radio.presentation.routePlayer
 import io.radio.presentation.track.TracksAdapter
 import io.radio.shared.base.State
+import io.radio.shared.base.extensions.isLandscapeMode
 import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.base.fragment.popBack
 import io.radio.shared.base.imageloader.ImageLoaderParams
-import io.radio.shared.base.imageloader.Resize
 import io.radio.shared.base.imageloader.doOnFinallyImageCallback
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.BlurTransformation
+import io.radio.shared.base.imageloader.transformations.CircleTransformation
 import io.radio.shared.base.imageloader.transformations.GranularRoundedCornersTransformation
 import io.radio.shared.base.imageloader.transformations.RoundedCornersTransformation
 import io.radio.shared.base.recycler.RecyclerViewStateController
@@ -27,14 +29,15 @@ import io.radio.shared.base.viewmodel.koin.viewModels
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
 import kotlinx.android.synthetic.main.fragment_podcast_details.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 
 class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
 
     private val viewModel by viewModels<PodcastDetailsViewModel>()
+    private val stateController = RecyclerViewStateController(this) {
+        podcastTracksRecycler?.layoutManager
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +79,16 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         podcastDetailsTitle.setTextColor(params.toolbarColor)
         podcastDetailsTitle.text = params.name
 
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            ViewCompat.onApplyWindowInsets(podcastDetailsHeader, insets)
+            ViewCompat.onApplyWindowInsets(podcastDetailsToolbar, insets)
+            ViewCompat.onApplyWindowInsets(podcastDetailsCoverView, insets)
+            insets
+        }
+
         initTracksAdapter()
+
+        viewModel.openPlayerEventFlow.subscribe { it.performContentIfNotHandled { routePlayer() } }
 
         viewModel.podcastDetailsFlow
             .onEach {
@@ -99,25 +111,17 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         val tracksAdapter = TracksAdapter { _, viewId, _, trackMediaInfo, _ ->
             when (viewId.id) {
                 R.id.playButton -> viewModel.onPlayClick(trackMediaInfo)
-                R.id.trackContainerLayout -> {
-                    routePlayer()
-                    viewModel.onTrackClick(trackMediaInfo)
-                }
+                R.id.trackContainerLayout -> viewModel.onTrackClick(trackMediaInfo)
             }
         }
         tracksAdapter.setHasStableIds(true)
         podcastTracksRecycler.adapter = tracksAdapter
         podcastTracksRecycler.setHasFixedSize(true)
-        val stateController = RecyclerViewStateController(
-            viewLifecycleOwner,
-            savedStateRegistry,
-            podcastTracksRecycler
-        )
 
         viewModel.trackItemsFlow
-            .onStart { delay((ANIM_DURATION * 1.2).toLong()) } //wait start animation
-            .onEach { tracksAdapter.submitList(it) { stateController.restoreState() } }
-            .launchIn(viewScope)
+            .subscribe {
+                tracksAdapter.submitList(it) { stateController.restoreState() }
+            }
     }
 
     private fun loadHeader(
@@ -129,10 +133,6 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
             ImageLoaderParams(
                 animate = ImageLoaderParams.Animation.CrossFade,
                 scale = ImageLoaderParams.Scale.CenterCrop,
-                resize = Resize(
-                    it.width,
-                    it.height
-                ),
                 transformations = listOf(
                     BlurTransformation.create(
                         requireContext(),
@@ -157,13 +157,16 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
             ImageLoaderParams(
                 loaderCallbacks = arrayOf(doOnFinallyImageCallback(onLoaded)),
                 transformations = listOf(
-                    RoundedCornersTransformation(
-                        resources.getDimensionPixelSize(R.dimen.itemCornerRadius)
-                    )
+                    if (isLandscapeMode) {
+                        CircleTransformation()
+                    } else {
+                        RoundedCornersTransformation(resources.getDimensionPixelSize(R.dimen.itemCornerRadius))
+                    }
                 )
             )
         )
     }
+
 
     private companion object {
         const val ANIM_DURATION = 500L

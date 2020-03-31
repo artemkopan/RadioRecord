@@ -11,5 +11,6 @@ val mappersModule = module {
     factory { RadioPodcastMapper() }
     factory { RadioStationMapper() }
     factory { TrackItemFromRadioPodcastMapper() }
+    factory { TrackItemFromRadioStationMapper() }
 
 }
