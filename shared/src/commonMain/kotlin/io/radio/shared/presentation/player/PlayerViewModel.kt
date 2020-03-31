@@ -6,7 +6,7 @@ import io.radio.shared.base.toOptional
 import io.radio.shared.base.viewmodel.ViewModel
 import io.radio.shared.domain.image.ImageProcessor
 import io.radio.shared.domain.player.PlayerController
-import io.radio.shared.domain.player.PlayerMetaData
+import io.radio.shared.domain.player.StreamMetaData
 import io.radio.shared.domain.resources.AppResources
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
 import io.radio.shared.domain.usecases.track.TrackUpdatePositionUseCase
@@ -27,14 +27,15 @@ class PlayerViewModel(
     imageProcessor: ImageProcessor
 ) : ViewModel() {
 
-    val playerMetaDataFlow: Flow<Optional<PlayerMetaData>> =
-        playerController.observePlayerMetaData()
 
     val trackFlow: Flow<TrackItem> =
         playerController.observeTrackInfo().mapNotNull { it.data?.track }.distinctUntilChanged()
 
     val trackMediaStateFlow: Flow<Optional<TrackMediaState>> =
         playerController.observeTrackInfo().map { it.data?.state.toOptional() }
+
+    val subTitleFlow = playerController.observeStreamMetaData()
+        .combine(trackFlow, subTitleCombiner())
 
     private val scrubbingTimeFormattedChannel = BroadcastChannel<String>(1)
     val scrubbingTimeFormattedFlow: Flow<String> get() = scrubbingTimeFormattedChannel.asFlow()
@@ -75,5 +76,14 @@ class PlayerViewModel(
             )
         }
     }
+
+    private fun subTitleCombiner(): suspend (streamOpt: Optional<StreamMetaData>, track: TrackItem) -> String =
+        { streamOpt, track ->
+            if (track.source.isStream) {
+                streamOpt.data?.title.orEmpty()
+            } else {
+                track.subTitle
+            }
+        }
 
 }

@@ -36,10 +36,11 @@ sealed class PlayerState {
 sealed class PlayerSideEffect {
 
     data class MetaData(val value: PlayerMetaData) : PlayerSideEffect()
+    data class StreamMetaData(val title: String): PlayerSideEffect()
     data class TrackPosition(
         val currentPosition: Duration,
         val bufferedPosition: Duration,
         val contentPosition: Duration
     ) : PlayerSideEffect()
-
+    object TrackPositionReset: PlayerSideEffect()
 }

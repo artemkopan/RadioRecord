@@ -7,10 +7,13 @@ import android.os.Looper
 import androidx.core.net.toUri
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player.*
+import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.drm.DrmSessionManager
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
+import com.google.android.exoplayer2.metadata.Metadata
+import com.google.android.exoplayer2.metadata.icy.IcyInfo
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -99,6 +102,10 @@ class AndroidPlayerController(
         )
 
         val source: MediaSource = when (trackSource) {
+            is TrackSource.ProgressiveStream -> {
+                ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(trackSource.link.toUri())
+            }
             is TrackSource.Progressive -> {
                 ProgressiveMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(trackSource.link.toUri())
@@ -133,13 +140,18 @@ class AndroidPlayerController(
             if (it.playbackState != STATE_READY || !it.playWhenReady) {
                 return
             }
-            basePlayerController.postSideEffects(
-                PlayerSideEffect.TrackPosition(
-                    it.contentPosition.toDuration(DurationUnit.MILLISECONDS),
-                    it.bufferedPosition.toDuration(DurationUnit.MILLISECONDS),
-                    it.contentDuration.toDuration(DurationUnit.MILLISECONDS)
+            val contentDuration = it.contentDuration
+            if (contentDuration == C.TIME_UNSET) {
+                basePlayerController.postSideEffects(PlayerSideEffect.TrackPositionReset)
+            } else {
+                basePlayerController.postSideEffects(
+                    PlayerSideEffect.TrackPosition(
+                        it.contentPosition.toDuration(DurationUnit.MILLISECONDS),
+                        it.bufferedPosition.toDuration(DurationUnit.MILLISECONDS),
+                        contentDuration.toDuration(DurationUnit.MILLISECONDS)
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -203,9 +215,25 @@ class AndroidPlayerController(
             .build()
 
         player.addAnalyticsListener(AudioEventLogger())
+        player.addAnalyticsListener(metaDataEventListener)
         player.setAudioAttributes(audioAttributes, true)
         player.addListener(eventListener)
         return player
+    }
+
+    private val metaDataEventListener: AnalyticsListener = object : AnalyticsListener {
+        override fun onMetadata(eventTime: AnalyticsListener.EventTime, metadata: Metadata) {
+            if (metadata.length() > 0) {
+                for (i in 0 until metadata.length()) {
+                    val entry = metadata[i]
+                    if (entry is IcyInfo) {
+                        basePlayerController.postSideEffects(
+                            PlayerSideEffect.StreamMetaData(entry.title.orEmpty())
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private class AudioEventLogger : EventLogger(null, TAG) {

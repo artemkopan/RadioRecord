@@ -44,6 +44,10 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
             playerSubTitleView.text = it.subTitle
         }
 
+        viewModel.subTitleFlow.subscribe {
+            playerSubTitleView.text = it
+        }
+
         viewModel.scrubbingTimeFormattedFlow.subscribe {
             playerCurrentDurationView.text = it
         }
@@ -68,8 +72,10 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
 
         viewModel.trackMediaStateFlow.subscribe {
             when (it.data) {
-                TrackMediaState.Buffering,
-                TrackMediaState.Ended,
+                TrackMediaState.Preparing -> {
+                    playerPlayButton.isEnabled = false
+                    playerPlayButton.play(true)
+                }
                 TrackMediaState.Play -> {
                     playerPlayButton.isEnabled = true
                     playerPlayButton.pause(true)
@@ -79,7 +85,7 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
                     playerPlayButton.play(true)
                 }
                 else -> {
-                    playerPlayButton.isEnabled = false
+                    playerPlayButton.isEnabled = true
                     playerPlayButton.play(true)
                 }
             }

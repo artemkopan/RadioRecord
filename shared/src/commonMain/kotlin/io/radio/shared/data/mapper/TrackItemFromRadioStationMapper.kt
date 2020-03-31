@@ -17,10 +17,10 @@ class TrackItemFromRadioStationMapper : Mapper<TrackItem, RadioStation>() {
             CoverImage(from.icon).toOptional(),
             0.0.milliseconds,
             //todo check hls
-            TrackSource.Progressive(
+            TrackSource.ProgressiveStream(
                 when {
-                    stream320.isNotEmpty() -> stream320
                     stream128.isNotEmpty() -> stream128
+                    stream320.isNotEmpty() -> stream320
                     stream64.isNotEmpty() -> stream64
                     else -> stream32
                 }

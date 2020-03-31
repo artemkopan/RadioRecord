@@ -29,6 +29,8 @@ interface PlayerController {
 
     fun observePlayerMetaData(): Flow<Optional<PlayerMetaData>>
 
+    fun observeStreamMetaData(): Flow<Optional<StreamMetaData>>
+
     fun prepare(trackItem: TrackItem, autoPlay: Boolean)
 
     fun release()
@@ -58,18 +60,37 @@ open class BasePlayerController(
     private val trackTimeLineChannel = ConflatedBroadcastChannel<Optional<TrackMediaTimeLine>>(
         Optional.empty()
     )
-    private val metaDataChannel = ConflatedBroadcastChannel<Optional<PlayerMetaData>>(
-        Optional.empty()
-    )
+    private val playerMetaDataChannel by lazy {
+        ConflatedBroadcastChannel<Optional<PlayerMetaData>>(
+            Optional.empty()
+        )
+    }
+    private val streamMetaDataChannel by lazy {
+        ConflatedBroadcastChannel<Optional<StreamMetaData>>(
+            Optional.empty()
+        )
+    }
+
 
     private val playerActionsChannel = BroadcastChannel<PlayerAction>(1)
-    override val playerActionsFlow: Flow<PlayerAction> = playerActionsChannel.asFlow().buffer()
+    override val playerActionsFlow: Flow<PlayerAction>
+        get() = playerActionsChannel.asFlow().buffer()
 
-    override fun observeTrackInfo(): Flow<Optional<TrackMediaInfo>> = trackInfoChannel.asFlow()
-    override fun observeTrackTimeLine(): Flow<Optional<TrackMediaTimeLine>> =
-        trackTimeLineChannel.asFlow()
+    override fun observeTrackInfo(): Flow<Optional<TrackMediaInfo>> {
+        return trackInfoChannel.asFlow()
+    }
 
-    override fun observePlayerMetaData(): Flow<Optional<PlayerMetaData>> = metaDataChannel.asFlow()
+    override fun observeTrackTimeLine(): Flow<Optional<TrackMediaTimeLine>> {
+        return trackTimeLineChannel.asFlow()
+    }
+
+    override fun observePlayerMetaData(): Flow<Optional<PlayerMetaData>> {
+        return playerMetaDataChannel.asFlow()
+    }
+
+    override fun observeStreamMetaData(): Flow<Optional<StreamMetaData>> {
+        return streamMetaDataChannel.asFlow()
+    }
 
     override fun prepare(trackItem: TrackItem, autoPlay: Boolean) {
         playerScope.launch {
@@ -96,7 +117,8 @@ open class BasePlayerController(
                 playerActionsChannel.send(PlayerAction.Release)
                 trackInfoChannel.send(Optional.empty())
                 trackTimeLineChannel.send(Optional.empty())
-                metaDataChannel.send(Optional.empty())
+                playerMetaDataChannel.send(Optional.empty())
+                streamMetaDataChannel.send(Optional.empty())
             }
         }
     }
@@ -163,7 +185,13 @@ open class BasePlayerController(
         playerScope.launch {
             when (effect) {
                 is PlayerSideEffect.MetaData -> {
-                    metaDataChannel.send(effect.value.toOptional())
+                    playerMetaDataChannel.send(effect.value.toOptional())
+                }
+                is PlayerSideEffect.StreamMetaData -> {
+                    streamMetaDataChannel.send(StreamMetaData(effect.title).toOptional())
+                }
+                is PlayerSideEffect.TrackPositionReset -> {
+                    trackTimeLineChannel.send(Optional.empty())
                 }
                 is PlayerSideEffect.TrackPosition -> {
                     trackTimeLineChannel.send(
