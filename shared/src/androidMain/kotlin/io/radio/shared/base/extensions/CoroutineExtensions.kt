@@ -1,3 +1,4 @@
+@file:JvmName("AndroidCoroutineExtensions")
 package io.radio.shared.base.extensions
 
 import android.os.Handler

@@ -1,5 +1,6 @@
 package io.radio.presentation.player
 
+import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
@@ -52,47 +53,70 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
             playerCurrentDurationView.text = it
         }
 
+
+        setupTrackStates()
+        setupTimeLineBar()
+        setupSeek()
+        playerPlayButton.setOnClickListener { viewModel.onPlayClicked() }
+    }
+
+    private fun setupSeek() {
+        playerRewindAreaView.setOnClickListener {
+            viewModel.rewind()
+        }
+        playerForwardAreaView.setOnClickListener {
+            viewModel.forward()
+        }
+
+        viewModel.availableSeekFlow.subscribe {
+            playerRewindAreaView.isEnabled = it
+            playerForwardAreaView.isEnabled = it
+        }
+
+        fun showTime(viewToShow: View, viewToHide: View) {
+            viewToShow.animate().alpha(1f).setDuration(SEEK_DURATION).start()
+            viewToHide.animate().alpha(0f).setDuration(SEEK_DURATION).start()
+        }
+
+        viewModel.seekResultFlow.subscribe {
+            when (val result = it.data) {
+                is PlayerViewModel.SeekResult.Forward -> {
+                    playerForwardTimeView.text = result.timeOffset
+                    showTime(playerForwardTimeView, playerRewindTimeView)
+                    (playerForwardImage.drawable as Animatable).start()
+                }
+                is PlayerViewModel.SeekResult.Rewind -> {
+                    playerRewindTimeView.text = result.timeOffset
+                    showTime(playerRewindTimeView, playerForwardTimeView)
+                    (playerRewindImage.drawable as Animatable).start()
+                }
+                else -> {
+                    playerForwardTimeView.animate().alpha(0f).setDuration(SEEK_DURATION).start()
+                    playerRewindTimeView.animate().alpha(0f).setDuration(SEEK_DURATION).start()
+                }
+            }
+        }
+    }
+
+    private fun setupTimeLineBar() {
         viewModel.trackTimeLineFlow.subscribe {
             val data = it.data
             if (data == null) {
-                playerSeekBar.isEnabled = false
-                playerSeekBar.max = 0
+                playerTimeBar.isEnabled = false
+                playerTimeBar.max = 0
                 playerCurrentDurationView.text = ""
                 playerTotalDurationView.text = ""
             } else {
-                playerSeekBar.isEnabled = true
-                playerSeekBar.max = data.totalDuration.toInt(DurationUnit.SECONDS)
-                playerSeekBar.progress = data.currentPosition.toInt(DurationUnit.SECONDS)
-                playerSeekBar.secondaryProgress =
+                playerTimeBar.isEnabled = true
+                playerTimeBar.max = data.totalDuration.toInt(DurationUnit.SECONDS)
+                playerTimeBar.progress = data.currentPosition.toInt(DurationUnit.SECONDS)
+                playerTimeBar.secondaryProgress =
                     data.bufferedPosition.toInt(DurationUnit.SECONDS)
                 playerCurrentDurationView.text = data.currentDurationFormatted
                 playerTotalDurationView.text = data.totalDurationFormatted
             }
         }
-
-        viewModel.trackMediaStateFlow.subscribe {
-            when (it.data) {
-                TrackMediaState.Preparing -> {
-                    playerPlayButton.isEnabled = false
-                    playerPlayButton.play(true)
-                }
-                TrackMediaState.Play -> {
-                    playerPlayButton.isEnabled = true
-                    playerPlayButton.pause(true)
-                }
-                TrackMediaState.Pause -> {
-                    playerPlayButton.isEnabled = true
-                    playerPlayButton.play(true)
-                }
-                else -> {
-                    playerPlayButton.isEnabled = true
-                    playerPlayButton.play(true)
-                }
-            }
-        }
-
-        playerPlayButton.setOnClickListener { viewModel.onPlayClicked() }
-        playerSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        playerTimeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(
                 seekBar: SeekBar?,
                 progress: Int,
@@ -111,5 +135,43 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
         })
     }
 
+    private fun setupTrackStates() {
+        var previousState: TrackMediaState? = null
+
+        fun animateButton(newState: TrackMediaState?): Boolean {
+            return when {
+                previousState == TrackMediaState.Buffering && newState == TrackMediaState.Play -> false
+                else -> true
+            }
+        }
+
+        viewModel.trackMediaStateFlow.subscribe {
+            when (val state = it.data) {
+                TrackMediaState.Preparing -> {
+                    playerPlayButton.isEnabled = false
+                    playerPlayButton.play(animateButton(state))
+                }
+                TrackMediaState.Buffering,
+                TrackMediaState.Play -> {
+                    playerPlayButton.isEnabled = true
+                    playerPlayButton.pause(animateButton(state))
+                }
+                TrackMediaState.Pause -> {
+                    playerPlayButton.isEnabled = true
+                    playerPlayButton.play(animateButton(state))
+                }
+                else -> {
+                    playerPlayButton.isEnabled = true
+                    playerPlayButton.play(animateButton(state))
+                }
+            }
+            previousState = it.data
+        }
+    }
+
+
+    private companion object {
+        const val SEEK_DURATION = 150L
+    }
 
 }

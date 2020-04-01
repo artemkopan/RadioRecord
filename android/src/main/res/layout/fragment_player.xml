@@ -20,7 +20,7 @@
         android:id="@+id/playerCoverImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/playerSeekBar"
+        app:layout_constraintBottom_toTopOf="@+id/playerTimeBar"
         app:layout_constraintDimensionRatio="w,1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +87,7 @@
         app:srcCompat="@drawable/ic_skip_next" />
 
     <androidx.appcompat.widget.AppCompatSeekBar
-        android:id="@+id/playerSeekBar"
+        android:id="@+id/playerTimeBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/itemMargin"
@@ -102,7 +102,7 @@
         android:layout_marginEnd="@dimen/defaultMargin"
         android:textAppearance="?textAppearanceCaption"
         app:fontFamily="@font/montserrat_light"
-        app:layout_constraintBottom_toTopOf="@+id/playerSeekBar"
+        app:layout_constraintBottom_toTopOf="@+id/playerTimeBar"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="54:00" />
 
@@ -113,8 +113,80 @@
         android:layout_marginStart="@dimen/defaultMargin"
         android:textAppearance="?textAppearanceCaption"
         app:fontFamily="@font/montserrat_light"
-        app:layout_constraintBottom_toTopOf="@+id/playerSeekBar"
+        app:layout_constraintBottom_toTopOf="@+id/playerTimeBar"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="00:00" />
+
+    <View
+        android:id="@+id/playerRewindAreaView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playerToolbar"
+        app:layout_constraintWidth_percent="0.3" />
+
+    <View
+        android:id="@+id/playerForwardAreaView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintTop_toBottomOf="@id/playerToolbar"
+        app:layout_constraintWidth_percent="0.3" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/playerRewindImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/defaultMargin"
+        android:padding="@dimen/defaultMargin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4"
+        app:srcCompat="@drawable/avd_rewind" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/playerForwardImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/defaultMargin"
+        android:paddingStart="@dimen/defaultMargin"
+        android:paddingTop="@dimen/defaultMargin"
+        android:paddingEnd="@dimen/defaultMargin"
+        android:paddingBottom="@dimen/itemMargin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.4"
+        app:srcCompat="@drawable/avd_forward" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/playerForwardTimeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:textAppearance="?textAppearanceCaption"
+        app:fontFamily="@font/montserrat_regular"
+        app:layout_constraintEnd_toEndOf="@id/playerForwardImage"
+        app:layout_constraintStart_toStartOf="@id/playerForwardImage"
+        app:layout_constraintTop_toBottomOf="@id/playerForwardImage"
+        tools:alpha="1"
+        tools:text="120s" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/playerRewindTimeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:textAppearance="?textAppearanceCaption"
+        app:fontFamily="@font/montserrat_regular"
+        app:layout_constraintEnd_toEndOf="@id/playerRewindImage"
+        app:layout_constraintStart_toStartOf="@id/playerRewindImage"
+        app:layout_constraintTop_toBottomOf="@id/playerRewindImage"
+        tools:alpha="1"
+        tools:text="120s" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

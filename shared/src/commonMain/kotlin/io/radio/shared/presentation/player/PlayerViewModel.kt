@@ -1,30 +1,35 @@
 package io.radio.shared.presentation.player
 
-import io.radio.shared.base.IoDispatcher
-import io.radio.shared.base.Optional
-import io.radio.shared.base.toOptional
+import io.radio.shared.base.*
+import io.radio.shared.base.extensions.CoroutineExceptionHandler
+import io.radio.shared.base.extensions.JobRunner
 import io.radio.shared.base.viewmodel.ViewModel
+import io.radio.shared.domain.date.DateProvider
 import io.radio.shared.domain.image.ImageProcessor
 import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.domain.player.StreamMetaData
 import io.radio.shared.domain.resources.AppResources
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
+import io.radio.shared.domain.usecases.track.TrackSeekUseCase
 import io.radio.shared.domain.usecases.track.TrackUpdatePositionUseCase
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaState
 import io.radio.shared.model.TrackMediaTimeLine
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlayerViewModel(
     playerController: PlayerController,
+    appResources: AppResources,
     private val trackMediaInfoProcessUseCase: TrackMediaInfoProcessUseCase,
     private val trackUpdatePositionUseCase: TrackUpdatePositionUseCase,
-    appResources: AppResources,
-    imageProcessor: ImageProcessor
+    private val dateProvider: DateProvider,
+    private val trackSeekUseCase: TrackSeekUseCase,
+    private val imageProcessor: ImageProcessor
 ) : ViewModel() {
 
 
@@ -43,18 +48,21 @@ class PlayerViewModel(
     val trackTimeLineFlow: Flow<Optional<TrackMediaTimeLine>> =
         playerController.observeTrackTimeLine()
 
+    private val availableSeekChannel = ConflatedBroadcastChannel(false)
+    val availableSeekFlow: Flow<Boolean> get() = availableSeekChannel.asFlow()
+
+    private val seekResultChannel = ConflatedBroadcastChannel<Optional<SeekResult>>()
+    val seekResultFlow: Flow<Optional<SeekResult>> get() = seekResultChannel.asFlow()
+
     private val visualizationColorChannel = ConflatedBroadcastChannel(appResources.accentColor)
     val visualizationColorFlow: Flow<Int> get() = visualizationColorChannel.asFlow()
 
+    private val seekJobRunner = JobRunner()
+
     init {
-        trackFlow.onEach {
-            withContext(IoDispatcher) {
-                val defaultColor = visualizationColorChannel.value
-                val visualizationColor = it.cover.data?.img?.takeIf { it.isNotEmpty() }?.let {
-                    imageProcessor.getDominantColor(it, defaultColor)
-                } ?: defaultColor
-                visualizationColorChannel.send(visualizationColor)
-            }
+        trackFlow.onEach { track ->
+            availableSeekChannel.send(track.source.isStream.not())
+            updateVisualizationColor(track)
         }
             .catch { /* todo add handling exception */ }
             .launchIn(scope)
@@ -77,6 +85,42 @@ class PlayerViewModel(
         }
     }
 
+    fun rewind() = seek(false)
+    fun forward() = seek(true)
+
+    private fun seek(isForward: Boolean) {
+        seekJobRunner.runAndCancelPrevious {
+            //todo error handler
+            scope.launch(context = CoroutineExceptionHandler { throwable -> }) {
+                if (availableSeekChannel.value) {
+                    val duration = trackSeekUseCase.execute(isForward)
+                    if (duration.isNotEmpty()) {
+                        val formatted = dateProvider.formatSec(duration.getOrThrow())
+                        seekResultChannel.send(
+                            (if (isForward) {
+                                SeekResult.Forward(formatted)
+                            } else {
+                                SeekResult.Rewind(formatted)
+                            }).toOptional()
+                        )
+                        delay(SEEK_DELAY)
+                        seekResultChannel.send(Optional.empty())
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun updateVisualizationColor(track: TrackItem) {
+        withContext(IoDispatcher + CoroutineExceptionHandler { throwable ->  /* todo add handling error */ }) {
+            val defaultColor = visualizationColorChannel.value
+            val visualizationColor = track.cover.data?.img?.takeIf { it.isNotEmpty() }?.let {
+                imageProcessor.getDominantColor(it, defaultColor)
+            } ?: defaultColor
+            visualizationColorChannel.send(visualizationColor)
+        }
+    }
+
     private fun subTitleCombiner(): suspend (streamOpt: Optional<StreamMetaData>, track: TrackItem) -> String =
         { streamOpt, track ->
             if (track.source.isStream) {
@@ -86,4 +130,13 @@ class PlayerViewModel(
             }
         }
 
+
+    sealed class SeekResult {
+        class Forward(val timeOffset: String) : SeekResult()
+        class Rewind(val timeOffset: String) : SeekResult()
+    }
+
+    private companion object {
+        const val SEEK_DELAY = 1000L
+    }
 }

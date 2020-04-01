@@ -22,6 +22,6 @@ val presentationModule = module {
 
     factory { PodcastsViewModel(get(), get(), get()) }
     factory { StationsViewModel(get(), get(), get()) }
-    factory { PlayerViewModel(get(), get(), get(), get(), get()) }
+    factory { PlayerViewModel(get(), get(), get(), get(), get(), get(), get()) }
 
 }

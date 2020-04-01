@@ -12,7 +12,7 @@ import kotlin.time.milliseconds
 
 class TrackMediaInfoProcessUseCase(
     private val playerController: PlayerController
-) : UseCase<TrackItem, Unit>, UseCasesBiParams<TrackItem, TrackMediaInfoProcessParams, Unit> {
+) : UseCase<TrackItem, Unit>, UseCaseBiParams<TrackItem, TrackMediaInfoProcessParams, Unit> {
 
     override suspend fun execute(track: TrackItem) {
         execute(track, TrackMediaInfoProcessParams())

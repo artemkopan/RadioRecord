@@ -3,7 +3,7 @@
 package io.radio.shared.domain.usecases.track
 
 import io.radio.shared.base.IoDispatcher
-import io.radio.shared.base.UseCasesBiParams
+import io.radio.shared.base.UseCaseBiParams
 import io.radio.shared.domain.formatters.TrackFormatter
 import io.radio.shared.domain.player.PlayerController
 import kotlinx.coroutines.withContext
@@ -12,7 +12,7 @@ import kotlin.time.seconds
 class TrackUpdatePositionUseCase(
     private val trackFormatter: TrackFormatter,
     private val playerController: PlayerController
-) : UseCasesBiParams<Int, Boolean, String> {
+) : UseCaseBiParams<Int, Boolean, String> {
 
     override suspend fun execute(positionSec: Int, isScrubbing: Boolean): String =
         withContext(IoDispatcher) {

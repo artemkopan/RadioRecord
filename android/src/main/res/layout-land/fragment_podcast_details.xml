@@ -9,12 +9,12 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/podcastDetailsHeader"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
+        android:layout_height="0dp"
         android:padding="0dp"
         app:cardElevation="@dimen/elevationDefault"
         app:cardPreventCornerOverlap="false"
         app:contentPadding="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/podcastDetailsToolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,7 +23,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/podcastDetailsHeaderImage"
             android:layout_width="match_parent"
-            android:layout_height="?actionBarSize" />
+            android:layout_height="match_parent" />
 
     </com.google.android.material.card.MaterialCardView>
 
