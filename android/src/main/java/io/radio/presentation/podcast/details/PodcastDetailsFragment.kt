@@ -2,11 +2,20 @@ package io.radio.presentation.podcast.details
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy
+import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
@@ -24,8 +33,8 @@ import io.radio.shared.base.imageloader.transformations.BlurTransformation
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
 import io.radio.shared.base.imageloader.transformations.GranularRoundedCornersTransformation
 import io.radio.shared.base.imageloader.transformations.RoundedCornersTransformation
-import io.radio.shared.base.recycler.RecyclerViewStateController
 import io.radio.shared.base.viewmodel.koin.viewModels
+import io.radio.shared.presentation.player.TrackPositionScrollerHelper
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
 import kotlinx.android.synthetic.main.fragment_podcast_details.*
@@ -35,9 +44,6 @@ import kotlinx.coroutines.flow.onEach
 class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
 
     private val viewModel by viewModels<PodcastDetailsViewModel>()
-    private val stateController = RecyclerViewStateController(this) {
-        podcastTracksRecycler?.layoutManager
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +76,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         podcastDetailsHeader.setCardBackgroundColor(params.headerColor)
 
         podcastDetailsHeader.doOnPreDraw {
-            loadHeader(params, it)
+            loadHeader(params)
             loadCover(params) {
                 startPostponedEnterTransition()
             }
@@ -87,6 +93,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         }
 
         initTracksAdapter()
+        initTrackPositionHandler()
 
         viewModel.openPlayerEventFlow.subscribe { it.performContentIfNotHandled { routePlayer() } }
 
@@ -104,7 +111,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                     }
                 }
             }
-            .launchIn(viewScope)
+            .launchIn(scope)
     }
 
     private fun initTracksAdapter() {
@@ -114,20 +121,56 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                 R.id.trackContainerLayout -> viewModel.onTrackClick(trackMediaInfo)
             }
         }
-        tracksAdapter.setHasStableIds(true)
+        tracksAdapter.stateRestorationPolicy = StateRestorationPolicy.PREVENT
         podcastTracksRecycler.adapter = tracksAdapter
         podcastTracksRecycler.setHasFixedSize(true)
 
+
         viewModel.trackItemsFlow
             .subscribe {
-                tracksAdapter.submitList(it) { stateController.restoreState() }
+                tracksAdapter.submitList(it) {
+                    tracksAdapter.stateRestorationPolicy = StateRestorationPolicy.ALLOW
+                }
             }
     }
 
-    private fun loadHeader(
-        params: PodcastDetailsParams,
-        it: View
-    ) {
+    private fun initTrackPositionHandler() {
+        val layoutManager = podcastTracksRecycler.layoutManager as LinearLayoutManager
+        val transition = Slide(Gravity.TOP).apply {
+            addTarget(podcastTrackScrollButton)
+            duration = resources.getInteger(android.R.integer.config_longAnimTime).toLong()
+        }
+
+        fun switchTrackScrollButtonVisibility(isVisible: Boolean) {
+            if (podcastTrackScrollButton.isVisible == isVisible) return
+            TransitionManager.beginDelayedTransition(view as ViewGroup, transition)
+            podcastTrackScrollButton.isVisible = isVisible
+        }
+
+        val trackPositionScrollerHelper = TrackPositionScrollerHelper(
+            this,
+            { layoutManager.findFirstCompletelyVisibleItemPosition() to layoutManager.findLastCompletelyVisibleItemPosition() },
+            { switchTrackScrollButtonVisibility(it) },
+            { podcastTracksRecycler.smoothScrollToPosition(it) }
+        )
+
+        podcastTracksRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == SCROLL_STATE_DRAGGING) {
+                    trackPositionScrollerHelper.wasScrolledByUser = true
+                }
+            }
+        })
+
+        podcastTracksRecycler.post {
+            viewModel.trackPositionFlow.subscribe { trackPositionScrollerHelper.onTrackChanged(it) }
+        }
+        podcastTrackScrollButton.setOnClickListener {
+            trackPositionScrollerHelper.onScrollButtonClicked()
+        }
+    }
+
+    private fun loadHeader(params: PodcastDetailsParams) {
         podcastDetailsHeaderImage.loadImage(
             params.cover,
             ImageLoaderParams(
@@ -165,11 +208,6 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                 )
             )
         )
-    }
-
-
-    private companion object {
-        const val ANIM_DURATION = 500L
     }
 
 }

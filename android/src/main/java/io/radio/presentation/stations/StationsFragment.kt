@@ -67,7 +67,7 @@ class StationsFragment : BaseFragment(R.layout.fragment_stations) {
                     }
                 }
             }
-            .launchIn(viewScope)
+            .launchIn(scope)
     }
 
     override fun onResume() {

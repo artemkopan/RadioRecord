@@ -8,6 +8,7 @@ import io.radio.shared.domain.date.DateProvider
 import io.radio.shared.domain.image.ImageProcessor
 import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.domain.player.StreamMetaData
+import io.radio.shared.domain.player.playlist.PlayerPlaylistManager
 import io.radio.shared.domain.resources.AppResources
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
 import io.radio.shared.domain.usecases.track.TrackSeekUseCase
@@ -25,6 +26,7 @@ import kotlinx.coroutines.withContext
 class PlayerViewModel(
     playerController: PlayerController,
     appResources: AppResources,
+    private val playlistManager: PlayerPlaylistManager,
     private val trackMediaInfoProcessUseCase: TrackMediaInfoProcessUseCase,
     private val trackUpdatePositionUseCase: TrackUpdatePositionUseCase,
     private val dateProvider: DateProvider,
@@ -41,6 +43,8 @@ class PlayerViewModel(
 
     val subTitleFlow = playerController.observeStreamMetaData()
         .combine(trackFlow, subTitleCombiner())
+
+    val playlistAvailabilityFlow = playlistManager.observePlaylistAvailability()
 
     private val scrubbingTimeFormattedChannel = BroadcastChannel<String>(1)
     val scrubbingTimeFormattedFlow: Flow<String> get() = scrubbingTimeFormattedChannel.asFlow()
@@ -87,6 +91,9 @@ class PlayerViewModel(
 
     fun rewind() = seek(false)
     fun forward() = seek(true)
+
+    fun next() = playlistManager.playNext()
+    fun previous() = playlistManager.playPrevious()
 
     private fun seek(isForward: Boolean) {
         seekJobRunner.runAndCancelPrevious {

@@ -27,7 +27,6 @@
         app:layout_constraintTop_toBottomOf="@id/playerToolbar"
         app:layout_constraintVertical_bias="@dimen/playerCoverVerticalBias"
         app:layout_constraintWidth_percent="@dimen/playerCoverWidthPercent"
-        tools:scaleType="centerCrop"
         tools:src="@tools:sample/backgrounds/scenic" />
 
     <androidx.appcompat.widget.AppCompatTextView

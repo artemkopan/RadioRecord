@@ -62,7 +62,7 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
 
                 }
             }
-        }.launchIn(viewScope)
+        }.launchIn(scope)
 
         viewModel.podcastsFlow.onEach {
             Logger.d("Podcasts new state: $it")
@@ -82,7 +82,7 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
                     radioPodcastRecycleView.isVisible = true
                 }
             }
-        }.launchIn(viewScope)
+        }.launchIn(scope)
     }
 
     override fun onResume() {

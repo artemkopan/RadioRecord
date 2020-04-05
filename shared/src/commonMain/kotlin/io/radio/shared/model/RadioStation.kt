@@ -1,6 +1,7 @@
 package io.radio.shared.model
 
 data class RadioStation(
+    val id: Int,
     val title:String,
     val icon: String,
     val iconSvg: String,

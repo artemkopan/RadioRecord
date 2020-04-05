@@ -92,5 +92,13 @@
         app:layout_constraintStart_toEndOf="@id/podcastDetailsToolbar"
         tools:src="@tools:sample/avatars" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/podcastTrackScrollButton"
+        style="@style/Widget.Podcast.Details.ScrollButton"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/podcastDetailsHeader"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,9 +9,10 @@ import io.radio.shared.model.TrackSource
 import kotlin.time.milliseconds
 
 class TrackItemFromRadioStationMapper : Mapper<TrackItem, RadioStation>() {
+
     override fun map(from: RadioStation, params: Any?): TrackItem = with(from) {
         TrackItem(
-            from.title.hashCode(),
+            from.id,
             from.title,
             "",
             CoverImage(from.icon).toOptional(),

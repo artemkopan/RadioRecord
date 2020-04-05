@@ -3,6 +3,10 @@ package io.radio.presentation.home
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.SharedElementCallback
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener
 import androidx.viewpager2.widget.ViewPager2
 import io.radio.R
 import io.radio.presentation.podcast.PodcastsSharedElementSupport
@@ -53,10 +57,20 @@ class HomeFragment : BaseFragment(R.layout.fragment_home), HomePagerContentScrol
                 headerLayout.progress = ((position + positionOffset) / (pagesAdapter.itemCount - 1))
             }
         })
-        pagerView.postDelayed(
-            { startPostponedEnterTransition() },
-            100 //waiting for viewpager creates fragments
-        )
+
+        pagesAdapter.registerFragmentTransactionCallback(object :
+            FragmentStateAdapter.FragmentTransactionCallback() {
+            override fun onFragmentMaxLifecyclePreUpdated(
+                fragment: Fragment,
+                maxLifecycleState: Lifecycle.State
+            ): OnPostEventListener {
+                return OnPostEventListener {
+                    if (maxLifecycleState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        pagerView.post { startPostponedEnterTransition() }
+                    }
+                }
+            }
+        })
     }
 
     override fun onScrolled(fraction: Float) {

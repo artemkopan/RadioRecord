@@ -7,6 +7,7 @@ import io.radio.shared.model.RadioStation
 class RadioStationMapper : Mapper<RadioStation, RadioStationResponse>() {
     override fun map(from: RadioStationResponse, params: Any?): RadioStation = with(from) {
         RadioStation(
+            prefix!!.hashCode(),
             title.orEmpty(),
             iconPng.orEmpty(),
             icon.orEmpty(),

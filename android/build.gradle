@@ -65,7 +65,7 @@ dependencies {
 
     implementation "androidx.recyclerview:recyclerview:$android_recycler_version"
     implementation "androidx.constraintlayout:constraintlayout:$android_constraint_version"
-    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation "androidx.viewpager2:viewpager2:1.1.0-alpha01"
 
     implementation "com.google.android.material:material:$android_material_version"
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.1'

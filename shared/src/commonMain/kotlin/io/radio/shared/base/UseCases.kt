@@ -7,7 +7,7 @@ interface UseCase<Params, Return> {
 
 }
 
-interface UseCaseBiParams<Params1, Params2, Return>{
+interface UseCaseBiParams<Params1, Params2, Return> {
 
     suspend fun execute(params1: Params1, params2: Params2): Return
 

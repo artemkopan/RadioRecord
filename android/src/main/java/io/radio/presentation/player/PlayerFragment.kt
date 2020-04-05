@@ -53,6 +53,13 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
             playerCurrentDurationView.text = it
         }
 
+        viewModel.playlistAvailabilityFlow.subscribe {
+            playerSkipNextButton.isEnabled = it.nextAvailable
+            playerSkipPreviousButton.isEnabled = it.previousAvailable
+        }
+
+        playerSkipNextButton.setOnClickListener { viewModel.next() }
+        playerSkipPreviousButton.setOnClickListener { viewModel.previous() }
 
         setupTrackStates()
         setupTimeLineBar()
@@ -74,8 +81,21 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
         }
 
         fun showTime(viewToShow: View, viewToHide: View) {
-            viewToShow.animate().alpha(1f).setDuration(SEEK_DURATION).start()
-            viewToHide.animate().alpha(0f).setDuration(SEEK_DURATION).start()
+            viewToShow.animate()
+                .alpha(1f)
+                .withEndAction {
+                    viewToShow.animate().alpha(0f).setDuration(SEEK_DURATION).setStartDelay(400).start()
+                }
+                .setStartDelay(0L)
+                .setDuration(SEEK_DURATION)
+                .start()
+
+            viewToHide.animate()
+                .alpha(0f)
+                .withEndAction { }
+                .setStartDelay(0L)
+                .setDuration(SEEK_DURATION)
+                .start()
         }
 
         viewModel.seekResultFlow.subscribe {
@@ -89,10 +109,6 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
                     playerRewindTimeView.text = result.timeOffset
                     showTime(playerRewindTimeView, playerForwardTimeView)
                     (playerRewindImage.drawable as Animatable).start()
-                }
-                else -> {
-                    playerForwardTimeView.animate().alpha(0f).setDuration(SEEK_DURATION).start()
-                    playerRewindTimeView.animate().alpha(0f).setDuration(SEEK_DURATION).start()
                 }
             }
         }

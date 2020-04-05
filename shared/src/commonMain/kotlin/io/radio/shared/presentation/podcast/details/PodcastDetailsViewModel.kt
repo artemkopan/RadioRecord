@@ -5,12 +5,14 @@ import io.radio.shared.base.viewmodel.ViewModel
 import io.radio.shared.base.viewmodel.ViewModelParams
 import io.radio.shared.data.mapper.TrackItemFromRadioPodcastMapper
 import io.radio.shared.domain.player.PlayerController
+import io.radio.shared.domain.player.playlist.PlayerPlaylistManager
 import io.radio.shared.domain.repositories.station.RadioRepository
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessParams
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
 import io.radio.shared.model.CoverImage
 import io.radio.shared.model.RadioPodcastDetails
+import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaInfo
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
@@ -19,6 +21,7 @@ import kotlinx.coroutines.withContext
 
 class PodcastDetailsViewModel constructor(
     private val repository: RadioRepository,
+    private val playlistManager: PlayerPlaylistManager,
     private val trackMapper: TrackItemFromRadioPodcastMapper,
     private val trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase,
     private val trackMediaInfoProcessUseCase: TrackMediaInfoProcessUseCase,
@@ -40,6 +43,12 @@ class PodcastDetailsViewModel constructor(
     private val trackItemsChannel = ConflatedBroadcastChannel<List<TrackMediaInfo>>()
     val trackItemsFlow: Flow<List<TrackMediaInfo>> get() = trackItemsChannel.asFlow()
 
+    val trackPositionFlow = playlistManager.observePlaylist().mapNotNull {
+        it.position.takeIf { pos -> pos != PlayerPlaylistManager.NO_POSITION }
+    }
+
+    private var playlist = emptyList<TrackItem>()
+
     init {
         defaultTrackItemsChannel.asFlow()
             .combine(playerController.observeTrackInfo(), tracksCombiner())
@@ -50,29 +59,34 @@ class PodcastDetailsViewModel constructor(
         podcastDetailsChannel.perform {
             repository.getPodcast(podcastId).also { details ->
                 withContext(IoDispatcher) {
+                    val playlistMutable = mutableListOf<TrackItem>()
                     details.items
                         .map {
+                            val track = trackMapper.map(it, CoverImage(details.cover))
+                            playlistMutable.add(track)
                             trackMediaInfoCreatorUseCase.execute(
-                                TrackMediaInfoCreatorUseCase.Params(
-                                    trackMapper.map(
-                                        it,
-                                        CoverImage(details.cover)
-                                    )
-                                )
+                                TrackMediaInfoCreatorUseCase.Params(track)
                             )
                         }
-                        .let { defaultTrackItemsChannel.send(it) }
+                        .let {
+                            playlist = playlistMutable
+                            defaultTrackItemsChannel.send(it)
+                        }
                 }
             }
         }
     }
 
     fun onPlayClick(mediaInfo: TrackMediaInfo) {
-        scope.launch { trackMediaInfoProcessUseCase.execute(mediaInfo.track) }
+        scope.launch {
+            playlistManager.setPlaylist(playlist)
+            trackMediaInfoProcessUseCase.execute(mediaInfo.track)
+        }
     }
 
     fun onTrackClick(mediaInfo: TrackMediaInfo) {
         scope.launch {
+            playlistManager.setPlaylist(playlist)
             trackMediaInfoProcessUseCase.execute(
                 mediaInfo.track,
                 TrackMediaInfoProcessParams(justPrepare = true)
