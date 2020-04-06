@@ -2,14 +2,10 @@ package io.radio.shared.domain.player
 
 import io.radio.shared.base.Logger
 import io.radio.shared.base.Optional
-import io.radio.shared.base.getOrThrow
 import io.radio.shared.base.toOptional
 import io.radio.shared.domain.formatters.TrackFormatter
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
-import io.radio.shared.model.TrackItem
-import io.radio.shared.model.TrackMediaInfo
-import io.radio.shared.model.TrackMediaState
-import io.radio.shared.model.TrackMediaTimeLine
+import io.radio.shared.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -48,6 +44,10 @@ open class BasePlayerController(
         )
     }
 
+    private val playlistChannel by lazy {
+        ConflatedBroadcastChannel<Optional<Playlist>>(Optional.empty())
+    }
+
     private val playerActionsChannel = BroadcastChannel<PlayerAction>(1)
 
     override val playerActionsFlow: Flow<PlayerAction>
@@ -69,18 +69,15 @@ open class BasePlayerController(
         return streamMetaDataChannel.asFlow()
     }
 
-    override fun prepare(trackItem: TrackItem, autoPlay: Boolean) {
+    override fun observePlaylist(): Flow<Optional<Playlist>> {
+        return playlistChannel.asFlow()
+    }
+
+    override fun prepare(trackItem: TrackItem, playlist: Playlist, autoPlay: Boolean) {
         playerScope.launch {
             actionMutex.withLock {
-                trackInfoChannel.send(
-                    trackMediaInfoCreatorUseCase.execute(
-                        TrackMediaInfoCreatorUseCase.Params(
-                            trackItem,
-                            TrackMediaState.Preparing
-                        )
-                    ).toOptional()
-                )
-                playerActionsChannel.send(PlayerAction.Preparing(trackItem))
+                playerActionsChannel.send(PlayerAction.Preparing(trackItem, playlist))
+                playlistChannel.send(playlist.toOptional())
                 if (autoPlay) {
                     playerActionsChannel.send(PlayerAction.Play)
                 }
@@ -120,6 +117,22 @@ open class BasePlayerController(
         }
     }
 
+    override fun next() {
+        playerScope.launch {
+            actionMutex.withLock {
+                playerActionsChannel.send(PlayerAction.Next)
+            }
+        }
+    }
+
+    override fun previous() {
+        playerScope.launch {
+            actionMutex.withLock {
+                playerActionsChannel.send(PlayerAction.Previous)
+            }
+        }
+    }
+
     override fun setPosition(position: Duration) {
         playerScope.launch {
             actionMutex.withLock {
@@ -136,31 +149,9 @@ open class BasePlayerController(
         }
     }
 
-    override fun postState(state: PlayerState) {
+    override fun postState(state: PlaybackState) {
         playerScope.launch {
-            when (state) {
-                PlayerState.PlayTrack -> {
-                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Play) })
-                }
-                PlayerState.PauseTrack -> {
-                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Pause) })
-                }
-                PlayerState.BufferingTrack -> {
-                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Buffering) })
-                }
-                PlayerState.EndedTrack -> {
-                    trackInfoChannel.send(copyTrack { copy(state = TrackMediaState.Ended) })
-                }
-                is PlayerState.Error -> {
-                    trackInfoChannel.send(copyTrack {
-                        copy(
-                            state = TrackMediaState.Error(
-                                state.throwable
-                            )
-                        )
-                    })
-                }
-            }
+            trackInfoChannel.send(copyTrack { copy(state = convertState(state)) })
         }
     }
 
@@ -174,6 +165,29 @@ open class BasePlayerController(
                     streamMetaDataChannel.send(
                         StreamMetaData(
                             effect.title
+                        ).toOptional()
+                    )
+                }
+                is PlayerSideEffect.TrackChanged -> {
+                    val data = playlistChannel.value.data
+                    if (effect.track == null) {
+                        trackInfoChannel.send(Optional.empty())
+                        playlistChannel.send(data?.copy(position = -1).toOptional())
+                        return@launch
+                    }
+
+                    data?.let {
+                        playlistChannel.send(
+                            it.copy(position = it.tracks.indexOf(effect.track)).toOptional()
+                        )
+                    }
+
+                    trackInfoChannel.send(
+                        trackMediaInfoCreatorUseCase.execute(
+                            TrackMediaInfoCreatorUseCase.Params(
+                                effect.track,
+                                convertState(effect.playbackState!!)
+                            )
                         ).toOptional()
                     )
                 }
@@ -197,9 +211,29 @@ open class BasePlayerController(
 
     private fun copyTrack(block: TrackMediaInfo.() -> TrackMediaInfo): Optional<TrackMediaInfo> {
         return trackInfoChannel.value
-            .getOrThrow()
-            .block()
+            .data
+            ?.block()
             .toOptional()
+    }
+
+    private fun convertState(state: PlaybackState): TrackMediaState {
+        return when (state) {
+            PlaybackState.PlayTrack -> {
+                TrackMediaState.Play
+            }
+            PlaybackState.PauseTrack -> {
+                TrackMediaState.Pause
+            }
+            PlaybackState.BufferingTrack -> {
+                TrackMediaState.Buffering
+            }
+            PlaybackState.EndedTrack -> {
+                TrackMediaState.Ended
+            }
+            is PlaybackState.Error -> {
+                TrackMediaState.Error(state.throwable)
+            }
+        }
     }
 
 }

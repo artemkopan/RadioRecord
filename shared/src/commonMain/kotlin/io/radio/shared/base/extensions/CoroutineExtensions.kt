@@ -15,6 +15,10 @@ class JobRunner {
 
     private var job: Job? = null
 
+    fun cancel() {
+        job?.cancel()
+    }
+
     fun runAndCancelPrevious(runner: () -> Job) {
         job?.cancel()
         job = runner()

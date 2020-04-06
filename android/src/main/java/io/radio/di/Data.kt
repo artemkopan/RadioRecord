@@ -9,8 +9,6 @@ import io.radio.shared.domain.configs.SystemConfig
 import io.radio.shared.domain.configs.SystemConfigImpl
 import io.radio.shared.domain.player.BasePlayerController
 import io.radio.shared.domain.player.PlayerController
-import io.radio.shared.domain.player.playlist.PlayerPlaylistManager
-import io.radio.shared.domain.player.playlist.PlayerPlaylistManagerImpl
 import io.radio.shared.domain.resources.AppResources
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -44,6 +42,5 @@ val dataModule = module {
             get()
         )
     }
-    single<PlayerPlaylistManager> { PlayerPlaylistManagerImpl(get()) }
 
 }

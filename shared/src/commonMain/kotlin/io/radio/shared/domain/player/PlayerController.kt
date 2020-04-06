@@ -1,6 +1,7 @@
 package io.radio.shared.domain.player
 
 import io.radio.shared.base.Optional
+import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaInfo
 import io.radio.shared.model.TrackMediaTimeLine
@@ -17,7 +18,9 @@ interface PlayerController {
 
     fun observeStreamMetaData(): Flow<Optional<StreamMetaData>>
 
-    fun prepare(trackItem: TrackItem, autoPlay: Boolean)
+    fun observePlaylist() : Flow<Optional<Playlist>>
+
+    fun prepare(trackItem: TrackItem, playlist: Playlist, autoPlay: Boolean)
 
     fun release()
 
@@ -30,6 +33,10 @@ interface PlayerController {
     fun play()
 
     fun pause()
+
+    fun next()
+
+    fun previous()
 
 }
 

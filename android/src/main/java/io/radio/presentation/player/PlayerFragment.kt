@@ -53,9 +53,11 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
             playerCurrentDurationView.text = it
         }
 
-        viewModel.playlistAvailabilityFlow.subscribe {
-            playerSkipNextButton.isEnabled = it.nextAvailable
-            playerSkipPreviousButton.isEnabled = it.previousAvailable
+        viewModel.playerMetadataFlow.subscribe {
+            playerSkipNextButton.isEnabled = it.data?.enableNext == true
+            playerSkipPreviousButton.isEnabled = it.data?.enablePrevious == true
+            playerRewindAreaView.isEnabled = it.data?.enableRewind == true
+            playerForwardAreaView.isEnabled = it.data?.enableFastForward == true
         }
 
         playerSkipNextButton.setOnClickListener { viewModel.next() }
@@ -75,16 +77,12 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
             viewModel.forward()
         }
 
-        viewModel.availableSeekFlow.subscribe {
-            playerRewindAreaView.isEnabled = it
-            playerForwardAreaView.isEnabled = it
-        }
-
         fun showTime(viewToShow: View, viewToHide: View) {
             viewToShow.animate()
                 .alpha(1f)
                 .withEndAction {
-                    viewToShow.animate().alpha(0f).setDuration(SEEK_DURATION).setStartDelay(400).start()
+                    viewToShow.animate().alpha(0f).setDuration(SEEK_DURATION).setStartDelay(400)
+                        .start()
                 }
                 .setStartDelay(0L)
                 .setDuration(SEEK_DURATION)

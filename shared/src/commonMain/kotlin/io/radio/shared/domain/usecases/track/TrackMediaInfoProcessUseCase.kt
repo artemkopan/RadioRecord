@@ -4,6 +4,7 @@ package io.radio.shared.domain.usecases.track
 
 import io.radio.shared.base.*
 import io.radio.shared.domain.player.PlayerController
+import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackMediaState
 import kotlinx.coroutines.flow.first
@@ -12,32 +13,30 @@ import kotlin.time.milliseconds
 
 class TrackMediaInfoProcessUseCase(
     private val playerController: PlayerController
-) : UseCase<TrackItem, Unit>, UseCaseBiParams<TrackItem, TrackMediaInfoProcessParams, Unit> {
+) : UseCase<TrackMediaInfoProcessParams, Unit> {
 
-    override suspend fun execute(track: TrackItem) {
-        execute(track, TrackMediaInfoProcessParams())
-    }
 
-    override suspend fun execute(track: TrackItem, params: TrackMediaInfoProcessParams) =
+    override suspend fun execute(params: TrackMediaInfoProcessParams) {
         withContext(IoDispatcher) execution@{
-            val trackOpt = playerController.observeTrackInfo().first()
-            if (trackOpt.isEmpty()) {
+            val currentTrackOpt = playerController.observeTrackInfo().first()
+            val track = params.track
+            if (currentTrackOpt.isEmpty()) {
                 Logger.d(
                     TAG,
                     "The player controller does not have any tracks...prepare new: [$track]"
                 )
-                playerController.prepare(track, params.autoPlay)
+                playerController.prepare(track, params.createPlaylist(), params.autoPlay)
                 return@execution
             }
 
-            val currentTrack = trackOpt.getOrThrow()
+            val currentTrack = currentTrackOpt.getOrThrow()
             if (currentTrack.track.id != track.id) {
                 Logger.d(
                     TAG,
                     "The player controller has another track...release current [$currentTrack] and prepare new [$track]"
                 )
                 playerController.release()
-                playerController.prepare(track, params.autoPlay)
+                playerController.prepare(track, params.createPlaylist(), params.autoPlay)
                 return@execution
             }
 
@@ -65,11 +64,19 @@ class TrackMediaInfoProcessUseCase(
                 }
                 is TrackMediaState.Error -> playerController.prepare(
                     currentTrack.track,
+                    params.createPlaylist(),
                     params.autoPlay
                 )
                 else -> throw NotImplementedError("The ${currentTrack.state} is not implemented")
             }
         }
+    }
+
+    private fun TrackMediaInfoProcessParams.createPlaylist(): Playlist {
+        val position = tracks.indexOf(track)
+        require(tracks.isEmpty() || position >= 0) { "Current track is not included in the playlist" }
+        return Playlist(tracks, position)
+    }
 
     companion object {
         private const val TAG = "TrackMediaInfoProcessUseCase"
@@ -78,6 +85,8 @@ class TrackMediaInfoProcessUseCase(
 }
 
 data class TrackMediaInfoProcessParams(
+    val track: TrackItem,
+    val tracks: List<TrackItem> = emptyList(),
     val autoPlay: Boolean = true,
     val justPrepare: Boolean = false
 )

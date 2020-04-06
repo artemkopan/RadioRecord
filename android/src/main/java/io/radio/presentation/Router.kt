@@ -29,6 +29,7 @@ inline fun BaseFragment.routePlayer() {
 
 inline fun Context.createPlayerPendingIntent(): PendingIntent {
     return NavDeepLinkBuilder(this)
+        .setComponentName(MainActivity::class.java)
         .setGraph(R.navigation.main_graph)
         .setDestination(R.id.playerFragment)
         .createPendingIntent()

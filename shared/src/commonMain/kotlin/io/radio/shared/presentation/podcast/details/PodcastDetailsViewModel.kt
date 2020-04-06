@@ -5,7 +5,6 @@ import io.radio.shared.base.viewmodel.ViewModel
 import io.radio.shared.base.viewmodel.ViewModelParams
 import io.radio.shared.data.mapper.TrackItemFromRadioPodcastMapper
 import io.radio.shared.domain.player.PlayerController
-import io.radio.shared.domain.player.playlist.PlayerPlaylistManager
 import io.radio.shared.domain.repositories.station.RadioRepository
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessParams
@@ -21,14 +20,12 @@ import kotlinx.coroutines.withContext
 
 class PodcastDetailsViewModel constructor(
     private val repository: RadioRepository,
-    private val playlistManager: PlayerPlaylistManager,
     private val trackMapper: TrackItemFromRadioPodcastMapper,
     private val trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase,
     private val trackMediaInfoProcessUseCase: TrackMediaInfoProcessUseCase,
     playerController: PlayerController,
     private val params: ViewModelParams
 ) : ViewModel() {
-
 
     private val podcastId get() = requireNotNull(params.get<PodcastDetailsParams>("params")).id
 
@@ -43,8 +40,8 @@ class PodcastDetailsViewModel constructor(
     private val trackItemsChannel = ConflatedBroadcastChannel<List<TrackMediaInfo>>()
     val trackItemsFlow: Flow<List<TrackMediaInfo>> get() = trackItemsChannel.asFlow()
 
-    val trackPositionFlow = playlistManager.observePlaylist().mapNotNull {
-        it.position.takeIf { pos -> pos != PlayerPlaylistManager.NO_POSITION }
+    val trackPositionFlow = playerController.observePlaylist().mapNotNull {
+        it.data?.position?.takeIf { pos -> pos >= 0 }
     }
 
     private var playlist = emptyList<TrackItem>()
@@ -79,17 +76,16 @@ class PodcastDetailsViewModel constructor(
 
     fun onPlayClick(mediaInfo: TrackMediaInfo) {
         scope.launch {
-            playlistManager.setPlaylist(playlist)
-            trackMediaInfoProcessUseCase.execute(mediaInfo.track)
+            trackMediaInfoProcessUseCase.execute(
+                TrackMediaInfoProcessParams(mediaInfo.track, playlist)
+            )
         }
     }
 
     fun onTrackClick(mediaInfo: TrackMediaInfo) {
         scope.launch {
-            playlistManager.setPlaylist(playlist)
             trackMediaInfoProcessUseCase.execute(
-                mediaInfo.track,
-                TrackMediaInfoProcessParams(justPrepare = true)
+                TrackMediaInfoProcessParams(mediaInfo.track, playlist, justPrepare = true)
             )
             openPlayerEventChannel.send(Event(Unit))
         }

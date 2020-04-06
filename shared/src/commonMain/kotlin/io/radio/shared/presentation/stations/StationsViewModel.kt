@@ -5,7 +5,6 @@ import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.State
 import io.radio.shared.base.viewmodel.ViewModel
 import io.radio.shared.data.mapper.TrackItemFromRadioStationMapper
-import io.radio.shared.domain.player.playlist.PlayerPlaylistManager
 import io.radio.shared.domain.repositories.station.RadioRepository
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessParams
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
@@ -17,7 +16,6 @@ import kotlinx.coroutines.withContext
 
 class StationsViewModel constructor(
     private val radioRepository: RadioRepository,
-    private val playerPlaylistManager: PlayerPlaylistManager,
     private val trackItemFromRadioStationMapper: TrackItemFromRadioStationMapper,
     private val trackMediaInfoProcessUseCase: TrackMediaInfoProcessUseCase
 ) :
@@ -35,12 +33,13 @@ class StationsViewModel constructor(
 
     fun onStationClicked(item: RadioStation) {
         openStationStateChannel.perform {
-            playerPlaylistManager.clear()
             withContext(IoDispatcher) {
                 val track = trackItemFromRadioStationMapper.map(item)
                 trackMediaInfoProcessUseCase.execute(
-                    track,
-                    TrackMediaInfoProcessParams(justPrepare = true)
+                    TrackMediaInfoProcessParams(
+                        track,
+                        justPrepare = true
+                    )
                 )
             }
             Event(Unit)

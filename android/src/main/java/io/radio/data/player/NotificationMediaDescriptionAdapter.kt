@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Size
+import androidx.collection.LruCache
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import io.radio.R
@@ -13,7 +14,6 @@ import io.radio.shared.base.Logger
 import io.radio.shared.base.extensions.CoroutineExceptionHandler
 import io.radio.shared.base.extensions.JobRunner
 import io.radio.shared.base.extensions.findBitmap
-import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.loadImageDrawable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -25,17 +25,18 @@ class NotificationMediaDescriptionAdapter(
 
     private val jobRunner = JobRunner()
     private val imageSize = Size(200, 200)
+    private var lruCache = LruCache<String, Bitmap>(1)
 
     override fun createCurrentContentIntent(player: Player): PendingIntent? {
         return context.createPlayerPendingIntent()
     }
 
     override fun getCurrentContentText(player: Player): String? {
-        return player.currentTrack()?.title
+        return player.currentTrack()?.subTitle
     }
 
     override fun getCurrentContentTitle(player: Player): String {
-        return player.currentTrack()?.subTitle ?: context.getString(R.string.undefined)
+        return player.currentTrack()?.title ?: context.getString(R.string.undefined)
     }
 
     override fun getCurrentLargeIcon(
@@ -43,27 +44,16 @@ class NotificationMediaDescriptionAdapter(
         callback: PlayerNotificationManager.BitmapCallback
     ): Bitmap? {
         player.currentTrack()?.cover?.data?.img?.let { source ->
-            val result = context.runCatching {
-                loadImageDrawable(
-                    source, imageSize, ImageLoaderParams(loadFromCacheOnly = true)
-                ).findBitmap()
+            val cached = lruCache.get(source)
+            if (cached != null) {
+                return cached
             }
-            if (result.isSuccess && result.getOrNull() != null) {
-                return result.getOrNull()
-            } else {
-                Logger.i(
-                    "Failed to load image from cache, source = $source",
-                    result.exceptionOrNull()
-                )
-            }
-
             jobRunner.runAndCancelPrevious {
                 scope.launch(IoDispatcher + CoroutineExceptionHandler { throwable ->
-                    Logger.e(
-                        throwable
-                    )
+                    Logger.e(throwable)
                 }) {
                     context.loadImageDrawable(source, imageSize).findBitmap()?.let {
+                        lruCache.put(source, it)
                         callback.onBitmap(it)
                     }
                 }
