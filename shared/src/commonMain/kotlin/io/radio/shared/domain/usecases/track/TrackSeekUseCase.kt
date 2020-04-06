@@ -7,11 +7,11 @@ import io.radio.shared.base.Optional
 import io.radio.shared.base.UseCase
 import io.radio.shared.base.toOptional
 import io.radio.shared.domain.date.DateProvider
+import io.radio.shared.domain.player.PLAYER_SEEK_STEP
 import io.radio.shared.domain.player.PlayerController
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.time.Duration
-import kotlin.time.seconds
 
 class TrackSeekUseCase(
     private val playerController: PlayerController,
@@ -63,7 +63,7 @@ class TrackSeekUseCase(
 
     private companion object {
 
-        val STEP = 10.seconds
+        val STEP = PLAYER_SEEK_STEP
         const val DOUBLE_TAP_TIMEOUT = 700
 
     }

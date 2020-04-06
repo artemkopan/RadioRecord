@@ -2,6 +2,9 @@
 
 package io.radio.presentation
 
+import android.app.PendingIntent
+import android.content.Context
+import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 import io.radio.R
@@ -21,4 +24,12 @@ inline fun PodcastsFragment.routeDetails(params: PodcastDetailsParams, extras: N
 
 inline fun BaseFragment.routePlayer() {
     findNavController().navigate(R.id.playerFragment)
+}
+
+
+inline fun Context.createPlayerPendingIntent(): PendingIntent {
+    return NavDeepLinkBuilder(this)
+        .setGraph(R.navigation.main_graph)
+        .setDestination(R.id.playerFragment)
+        .createPendingIntent()
 }

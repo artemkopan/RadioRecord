@@ -2,8 +2,8 @@ package io.radio.data.player
 
 import android.content.Context
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
+import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.Player.*
@@ -18,25 +18,27 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.text.TextOutput
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.EventLogger
+import com.google.android.exoplayer2.util.NotificationUtil
 import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoRendererEventListener
+import io.radio.R
 import io.radio.shared.base.Logger
-import io.radio.shared.base.extensions.asCoroutineDispatcher
-import io.radio.shared.domain.formatters.TrackFormatter
+import io.radio.shared.base.MainDispatcher
 import io.radio.shared.domain.player.*
-import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
+import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackSource
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -44,21 +46,14 @@ import kotlin.time.toDuration
 
 
 class AndroidPlayerController(
-    trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase,
-    trackFormatter: TrackFormatter,
     private val context: Context,
-    //initialize in constructor for using kotlin interfaces delegate
-    private val handlerThread: HandlerThread = HandlerThread("ExoPlayerThread").also { it.start() },
-    private val scope: CoroutineScope = CoroutineScope(
-        SupervisorJob() + handlerThread.asCoroutineDispatcher("ExoPlayer")
-    ),
-    private val basePlayerController: BasePlayerController = BasePlayerController(
-        scope,
-        trackMediaInfoCreatorUseCase,
-        trackFormatter
-    )
+    private val scope: CoroutineScope,
+    private val mediaDescriptionAdapter: NotificationMediaDescriptionAdapter,
+    private val notificationListener: NotificationMediaListener,
+    private val basePlayerController: BasePlayerController
 ) : PlayerController by basePlayerController {
 
+    private val playerDispatcher = MainDispatcher
     private var _exoPlayer: SimpleExoPlayer? = null
     private val exoPlayer: SimpleExoPlayer
         get() {
@@ -68,12 +63,34 @@ class AndroidPlayerController(
             return _exoPlayer!!
         }
 
+    private val notificationManger: PlayerNotificationManager by lazy {
+        val channelId = "player-channel"
+        NotificationUtil.createNotificationChannel(
+            context,
+            channelId,
+            R.string.notification_player_channel_name,
+            R.string.notification_player_channel_description,
+            NotificationUtil.IMPORTANCE_LOW
+        )
+        PlayerNotificationManager(
+            context,
+            channelId,
+            312,
+            mediaDescriptionAdapter,
+            notificationListener
+        ).also {
+            it.setPriority(NotificationCompat.PRIORITY_MAX)
+            it.setFastForwardIncrementMs(PLAYER_SEEK_STEP.toLongMilliseconds())
+            it.setRewindIncrementMs(PLAYER_SEEK_STEP.toLongMilliseconds())
+        }
+    }
+
     init {
         basePlayerController.playerActionsFlow
             .onEach {
                 Logger.d("New player action: $it")
                 when (it) {
-                    is PlayerAction.Preparing -> consumePreparing(it.source)
+                    is PlayerAction.Preparing -> consumePreparing(it.track)
                     PlayerAction.Release -> consumeRelease()
                     PlayerAction.Play -> consumePlay()
                     PlayerAction.Pause -> consumePause()
@@ -88,7 +105,6 @@ class AndroidPlayerController(
                 updateTimeLine()
             }
         }
-
     }
 
     override fun destroy() {
@@ -96,73 +112,85 @@ class AndroidPlayerController(
         scope.cancel()
     }
 
-    private fun consumePreparing(trackSource: TrackSource) {
+    private suspend fun consumePreparing(track: TrackItem) {
         val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory(
             Util.getUserAgent(context, "RadioRecord")
         )
 
-        val source: MediaSource = when (trackSource) {
+        val source: MediaSource = when (val trackSource = track.source) {
             is TrackSource.ProgressiveStream -> {
                 ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .setTag(track)
                     .createMediaSource(trackSource.link.toUri())
             }
             is TrackSource.Progressive -> {
                 ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .setTag(track)
                     .createMediaSource(trackSource.link.toUri())
             }
             is TrackSource.Hls -> {
                 HlsMediaSource.Factory(dataSourceFactory)
+                    .setTag(track)
                     .createMediaSource(trackSource.link.toUri())
             }
             else -> throw NotImplementedError()
         }
 
-        exoPlayer.prepare(source)
+        withContext(playerDispatcher) {
+            exoPlayer.prepare(source)
+        }
     }
 
-    private fun consumeRelease() {
+    private suspend fun consumeRelease() {
         val exoPlayer = this.exoPlayer
         this._exoPlayer = null
-        exoPlayer.removeListener(eventListener)
-        exoPlayer.release()
+        withContext(playerDispatcher) {
+            notificationManger.setPlayer(null)
+            exoPlayer.removeListener(eventListener)
+            exoPlayer.release()
+        }
     }
 
-    private fun consumePlay() {
-        exoPlayer.playWhenReady = true
+    private suspend fun consumePlay() {
+        withContext(playerDispatcher) { exoPlayer.playWhenReady = true }
     }
 
-    private fun consumePause() {
-        exoPlayer.playWhenReady = false
+    private suspend fun consumePause() {
+        withContext(playerDispatcher) { exoPlayer.playWhenReady = false }
     }
 
-    private fun updateTimeLine() {
+    private suspend fun updateTimeLine() {
         _exoPlayer?.let {
-            if (it.playbackState != STATE_READY || !it.playWhenReady) {
-                return
-            }
-            val contentDuration = it.contentDuration
-            if (contentDuration == C.TIME_UNSET) {
-                basePlayerController.postSideEffects(PlayerSideEffect.TrackPositionReset)
-            } else {
-                basePlayerController.postSideEffects(
-                    PlayerSideEffect.TrackPosition(
-                        it.contentPosition.toDuration(DurationUnit.MILLISECONDS),
-                        it.bufferedPosition.toDuration(DurationUnit.MILLISECONDS),
-                        contentDuration.toDuration(DurationUnit.MILLISECONDS)
+            withContext(playerDispatcher) {
+                if (it.playbackState != STATE_READY || !it.playWhenReady) {
+                    return@withContext
+                }
+                val contentDuration = it.contentDuration
+                if (contentDuration == C.TIME_UNSET) {
+                    basePlayerController.postSideEffects(PlayerSideEffect.TrackPositionReset)
+                } else {
+                    basePlayerController.postSideEffects(
+                        PlayerSideEffect.TrackPosition(
+                            it.contentPosition.toDuration(DurationUnit.MILLISECONDS),
+                            it.bufferedPosition.toDuration(DurationUnit.MILLISECONDS),
+                            contentDuration.toDuration(DurationUnit.MILLISECONDS)
+                        )
                     )
-                )
+                }
             }
         }
     }
 
-    private fun consumeSeekTo(offset: Duration) {
-        _exoPlayer?.let {
-            it.seekTo(it.currentPosition + offset.toLong(DurationUnit.MILLISECONDS))
+    private suspend fun consumeSeekTo(offset: Duration) {
+        withContext(playerDispatcher) {
+            _exoPlayer?.let {
+                it.seekTo(it.currentPosition + offset.toLong(DurationUnit.MILLISECONDS))
+            }
         }
     }
 
-    private fun consumeSetPosition(position: Duration) {
-        _exoPlayer?.seekTo(position.toLong(DurationUnit.MILLISECONDS))
+    private suspend fun consumeSetPosition(position: Duration) {
+        withContext(playerDispatcher) { _exoPlayer?.seekTo(position.toLong(DurationUnit.MILLISECONDS)) }
     }
 
     private val eventListener = object : Player.EventListener {
@@ -192,11 +220,11 @@ class AndroidPlayerController(
         }
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-            updateTimeLine()
+            scope.launch { updateTimeLine() }
         }
 
         override fun onPositionDiscontinuity(reason: Int) {
-            updateTimeLine()
+            scope.launch { updateTimeLine() }
         }
 
     }
@@ -210,16 +238,17 @@ class AndroidPlayerController(
             .setContentType(C.CONTENT_TYPE_MUSIC)
             .build()
 
-        val player = SimpleExoPlayer.Builder(context, rendersFactory)
-            .setLooper(handlerThread.looper)
-            .build()
+        val player = SimpleExoPlayer.Builder(context, rendersFactory).build()
 
         player.addAnalyticsListener(AudioEventLogger())
         player.addAnalyticsListener(metaDataEventListener)
         player.setAudioAttributes(audioAttributes, true)
         player.addListener(eventListener)
+
+        notificationManger.setPlayer(player)
         return player
     }
+
 
     private val metaDataEventListener: AnalyticsListener = object : AnalyticsListener {
         override fun onMetadata(eventTime: AnalyticsListener.EventTime, metadata: Metadata) {

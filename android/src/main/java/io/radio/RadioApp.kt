@@ -1,6 +1,7 @@
 package io.radio
 
 import android.app.Application
+import io.radio.data.player.AndroidPlayerServiceHolder
 import io.radio.di.*
 import io.radio.shared.base.Logger
 import org.koin.android.ext.koin.androidContext
@@ -29,6 +30,8 @@ class RadioApp : Application() {
                 Timber.tag(tag).log(priority, t, message)
             }
         })
+
+        AndroidPlayerServiceHolder.initialize(this)
     }
 
 }

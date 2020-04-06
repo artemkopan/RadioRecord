@@ -23,7 +23,6 @@ import io.radio.R
 import io.radio.presentation.routePlayer
 import io.radio.presentation.track.TracksAdapter
 import io.radio.shared.base.State
-import io.radio.shared.base.extensions.isLandscapeMode
 import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.base.fragment.popBack
 import io.radio.shared.base.imageloader.ImageLoaderParams
@@ -32,7 +31,6 @@ import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.BlurTransformation
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
 import io.radio.shared.base.imageloader.transformations.GranularRoundedCornersTransformation
-import io.radio.shared.base.imageloader.transformations.RoundedCornersTransformation
 import io.radio.shared.base.viewmodel.koin.viewModels
 import io.radio.shared.presentation.player.TrackPositionScrollerHelper
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
@@ -125,7 +123,6 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         podcastTracksRecycler.adapter = tracksAdapter
         podcastTracksRecycler.setHasFixedSize(true)
 
-
         viewModel.trackItemsFlow
             .subscribe {
                 tracksAdapter.submitList(it) {
@@ -180,7 +177,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                     BlurTransformation.create(
                         requireContext(),
                         radius = 50f,
-                        color = ColorUtils.setAlphaComponent(params.headerColor, 120)
+                        color = ColorUtils.setAlphaComponent(params.headerColor, 180)
                     ),
                     GranularRoundedCornersTransformation(
                         topLeft = 0f,
@@ -199,13 +196,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
             params.cover,
             ImageLoaderParams(
                 loaderCallbacks = arrayOf(doOnFinallyImageCallback(onLoaded)),
-                transformations = listOf(
-                    if (isLandscapeMode) {
-                        CircleTransformation()
-                    } else {
-                        RoundedCornersTransformation(resources.getDimensionPixelSize(R.dimen.itemCornerRadius))
-                    }
-                )
+                transformations = listOf(CircleTransformation())
             )
         )
     }

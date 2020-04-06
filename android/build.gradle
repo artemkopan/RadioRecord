@@ -68,8 +68,9 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.1.0-alpha01"
 
     implementation "com.google.android.material:material:$android_material_version"
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.11.1'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.11.1'
+    implementation "com.google.android.exoplayer:exoplayer-core:$android_exo_player"
+    implementation "com.google.android.exoplayer:exoplayer-hls:$android_exo_player"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$android_exo_player"
 
     implementation 'com.airbnb.android:lottie:3.4.0'
 

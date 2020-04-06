@@ -3,4 +3,7 @@
     <string name="stations">Stations</string>
     <string name="podcasts">Podcasts</string>
     <string name="scroll_to_current_track">Scroll to current track</string>
+    <string name="notification_player_channel_name">Player</string>
+    <string name="notification_player_channel_description">Radio player</string>
+    <string name="undefined">undefined</string>
 </resources>

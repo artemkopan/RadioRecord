@@ -1,6 +1,6 @@
 package io.radio.shared.domain.player
 
-import io.radio.shared.model.TrackSource
+import io.radio.shared.model.TrackItem
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 
@@ -14,7 +14,7 @@ interface PlayerStatesMediator {
 
 sealed class PlayerAction {
 
-    data class Preparing(val source: TrackSource) : PlayerAction()
+    data class Preparing(val track: TrackItem) : PlayerAction()
     object Release : PlayerAction()
     object Play : PlayerAction()
     object Pause : PlayerAction()

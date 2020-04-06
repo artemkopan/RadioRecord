@@ -150,6 +150,7 @@ fun Context.loadImage(
     if (params.loadFromCacheOnly) {
         creator.onlyRetrieveFromCache(true)
     }
+
     callbackWrapper?.let { creator.addListener(it) }
 
     return creator

@@ -80,11 +80,7 @@ open class BasePlayerController(
                         )
                     ).toOptional()
                 )
-                playerActionsChannel.send(
-                    PlayerAction.Preparing(
-                        trackItem.source
-                    )
-                )
+                playerActionsChannel.send(PlayerAction.Preparing(trackItem))
                 if (autoPlay) {
                     playerActionsChannel.send(PlayerAction.Play)
                 }
@@ -127,11 +123,7 @@ open class BasePlayerController(
     override fun setPosition(position: Duration) {
         playerScope.launch {
             actionMutex.withLock {
-                playerActionsChannel.send(
-                    PlayerAction.SetPosition(
-                        position
-                    )
-                )
+                playerActionsChannel.send(PlayerAction.SetPosition(position))
             }
         }
     }
@@ -139,11 +131,7 @@ open class BasePlayerController(
     override fun seekTo(offset: Duration) {
         playerScope.launch {
             actionMutex.withLock {
-                playerActionsChannel.send(
-                    PlayerAction.SeekTo(
-                        offset
-                    )
-                )
+                playerActionsChannel.send(PlayerAction.SeekTo(offset))
             }
         }
     }

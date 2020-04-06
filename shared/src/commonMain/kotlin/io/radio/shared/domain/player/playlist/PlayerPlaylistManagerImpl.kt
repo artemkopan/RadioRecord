@@ -1,5 +1,6 @@
 package io.radio.shared.domain.player.playlist
 
+import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.Logger
 import io.radio.shared.base.getOrThrow
 import io.radio.shared.base.isNotEmpty
@@ -24,7 +25,7 @@ class PlayerPlaylistManagerImpl(
     private val playlistChannel = ConflatedBroadcastChannel<Playlist>()
     private val playlistAvailabilityChannel = ConflatedBroadcastChannel(PlaylistAvailability())
 
-    private val scope = CoroutineScope(SupervisorJob())
+    private val scope = CoroutineScope(SupervisorJob() + IoDispatcher)
     private val trackInfoChannel = ConflatedBroadcastChannel<TrackMediaInfo>()
     private val mutex = Mutex()
     private var playlist: List<TrackItem> = emptyList()

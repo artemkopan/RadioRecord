@@ -47,6 +47,7 @@ ext {
     android_constraint_version = "2.0.0-beta4"
     android_recycler_version = "1.2.0-alpha02"
     android_material_version = "1.2.0-alpha05"
+    android_exo_player = "2.11.1"
 }
 
 task clean(type: Delete) {
