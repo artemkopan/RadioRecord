@@ -2,8 +2,7 @@ package io.radio.di
 
 import io.radio.data.AppResourcesImpl
 import io.radio.data.player.AndroidPlayerController
-import io.radio.data.player.NotificationMediaDescriptionAdapter
-import io.radio.data.player.NotificationMediaListener
+import io.radio.data.player.PlayerNotificationController
 import io.radio.di.Qualifier.PlayerCoroutine
 import io.radio.shared.domain.configs.SystemConfig
 import io.radio.shared.domain.configs.SystemConfigImpl
@@ -28,8 +27,7 @@ val dataModule = module {
         )
     }
 
-    single { NotificationMediaDescriptionAdapter(get(), get(named(PlayerCoroutine))) }
-    single { NotificationMediaListener(get(named(PlayerCoroutine))) }
+    single { PlayerNotificationController(get(), get(named(PlayerCoroutine))) }
 
     single { BasePlayerController(get(named(PlayerCoroutine)), get(), get()) }
 
@@ -37,7 +35,6 @@ val dataModule = module {
         AndroidPlayerController(
             get(),
             get(named(PlayerCoroutine)),
-            get(),
             get(),
             get()
         )

@@ -25,8 +25,8 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enterTransition = MaterialSharedAxis.create(requireContext(), MaterialSharedAxis.Z, true)
-        returnTransition = MaterialFadeThrough.create(requireContext())
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true)
+        returnTransition = MaterialFadeThrough()
         exitTransition = returnTransition
     }
 

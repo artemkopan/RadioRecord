@@ -37,8 +37,7 @@ import kotlin.time.toDuration
 class AndroidPlayerController(
     private val context: Context,
     private val scope: CoroutineScope,
-    private val mediaDescriptionAdapter: NotificationMediaDescriptionAdapter,
-    private val notificationListener: NotificationMediaListener,
+    private val controllerPlayer: PlayerNotificationController,
     private val basePlayerController: BasePlayerController
 ) : PlayerController by basePlayerController {
 
@@ -68,8 +67,8 @@ class AndroidPlayerController(
             context,
             channelId,
             312,
-            mediaDescriptionAdapter,
-            notificationListener
+            controllerPlayer,
+            controllerPlayer
         ).also {
             it.setPriority(NotificationCompat.PRIORITY_MAX)
             it.setFastForwardIncrementMs(PLAYER_SEEK_STEP.toLongMilliseconds())
@@ -99,7 +98,7 @@ class AndroidPlayerController(
 
     override fun destroy() {
         basePlayerController.destroy()
-        scope.cancel()
+        scope.coroutineContext.cancelChildren()
     }
 
     private suspend fun dispatchPreparing(action: PlayerAction.Preparing) {
@@ -107,7 +106,6 @@ class AndroidPlayerController(
             val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory(
                 Util.getUserAgent(context, "RadioRecord")
             )
-
             fun source(track: TrackItem): MediaSource = when (val trackSource = track.source) {
                 is TrackSource.ProgressiveStream -> {
                     ProgressiveMediaSource.Factory(dataSourceFactory)

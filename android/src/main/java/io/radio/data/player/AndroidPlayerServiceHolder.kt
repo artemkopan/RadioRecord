@@ -4,27 +4,26 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import io.radio.di.Qualifier
 import io.radio.shared.base.MainDispatcher
 import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.domain.player.notifications.PlayerNotification
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import org.koin.core.qualifier.named
 
 class AndroidPlayerServiceHolder : Service() {
 
-    private val playerScope by inject<CoroutineScope>(named(Qualifier.PlayerCoroutine))
+    private val playerScope = CoroutineScope(SupervisorJob())
     private val playerController by inject<PlayerController>()
-    private val notificationMediaListener by inject<NotificationMediaListener>()
+    private val notificationController by inject<PlayerNotificationController>()
 
     override fun onCreate() {
         super.onCreate()
-        notificationMediaListener.notificationFlow()
+        notificationController.notificationFlow()
             .onEach {
                 withContext(MainDispatcher) {
                     when (it) {

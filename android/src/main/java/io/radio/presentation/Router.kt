@@ -3,8 +3,9 @@
 package io.radio.presentation
 
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_ONE_SHOT
 import android.content.Context
-import androidx.navigation.NavDeepLinkBuilder
+import android.content.Intent
 import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 import io.radio.R
@@ -28,9 +29,11 @@ inline fun BaseFragment.routePlayer() {
 
 
 inline fun Context.createPlayerPendingIntent(): PendingIntent {
-    return NavDeepLinkBuilder(this)
-        .setComponentName(MainActivity::class.java)
-        .setGraph(R.navigation.main_graph)
-        .setDestination(R.id.playerFragment)
-        .createPendingIntent()
+//    return NavDeepLinkBuilder(this)
+//        .setComponentName(MainActivity::class.java)
+//        .setGraph(R.navigation.main_graph)
+//        .setDestination(R.id.playerFragment)
+//        .createPendingIntent()
+    val intent = Intent(this, MainActivity::class.java)
+    return PendingIntent.getActivity(this, 12, intent, FLAG_ONE_SHOT)
 }

@@ -1,5 +1,6 @@
 package io.radio.data.player
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
@@ -15,13 +16,22 @@ import io.radio.shared.base.extensions.CoroutineExceptionHandler
 import io.radio.shared.base.extensions.JobRunner
 import io.radio.shared.base.extensions.findBitmap
 import io.radio.shared.base.imageloader.loadImageDrawable
+import io.radio.shared.domain.player.notifications.PlayerNotification
+import io.radio.shared.domain.player.notifications.PlayerNotificationPipeline
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 
-class NotificationMediaDescriptionAdapter(
+class PlayerNotificationController(
     private val context: Context,
     private val scope: CoroutineScope
-) : PlayerNotificationManager.MediaDescriptionAdapter {
+) : PlayerNotificationManager.MediaDescriptionAdapter,
+    PlayerNotificationManager.NotificationListener,
+    PlayerNotificationPipeline {
+
+    private val channel = BroadcastChannel<PlayerNotification>(1)
 
     private val jobRunner = JobRunner()
     private val imageSize = Size(200, 200)
@@ -60,5 +70,37 @@ class NotificationMediaDescriptionAdapter(
             }
         }
         return null
+    }
+
+    override fun notificationFlow(): Flow<PlayerNotification> = channel.asFlow()
+
+    override fun onNotificationStarted(notificationId: Int, notification: Notification) {
+        Logger.d("onNotificationStarted() called with: notificationId = $notificationId, notification = $notification")
+        scope.launch { channel.send(PlayerNotification.Show(notificationId, notification)) }
+    }
+
+    override fun onNotificationCancelled(notificationId: Int, dismissedByUser: Boolean) {
+        Logger.d("onNotificationCancelled() called with: notificationId = $notificationId, dismissedByUser = $dismissedByUser")
+        if (lruCache.size() > 0) {
+            lruCache.evictAll()
+        }
+        scope.launch { channel.send(PlayerNotification.Cancel(notificationId, dismissedByUser)) }
+    }
+
+    override fun onNotificationPosted(
+        notificationId: Int,
+        notification: Notification,
+        ongoing: Boolean
+    ) {
+        Logger.d("onNotificationPosted() called with: notificationId = $notificationId, notification = $notification, ongoing = $ongoing")
+        scope.launch {
+            channel.send(
+                PlayerNotification.Posted(
+                    notificationId,
+                    notification,
+                    ongoing
+                )
+            )
+        }
     }
 }

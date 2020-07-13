@@ -45,7 +45,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = MaterialContainerTransform(requireContext()).apply {
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
             scrimColor = Color.TRANSPARENT
         }
         setEnterSharedElementCallback(object : SharedElementCallback() {
@@ -57,8 +57,8 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
                 sharedElements[names.first()] = podcastDetailsCoverView
             }
         })
-        enterTransition = MaterialSharedAxis.create(requireContext(), MaterialSharedAxis.Z, false)
-        returnTransition = MaterialFadeThrough.create(requireContext())
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false)
+        returnTransition = MaterialFadeThrough()
         exitTransition = returnTransition
 
         postponeEnterTransition()
