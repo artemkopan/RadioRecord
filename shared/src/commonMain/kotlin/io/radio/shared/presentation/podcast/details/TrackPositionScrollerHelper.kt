@@ -1,4 +1,4 @@
-package io.radio.shared.presentation.player
+package io.radio.shared.presentation.podcast.details
 
 import io.radio.shared.base.extensions.JobRunner
 import io.radio.shared.presentation.UiCoroutineHolder

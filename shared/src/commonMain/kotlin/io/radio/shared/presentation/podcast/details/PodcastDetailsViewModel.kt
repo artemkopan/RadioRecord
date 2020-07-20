@@ -1,8 +1,8 @@
 package io.radio.shared.presentation.podcast.details
 
 import io.radio.shared.base.*
+import io.radio.shared.base.viewmodel.StateStorage
 import io.radio.shared.base.viewmodel.ViewModel
-import io.radio.shared.base.viewmodel.ViewModelParams
 import io.radio.shared.data.mapper.TrackItemFromRadioPodcastMapper
 import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.domain.repositories.station.RadioRepository
@@ -24,7 +24,7 @@ class PodcastDetailsViewModel constructor(
     private val trackMediaInfoCreatorUseCase: TrackMediaInfoCreatorUseCase,
     private val trackMediaInfoProcessUseCase: TrackMediaInfoProcessUseCase,
     playerController: PlayerController,
-    private val params: ViewModelParams
+    private val params: StateStorage
 ) : ViewModel() {
 
     private val podcastId get() = requireNotNull(params.get<PodcastDetailsParams>("params")).id

@@ -37,7 +37,7 @@ class StationsFragment : BaseFragment(R.layout.fragment_stations) {
         viewModel.openStationStateFlow.subscribe {
             when (it) {
                 is State.Success -> {
-                    it.result.performContentIfNotHandled {
+                    it.result.onData {
                         routePlayer()
                     }
                 }

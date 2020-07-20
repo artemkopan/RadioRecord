@@ -24,7 +24,7 @@ open class Event<out T>(private val content: T) {
         }
     }
 
-    inline fun performContentIfNotHandled(crossinline block: (T) -> Unit) {
+    inline fun onData(crossinline block: (T) -> Unit) {
         getContentIfNotHandled()?.let(block)
     }
 

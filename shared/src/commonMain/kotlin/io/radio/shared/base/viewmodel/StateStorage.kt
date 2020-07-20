@@ -1,6 +1,6 @@
 package io.radio.shared.base.viewmodel
 
-interface ViewModelParams {
+interface StateStorage {
 
     operator fun <T> get(key: String): T?
 

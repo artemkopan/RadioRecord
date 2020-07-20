@@ -32,9 +32,9 @@ import io.radio.shared.base.imageloader.transformations.BlurTransformation
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
 import io.radio.shared.base.imageloader.transformations.GranularRoundedCornersTransformation
 import io.radio.shared.base.viewmodel.koin.viewModels
-import io.radio.shared.presentation.player.TrackPositionScrollerHelper
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
+import io.radio.shared.presentation.podcast.details.TrackPositionScrollerHelper
 import kotlinx.android.synthetic.main.fragment_podcast_details.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -93,7 +93,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         initTracksAdapter()
         initTrackPositionHandler()
 
-        viewModel.openPlayerEventFlow.subscribe { it.performContentIfNotHandled { routePlayer() } }
+        viewModel.openPlayerEventFlow.subscribe { it.onData { routePlayer() } }
 
         viewModel.podcastDetailsFlow
             .onEach {
@@ -144,12 +144,13 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
             podcastTrackScrollButton.isVisible = isVisible
         }
 
-        val trackPositionScrollerHelper = TrackPositionScrollerHelper(
-            this,
-            { layoutManager.findFirstCompletelyVisibleItemPosition() to layoutManager.findLastCompletelyVisibleItemPosition() },
-            { switchTrackScrollButtonVisibility(it) },
-            { podcastTracksRecycler.smoothScrollToPosition(it) }
-        )
+        val trackPositionScrollerHelper =
+            TrackPositionScrollerHelper(
+                this,
+                { layoutManager.findFirstCompletelyVisibleItemPosition() to layoutManager.findLastCompletelyVisibleItemPosition() },
+                { switchTrackScrollButtonVisibility(it) },
+                { podcastTracksRecycler.smoothScrollToPosition(it) }
+            )
 
         podcastTracksRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

@@ -3,7 +3,7 @@ package io.radio.shared.base.viewmodel.koin
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelProvider
-import io.radio.shared.base.viewmodel.SavedStateViewModelParams
+import io.radio.shared.base.viewmodel.SavedStateStorage
 import io.radio.shared.base.viewmodel.ViewModel
 import org.koin.core.error.DefinitionParameterException
 import org.koin.core.parameter.DefinitionParameters
@@ -69,7 +69,7 @@ fun <T : ViewModel> Scope.stateViewModelFactory(
                 throw DefinitionParameterException("Can't add SavedStateHandle to your definition function parameters, as you already have ${values.size} elements: $values")
             }
 
-            values.add(0, SavedStateViewModelParams(handle))
+            values.add(0, SavedStateStorage(handle))
             return values.toTypedArray()
         }
 

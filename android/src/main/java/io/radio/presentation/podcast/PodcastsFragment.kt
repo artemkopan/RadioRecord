@@ -51,7 +51,7 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
         viewModel.openPodcastFlow.onEach {
             when (it) {
                 is State.Success -> {
-                    it.result.performContentIfNotHandled { params ->
+                    it.result.onData { params ->
                         routeDetails(params, selectedExtra?.get())
                     }
                 }

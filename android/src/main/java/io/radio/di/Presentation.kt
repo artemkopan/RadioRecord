@@ -1,6 +1,6 @@
 package io.radio.di
 
-import io.radio.shared.base.viewmodel.ViewModelParams
+import io.radio.shared.base.viewmodel.StateStorage
 import io.radio.shared.presentation.player.PlayerViewModel
 import io.radio.shared.presentation.podcast.PodcastsViewModel
 import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val presentationModule = module {
 
-    factory { (params: ViewModelParams) ->
+    factory { (params: StateStorage) ->
         PodcastDetailsViewModel(
             get(),
             get(),
