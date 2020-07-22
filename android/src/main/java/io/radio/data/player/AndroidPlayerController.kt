@@ -24,6 +24,10 @@ import io.radio.shared.base.Logger
 import io.radio.shared.base.MainDispatcher
 import io.radio.shared.base.extensions.JobRunner
 import io.radio.shared.domain.player.*
+import io.radio.shared.feature.player.AudioEventLogger
+import io.radio.shared.feature.player.AudioRenderersFactory
+import io.radio.shared.feature.player.currentTrack
+import io.radio.shared.feature.player.notifications.PlayerNotificationController
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackSource
 import kotlinx.coroutines.*
@@ -305,7 +309,7 @@ class AndroidPlayerController(
             if (reason == TIMELINE_CHANGE_REASON_DYNAMIC) {
                 basePlayerController.postSideEffects(
                     PlayerSideEffect.TrackChanged(
-                        exoPlayer.currentTrack(),
+                        exoPlayer.currentTrack,
                         convertToState(exoPlayer.playbackState)
                     )
                 )
@@ -317,7 +321,7 @@ class AndroidPlayerController(
         override fun onPositionDiscontinuity(reason: Int) {
             basePlayerController.postSideEffects(
                 PlayerSideEffect.TrackChanged(
-                    exoPlayer.currentTrack(),
+                    exoPlayer.currentTrack,
                     convertToState(exoPlayer.playbackState)
                 )
             )
@@ -328,7 +332,8 @@ class AndroidPlayerController(
     }
 
     private fun initPlayer(): SimpleExoPlayer {
-        val rendersFactory = AudioRenderersFactory(context)
+        val rendersFactory =
+            AudioRenderersFactory(context)
         rendersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF)
 
         val audioAttributes: AudioAttributes = AudioAttributes.Builder()
@@ -338,7 +343,11 @@ class AndroidPlayerController(
 
         val player = SimpleExoPlayer.Builder(context, rendersFactory).build()
 
-        player.addAnalyticsListener(AudioEventLogger(TAG))
+        player.addAnalyticsListener(
+            AudioEventLogger(
+                TAG
+            )
+        )
         player.addAnalyticsListener(metaDataEventListener)
         player.setAudioAttributes(audioAttributes, true)
         player.addListener(eventListener)

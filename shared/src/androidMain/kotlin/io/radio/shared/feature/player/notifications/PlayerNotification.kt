@@ -1,4 +1,4 @@
-package io.radio.shared.domain.player.notifications
+package io.radio.shared.feature.player.notifications
 
 import io.radio.shared.model.Notification
 

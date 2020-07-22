@@ -37,7 +37,7 @@ data class StoreBuilder<A, S : Persistable, E>(
 
     fun build(): Store<A, S, E> {
         val stateStorage = stateStorage
-        return Store(
+        return StoreImpl(
             requireNotNull(reducer) { "Reducer must be initialized" },
             additionalMiddlewares.plus(middlewareList),
             stateStorage.takeIf { restoreStateIfPossible && stateStorage != null }

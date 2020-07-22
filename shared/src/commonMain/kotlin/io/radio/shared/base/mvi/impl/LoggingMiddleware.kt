@@ -3,17 +3,14 @@ package io.radio.shared.base.mvi.impl
 import io.radio.shared.base.Event
 import io.radio.shared.base.Logger
 import io.radio.shared.base.mvi.Middleware
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.*
 
 class LoggingMiddleware<A, S, E> : Middleware<A, S, E> {
 
     override fun dispatch(
         actions: Flow<A>,
         states: StateFlow<S>,
-        events: StateFlow<Event<E>?>
+        events: MutableStateFlow<Event<E>?>
     ): Flow<A> {
         return merge(
             actions.transform {

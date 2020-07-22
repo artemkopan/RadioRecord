@@ -8,6 +8,8 @@ import io.radio.shared.model.TrackMediaTimeLine
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 
+
+@Deprecated("Use media player")
 interface PlayerController {
 
     fun observeTrackInfo(): Flow<Optional<TrackMediaInfo>>
@@ -18,7 +20,7 @@ interface PlayerController {
 
     fun observeStreamMetaData(): Flow<Optional<StreamMetaData>>
 
-    fun observePlaylist() : Flow<Optional<Playlist>>
+    fun observePlaylist(): Flow<Optional<Playlist>>
 
     fun prepare(trackItem: TrackItem, playlist: Playlist, autoPlay: Boolean)
 

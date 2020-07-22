@@ -7,7 +7,7 @@ import kotlin.time.toDuration
 
 data class PlayerState(
     val isLoading: Boolean = false,
-    val isPlay: Boolean = false,
+    val isPlaying: Boolean = false,
     val isNextAvailable: Boolean = false,
     val isPreviousAvailable: Boolean = false,
     val logo: String = "",

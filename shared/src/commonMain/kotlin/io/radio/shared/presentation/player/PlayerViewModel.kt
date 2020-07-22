@@ -8,7 +8,7 @@ import io.radio.shared.base.isNotEmpty
 import io.radio.shared.base.toOptional
 import io.radio.shared.base.viewmodel.ViewModel
 import io.radio.shared.domain.date.DateProvider
-import io.radio.shared.domain.image.ImageProcessor
+import io.radio.shared.domain.formatters.TrackFormatter
 import io.radio.shared.domain.player.PlayerController
 import io.radio.shared.domain.player.StreamMetaData
 import io.radio.shared.domain.resources.AppResources
@@ -32,7 +32,7 @@ class PlayerViewModel(
     private val trackUpdatePositionUseCase: TrackUpdatePositionUseCase,
     private val dateProvider: DateProvider,
     private val trackSeekUseCase: TrackSeekUseCase,
-    private val imageProcessor: ImageProcessor
+    private val trackFormatter: TrackFormatter
 ) : ViewModel() {
 
 
@@ -80,9 +80,11 @@ class PlayerViewModel(
     fun onPositionChanged(position: Int, isScrubbing: Boolean) {
         scope.launch {
             scrubbingTimeFormattedChannel.send(
-                trackUpdatePositionUseCase.execute(
-                    position,
-                    isScrubbing
+                trackFormatter.formatDuration(
+                    trackUpdatePositionUseCase.execute(
+                        position,
+                        isScrubbing
+                    )
                 )
             )
         }

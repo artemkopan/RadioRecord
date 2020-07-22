@@ -20,7 +20,7 @@ val domainModule = module {
 
     factory { TrackMediaInfoCreatorUseCase(get()) }
     factory { TrackMediaInfoProcessUseCase(get()) }
-    factory { TrackUpdatePositionUseCase(get(), get()) }
+    factory { TrackUpdatePositionUseCase(get()) }
     factory { TrackSeekUseCase(get(), get()) }
 
 }

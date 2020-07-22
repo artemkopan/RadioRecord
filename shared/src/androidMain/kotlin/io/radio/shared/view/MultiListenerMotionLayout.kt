@@ -93,14 +93,6 @@ open class MultiListenerMotionLayout @JvmOverloads constructor(context: Context,
         }
     }
 
-    fun addTransitionListener(listener: TransitionListener) {
-        listeners.addIfAbsent(listener)
-    }
-
-    fun removeTransitionListener(listener: TransitionListener) {
-        listeners.remove(listener)
-    }
-
     @Deprecated(message = "Use addTransitionListener instead", replaceWith = ReplaceWith(
         "addTransitionListener(listener)",
         "com.nikhilpanju.fabfilter.views.MultiListenerMotionLayout.addTransitionListener"

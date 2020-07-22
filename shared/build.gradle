@@ -4,7 +4,6 @@ apply plugin: 'com.squareup.sqldelight'
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 
-
 // It is necessary because we need to have access to context on CommonCode to use SQLDelight database
 android {
     compileSdkVersion 29
@@ -82,6 +81,10 @@ kotlin {
             implementation "io.ktor:ktor-client-json:$ktor_version"
             implementation "io.ktor:ktor-client-serialization:$ktor_version"
             implementation "io.ktor:ktor-client-logging:$ktor_version"
+
+            //KOIN
+            implementation "org.koin:koin-core:$koin_version"
+
         }
 
         androidMain.dependencies {
@@ -121,6 +124,13 @@ kotlin {
             // DI
             api "org.koin:koin-core:$android_koin_version"
             api "org.koin:koin-android:$android_koin_version"
+            api "org.koin:koin-android-viewmodel:$android_koin_version"
+
+            // EXO PLAYER
+            api "com.google.android.exoplayer:exoplayer-core:$android_exo_player"
+            api "com.google.android.exoplayer:exoplayer-hls:$android_exo_player"
+            api "com.google.android.exoplayer:exoplayer-ui:$android_exo_player"
+
         }
 
         iosMain.dependencies {

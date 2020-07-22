@@ -1,6 +1,6 @@
 package io.radio.shared.base.viewmodel
 
-interface StateStorage {
+expect class StateStorage {
 
     operator fun <T> get(key: String): T?
 

@@ -1,4 +1,4 @@
-package io.radio.data.player
+package io.radio.shared.feature.player
 
 import android.content.Context
 import android.os.Handler

@@ -1,4 +1,4 @@
-package io.radio.data.player
+package io.radio.shared.feature.player
 
 import com.google.android.exoplayer2.util.EventLogger
 import io.radio.shared.base.Logger

@@ -6,7 +6,8 @@ import android.content.Intent
 import android.os.IBinder
 import io.radio.shared.base.MainDispatcher
 import io.radio.shared.domain.player.PlayerController
-import io.radio.shared.domain.player.notifications.PlayerNotification
+import io.radio.shared.feature.player.notifications.PlayerNotification
+import io.radio.shared.feature.player.notifications.PlayerNotificationController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel

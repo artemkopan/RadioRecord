@@ -2,7 +2,7 @@ package io.radio
 
 import android.app.Application
 import io.radio.data.player.AndroidPlayerServiceHolder
-import io.radio.di.*
+import io.radio.di.appModules
 import io.radio.shared.base.Logger
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -14,14 +14,7 @@ class RadioApp : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@RadioApp)
-            modules(
-                dataModule,
-                networkModule,
-                mappersModule,
-                repositoryModule,
-                domainModule,
-                presentationModule
-            )
+            modules(*appModules)
         }
 
         Timber.plant(Timber.DebugTree())
