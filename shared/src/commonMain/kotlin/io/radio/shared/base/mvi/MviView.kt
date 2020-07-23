@@ -8,7 +8,7 @@ interface MviView<A, S, E> {
 
     fun render(state: S)
 
-    fun event(event: E) {
+    fun sideEffect(event: E) {
         //no-op
     }
 

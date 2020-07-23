@@ -13,15 +13,15 @@ import io.radio.shared.base.fragment.popBack
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
-import io.radio.shared.base.viewmodel.koin.viewModels
 import io.radio.shared.model.TrackMediaState
 import io.radio.shared.presentation.player.PlayerViewModel
 import kotlinx.android.synthetic.main.fragment_player.*
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import kotlin.time.DurationUnit
 
 class PlayerFragment : BaseFragment(R.layout.fragment_player) {
 
-    private val viewModel by viewModels<PlayerViewModel>()
+    private val viewModel by sharedViewModel<PlayerViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

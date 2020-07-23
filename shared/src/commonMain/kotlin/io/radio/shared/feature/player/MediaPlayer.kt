@@ -23,6 +23,8 @@ expect class MediaPlayer {
 
     suspend fun pause()
 
+    suspend fun slip(offset: Duration)
+
     suspend fun seekTo(position: Duration)
 
     suspend fun next()

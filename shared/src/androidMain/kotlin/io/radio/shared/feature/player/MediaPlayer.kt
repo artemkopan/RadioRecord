@@ -142,6 +142,10 @@ actual class MediaPlayer(
         exoPlayer.playWhenReady = false
     }
 
+    actual suspend fun slip(offset: Duration) = withContext(playerDispatcher) {
+        exoPlayer.seekTo(exoPlayer.currentPosition + offset.toLong(DurationUnit.MILLISECONDS))
+    }
+
     actual suspend fun seekTo(position: Duration) = withContext(playerDispatcher) {
         exoPlayer.seekTo(position.toLong(DurationUnit.MILLISECONDS))
     }

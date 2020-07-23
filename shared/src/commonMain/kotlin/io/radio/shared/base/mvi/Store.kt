@@ -24,7 +24,7 @@ class StoreImpl<A, S : Persistable, E>(
     private val stateFlow = MutableStateFlow(initialState)
 
     //FIXME now only one subscriber will receive event...
-    private val eventFlow = MutableStateFlow<Event<E>?>(null)
+    private val sideEffectsFlow = MutableStateFlow<Event<E>?>(null)
     private val actions = BroadcastChannel<A>(1)
 
     override suspend fun wire() {
@@ -38,7 +38,7 @@ class StoreImpl<A, S : Persistable, E>(
                     .launchIn(this)
             }
             supervisorScope {
-                merge(*middlewareList.map { it.dispatch(actionsFlow, stateFlow, eventFlow) }
+                merge(*middlewareList.map { it.dispatch(actionsFlow, stateFlow) }
                     .toTypedArray())
                     .onEach { actions.send(it) }
                     .launchIn(this)
@@ -49,7 +49,7 @@ class StoreImpl<A, S : Persistable, E>(
     override suspend fun bind(mviView: MviView<A, S, E>) {
         withContext(MainDispatcher) {
             stateFlow.onEach { mviView.render(it) }.launchIn(this)
-            eventFlow.onEach { it?.onData { event -> mviView.event(event) } }.launchIn(this)
+            sideEffectsFlow.onEach { it?.onData { effect -> mviView.sideEffect(effect) } }.launchIn(this)
             mviView.actions.onEach { actions.send(it) }.launchIn(this)
         }
     }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.time.Duration
 
+@Deprecated(message = "use PlayerSeekMiddleware")
 class TrackSeekUseCase(
     private val playerController: PlayerController,
     private val dateProvider: DateProvider

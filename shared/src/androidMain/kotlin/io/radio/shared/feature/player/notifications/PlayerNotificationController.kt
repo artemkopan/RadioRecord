@@ -13,7 +13,7 @@ import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.Logger
 import io.radio.shared.base.extensions.CoroutineExceptionHandler
 import io.radio.shared.base.extensions.JobRunner
-import io.radio.shared.base.extensions.findBitmap
+import io.radio.shared.base.extensions.getBitmap
 import io.radio.shared.base.imageloader.loadImageDrawable
 import io.radio.shared.feature.player.currentTrack
 import kotlinx.coroutines.CoroutineScope
@@ -61,7 +61,7 @@ class PlayerNotificationController(
                 scope.launch(IoDispatcher + CoroutineExceptionHandler { throwable ->
                     Logger.e(throwable)
                 }) {
-                    context.loadImageDrawable(source, imageSize).findBitmap()?.let {
+                    context.loadImageDrawable(source, imageSize).getBitmap()?.let {
                         lruCache.put(source, it)
                         callback.onBitmap(it)
                     }
