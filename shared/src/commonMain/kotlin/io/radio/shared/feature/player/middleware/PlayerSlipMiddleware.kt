@@ -2,9 +2,7 @@ package io.radio.shared.feature.player.middleware
 
 import io.radio.shared.base.Logger
 import io.radio.shared.base.mvi.Middleware
-import io.radio.shared.domain.date.DateProvider
-import io.radio.shared.domain.player.PLAYER_SEEK_STEP
-import io.radio.shared.domain.player.PlayerSideEffect
+import io.radio.shared.feature.date.DateProvider
 import io.radio.shared.feature.player.MediaPlayer
 import io.radio.shared.feature.player.PlayerAction
 import io.radio.shared.feature.player.PlayerState
@@ -13,11 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.transform
 import kotlin.time.Duration
+import kotlin.time.seconds
 
 class PlayerSlipMiddleware(
     private val mediaPlayer: MediaPlayer,
     private val dateProvider: DateProvider
-) : Middleware<PlayerAction, PlayerState, PlayerSideEffect> {
+) : Middleware<PlayerAction, PlayerState> {
 
     private var clicks = 0
     private var isForward: Boolean? = null
@@ -28,9 +27,9 @@ class PlayerSlipMiddleware(
         states: StateFlow<PlayerState>
     ): Flow<PlayerAction> {
         return actions.filter {
-            it is PlayerAction.SlipForwardClicked || it is PlayerAction.SlipRewindClicked
+            it is PlayerAction.SlipForwardIntent || it is PlayerAction.SlipRewindIntent
         }.transform { action ->
-            val isForward = action is PlayerAction.SlipForwardClicked
+            val isForward = action is PlayerAction.SlipForwardIntent
             checkDirection(isForward)
             val currentEventTime = dateProvider.currentTime
             val lastEventTime = this@PlayerSlipMiddleware.lastEventTime
@@ -74,7 +73,7 @@ class PlayerSlipMiddleware(
     }
 
     private companion object {
-        val STEP = PLAYER_SEEK_STEP
+        val STEP = 10.seconds
         const val DOUBLE_TAP_TIMEOUT = 700
     }
 

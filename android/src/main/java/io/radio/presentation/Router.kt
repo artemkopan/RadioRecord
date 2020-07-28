@@ -9,8 +9,8 @@ import android.content.Intent
 import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 import io.radio.R
-import io.radio.presentation.podcast.PodcastsFragment
-import io.radio.presentation.podcast.details.PodcastDetailsFragmentArgs
+import io.radio.feature.podcast.PodcastsFragment
+import io.radio.feature.podcast.details.PodcastDetailsFragmentArgs
 import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 

@@ -4,10 +4,10 @@ import io.radio.shared.base.Event
 import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.State
 import io.radio.shared.base.viewmodel.ViewModel
-import io.radio.shared.data.mapper.TrackItemFromRadioStationMapper
-import io.radio.shared.domain.repositories.station.RadioRepository
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessParams
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
+import io.radio.shared.feature.radio.RadioRepository
+import io.radio.shared.mapper.TrackItemFromRadioStationMapper
 import io.radio.shared.model.RadioStation
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow

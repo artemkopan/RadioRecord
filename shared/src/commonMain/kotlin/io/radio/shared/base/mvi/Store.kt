@@ -1,39 +1,50 @@
 package io.radio.shared.base.mvi
 
-import io.radio.shared.base.Event
 import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.MainDispatcher
 import io.radio.shared.base.Persistable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 
 
-interface Store<A, S : Persistable, E> {
-    suspend fun wire()
+interface Store<A, S : Persistable, E : Persistable> {
     suspend fun bind(mviView: MviView<A, S, E>)
 }
 
-class StoreImpl<A, S : Persistable, E>(
-    private val reducer: Reducer<S, A>,
-    private val middlewareList: List<Middleware<A, S, E>>,
-    initialState: S
+class StoreImpl<A, S : Persistable, E : Persistable>(
+    private val reducer: Reducer<S, A, E>,
+    private val middlewareList: List<Middleware<A, S>>,
+    initialState: S,
+    coroutineScope: CoroutineScope
 ) : Store<A, S, E> {
 
     private val stateFlow = MutableStateFlow(initialState)
-
-    //FIXME now only one subscriber will receive event...
-    private val sideEffectsFlow = MutableStateFlow<Event<E>?>(null)
+    private val sideEffectsFlow = MutableStateFlow<E?>(null)
     private val actions = BroadcastChannel<A>(1)
 
-    override suspend fun wire() {
+    init {
+        coroutineScope.launch { wire() }
+    }
+
+    override suspend fun bind(mviView: MviView<A, S, E>) {
+        withContext(MainDispatcher) {
+            stateFlow.onEach { mviView.render(it) }.launchIn(this)
+            sideEffectsFlow.onEach { it?.let { mviView.sideEffect(it) } }.launchIn(this)
+            mviView.actions.onEach { actions.send(it) }.launchIn(this)
+        }
+    }
+
+    private suspend fun wire() {
         withContext(IoDispatcher) {
             val actionsFlow = actions.asFlow()
             supervisorScope {
                 actionsFlow
                     .onEach {
-                        stateFlow.value = reducer.reduce(stateFlow.value, it)
+                        stateFlow.value = reducer.reduce(stateFlow.value, it, sideEffectsFlow)
                     }
                     .launchIn(this)
             }
@@ -45,13 +56,4 @@ class StoreImpl<A, S : Persistable, E>(
             }
         }
     }
-
-    override suspend fun bind(mviView: MviView<A, S, E>) {
-        withContext(MainDispatcher) {
-            stateFlow.onEach { mviView.render(it) }.launchIn(this)
-            sideEffectsFlow.onEach { it?.onData { effect -> mviView.sideEffect(effect) } }.launchIn(this)
-            mviView.actions.onEach { actions.send(it) }.launchIn(this)
-        }
-    }
-
 }

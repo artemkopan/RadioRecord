@@ -3,14 +3,14 @@ package io.radio.shared.presentation.podcast
 import io.radio.shared.base.Event
 import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.State
-import io.radio.shared.base.toEvent
+import io.radio.shared.base.asEvent
 import io.radio.shared.base.viewmodel.ViewModel
-import io.radio.shared.domain.image.ImageLightness
-import io.radio.shared.domain.image.ImageProcessor
-import io.radio.shared.domain.repositories.station.RadioRepository
-import io.radio.shared.domain.resources.AppResources
-import io.radio.shared.model.RadioPodcast
+import io.radio.shared.feature.image.ImageLightness
+import io.radio.shared.feature.image.ImageProcessor
+import io.radio.shared.feature.radio.RadioRepository
+import io.radio.shared.model.Podcast
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
+import io.radio.shared.resources.AppResources
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -23,8 +23,8 @@ class PodcastsViewModel constructor(
 ) :
     ViewModel() {
 
-    private val podcastsChannel = ConflatedBroadcastChannel<State<List<RadioPodcast>>>()
-    val podcastsFlow: Flow<State<List<RadioPodcast>>> get() = podcastsChannel.asFlow()
+    private val podcastsChannel = ConflatedBroadcastChannel<State<List<Podcast>>>()
+    val podcastsFlow: Flow<State<List<Podcast>>> get() = podcastsChannel.asFlow()
 
     private val openPodcastChannel = ConflatedBroadcastChannel<State<Event<PodcastDetailsParams>>>()
     val openPodcastFlow: Flow<State<Event<PodcastDetailsParams>>> get() = openPodcastChannel.asFlow()
@@ -33,7 +33,7 @@ class PodcastsViewModel constructor(
         podcastsChannel.perform { radioRepository.getPodcasts() }
     }
 
-    fun onPodcastSelected(podcast: RadioPodcast) {
+    fun onPodcastSelected(podcast: Podcast) {
         openPodcastChannel.perform {
             withContext(IoDispatcher) {
                 val image = imageProcessor.getImage(podcast.cover, 100, 100)
@@ -55,7 +55,7 @@ class PodcastsViewModel constructor(
                     } else {
                         appResources.accentColor
                     }
-                ).toEvent()
+                ).asEvent()
             }
         }
     }

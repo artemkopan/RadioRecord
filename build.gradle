@@ -9,6 +9,8 @@ buildscript {
     ext.serializer_version = "0.20.0"
     ext.ktor_version = "1.3.1"
 
+    ext.mvi_version = "2.0.0-rc2"
+
     ext.sqldelight_version = "1.2.0"
 
     ext.android_koin_version = '2.1.4'
@@ -17,7 +19,7 @@ buildscript {
     ext.android_fragment_version = "1.3.0-alpha02"
     ext.android_constraint_version = "2.0.0-beta8"
     ext.android_recycler_version = "1.2.0-alpha04"
-    ext.android_material_version = "1.3.0-alpha01"
+    ext.android_material_version = "1.3.0-alpha02"
     ext.android_exo_player = "2.11.1"
     ext.android_work_version = "2.3.4"
 
@@ -46,6 +48,7 @@ allprojects {
         jcenter()
         maven { url = "https://dl.bintray.com/icerockdev/moko" }
         maven { url = "https://dl.bintray.com/ekito/koin" }
+        maven { url "https://dl.bintray.com/arkivanov/maven" }
     }
 }
 

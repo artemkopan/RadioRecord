@@ -1,15 +1,15 @@
 package io.radio.di
 
-import io.radio.shared.domain.date.AndroidDateProvider
-import io.radio.shared.domain.date.DateProvider
-import io.radio.shared.domain.formatters.TrackFormatter
-import io.radio.shared.domain.formatters.TrackFormatterImpl
-import io.radio.shared.domain.image.ImageProcessor
-import io.radio.shared.domain.image.ImageProcessorImpl
 import io.radio.shared.domain.usecases.track.TrackMediaInfoCreatorUseCase
 import io.radio.shared.domain.usecases.track.TrackMediaInfoProcessUseCase
 import io.radio.shared.domain.usecases.track.TrackSeekUseCase
 import io.radio.shared.domain.usecases.track.TrackUpdatePositionUseCase
+import io.radio.shared.feature.date.AndroidDateProvider
+import io.radio.shared.feature.date.DateProvider
+import io.radio.shared.feature.image.ImageProcessor
+import io.radio.shared.feature.image.ImageProcessorImpl
+import io.radio.shared.formatters.TrackFormatter
+import io.radio.shared.formatters.TrackFormatterImpl
 import org.koin.dsl.module
 
 val domainModule = module {

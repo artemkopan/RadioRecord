@@ -1,28 +1,17 @@
 package io.radio.shared.feature.player
 
-import io.radio.shared.model.Playlist
-import io.radio.shared.model.TrackItem
 import kotlin.time.Duration
 
 
 sealed class PlayerAction {
 
-    object PlayPauseClicked : PlayerAction()
+    object PlayPauseIntent : PlayerAction()
+    object PlayNextIntent : PlayerAction()
+    object PlayPreviousIntent : PlayerAction()
+    object SlipForwardIntent : PlayerAction()
+    object SlipRewindIntent : PlayerAction()
 
-    object NextClicked : PlayerAction()
-
-    object PreviousClicked : PlayerAction()
-
-    object SlipForwardClicked : PlayerAction()
-
-    object SlipRewindClicked : PlayerAction()
-
-    data class Prepare(val track: TrackItem, val playlist: Playlist, val autoPlay: Boolean) :
-        PlayerAction()
-
-    object Release : PlayerAction()
-
-    data class Seek(val position: Int, val isScrubbing: Boolean) : PlayerAction()
+    data class FindPositionIntent(val position: Int, val isScrubbing: Boolean) : PlayerAction()
 
     data class PlaylistAvailability(
         val availableSeeking: Boolean,
@@ -58,8 +47,9 @@ sealed class PlayerAction {
         object None : TimeLine()
         data class Changed(
             val currentPosition: Duration,
-            val bufferedPosition: Duration,
-            val totalDuration: Duration
+            val currentPositionFormatted: String,
+            val totalDuration: Duration,
+            val totalDurationFormatted: String
         ) : TimeLine()
     }
 

@@ -23,7 +23,6 @@ import io.radio.shared.base.MainDispatcher
 import io.radio.shared.base.Optional
 import io.radio.shared.base.extensions.JobRunner
 import io.radio.shared.base.toOptional
-import io.radio.shared.domain.player.PLAYER_SEEK_STEP
 import io.radio.shared.feature.player.notifications.PlayerNotificationController
 import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
@@ -43,11 +42,11 @@ actual class MediaPlayer(
     private val controllerPlayer: PlayerNotificationController
 ) {
 
+    private val stateMutableFlow = MutableStateFlow<MediaState>(MediaState.Idle)
+    actual val stateFlow: StateFlow<MediaState> = stateMutableFlow
+
     private val trackMutableFlow = MutableStateFlow<Optional<TrackItem>>(Optional.empty())
     actual val trackFlow: StateFlow<Optional<TrackItem>> = trackMutableFlow
-
-    private val trackStateMutableFlow = MutableStateFlow<MediaState>(MediaState.Idle)
-    actual val trackStateFlow: StateFlow<MediaState> = trackStateMutableFlow
 
     private val trackTimeLineMutableFlow = MutableStateFlow<Optional<TimeLine>>(Optional.empty())
     actual val trackTimeLineFlow: StateFlow<Optional<TimeLine>> = trackTimeLineMutableFlow
@@ -219,8 +218,8 @@ actual class MediaPlayer(
             controllerPlayer
         ).also {
             it.setPriority(NotificationCompat.PRIORITY_MAX)
-            it.setFastForwardIncrementMs(PLAYER_SEEK_STEP.toLongMilliseconds())
-            it.setRewindIncrementMs(PLAYER_SEEK_STEP.toLongMilliseconds())
+            it.setFastForwardIncrementMs(NOTIFICATION_SEEK_MS)
+            it.setRewindIncrementMs(NOTIFICATION_SEEK_MS)
         }
     }
 
@@ -228,20 +227,20 @@ actual class MediaPlayer(
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             return when (playbackState) {
                 Player.STATE_BUFFERING -> {
-                    trackStateMutableFlow.value = MediaState.Buffering
+                    stateMutableFlow.value = MediaState.Buffering
                 }
                 Player.STATE_ENDED -> {
-                    trackStateMutableFlow.value = MediaState.Ended
+                    stateMutableFlow.value = MediaState.Ended
                 }
                 Player.STATE_READY -> {
-                    trackStateMutableFlow.value = if (exoPlayer.playWhenReady) {
+                    stateMutableFlow.value = if (exoPlayer.playWhenReady) {
                         MediaState.Play
                     } else {
                         MediaState.Pause
                     }
                 }
                 Player.STATE_IDLE -> {
-                    trackStateMutableFlow.value = MediaState.Idle
+                    stateMutableFlow.value = MediaState.Idle
                 }
                 else -> {
                     Logger.w(TAG, "Unknown playback state $playbackState")
@@ -250,7 +249,7 @@ actual class MediaPlayer(
         }
 
         override fun onPlayerError(error: ExoPlaybackException) {
-            trackStateMutableFlow.value = MediaState.Error(error)
+            stateMutableFlow.value = MediaState.Error(error)
         }
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
@@ -333,7 +332,7 @@ actual class MediaPlayer(
 
         fun postUpdate() {
             timelineJobRunner.runAndCancelPrevious {
-                GlobalScope.launch {
+                GlobalScope.launch(playerDispatcher) {
                     delay(1000L)
                     updateTimeLine()
                 }
@@ -361,6 +360,7 @@ actual class MediaPlayer(
     private companion object {
         const val TAG = "ExoPlayer"
         private const val MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000
+        private const val NOTIFICATION_SEEK_MS = 10_000L
     }
 
 }

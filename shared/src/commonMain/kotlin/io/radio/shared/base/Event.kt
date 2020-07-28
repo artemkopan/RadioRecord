@@ -7,6 +7,7 @@ import kotlin.jvm.Volatile
 /**
  * Used as a wrapper for data that is exposed via a Stream that represents an event.
  */
+@Deprecated("use mvi")
 open class Event<out T>(private val content: T) {
 
     @Volatile
@@ -24,7 +25,7 @@ open class Event<out T>(private val content: T) {
         }
     }
 
-    inline fun onData(crossinline block: (T) -> Unit) {
+    inline fun consume(crossinline block: (T) -> Unit) {
         getContentIfNotHandled()?.let(block)
     }
 
@@ -35,4 +36,4 @@ open class Event<out T>(private val content: T) {
 
 }
 
-inline fun <T> T.toEvent() = Event(this)
+inline fun <T> T.asEvent() = Event(this)

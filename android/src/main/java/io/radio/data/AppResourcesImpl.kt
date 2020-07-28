@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.appcompat.view.ContextThemeWrapper
 import io.radio.R
 import io.radio.shared.base.extensions.getAttrColor
-import io.radio.shared.domain.resources.AppResources
+import io.radio.shared.resources.AppResources
 
 class AppResourcesImpl(private val context: Context) :
     AppResources {

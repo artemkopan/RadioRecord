@@ -1,16 +1,17 @@
 package io.radio.shared.feature.player.middleware
 
 import io.radio.shared.base.mvi.Middleware
-import io.radio.shared.domain.player.PlayerSideEffect
 import io.radio.shared.feature.player.MediaPlayer
 import io.radio.shared.feature.player.MediaState
 import io.radio.shared.feature.player.PlayerAction
 import io.radio.shared.feature.player.PlayerState
+import io.radio.shared.formatters.TrackFormatter
 import kotlinx.coroutines.flow.*
 
 class PlayerObserveEventsMiddleware(
-    private val mediaPlayer: MediaPlayer
-) : Middleware<PlayerAction, PlayerState, PlayerSideEffect> {
+    private val mediaPlayer: MediaPlayer,
+    private val trackFormatter: TrackFormatter
+) : Middleware<PlayerAction, PlayerState> {
 
     override fun dispatch(
         actions: Flow<PlayerAction>,
@@ -18,7 +19,7 @@ class PlayerObserveEventsMiddleware(
     ): Flow<PlayerAction> {
         return merge(
             trackChangedFlow(),
-            mediaPlayer.trackStateFlow.map {
+            mediaPlayer.stateFlow.map {
                 when (it) {
                     MediaState.Idle -> PlayerAction.PlaybackIdle
                     MediaState.Buffering -> PlayerAction.PlaybackBuffering
@@ -32,8 +33,9 @@ class PlayerObserveEventsMiddleware(
                 val data = it.data ?: return@map PlayerAction.TimeLine.None
                 PlayerAction.TimeLine.Changed(
                     data.currentPosition,
-                    data.bufferedPosition,
-                    data.totalDuration
+                    trackFormatter.formatDuration(data.currentPosition),
+                    data.totalDuration,
+                    trackFormatter.formatDuration(data.totalDuration)
                 )
             },
             mediaPlayer.playerMetaDataFlow.map {

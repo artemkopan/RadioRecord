@@ -1,7 +1,7 @@
 package io.radio.di
 
-import io.radio.shared.domain.repositories.station.RadioRepository
-import io.radio.shared.domain.repositories.station.RadioRepositoryImpl
+import io.radio.shared.feature.radio.RadioRepository
+import io.radio.shared.feature.radio.RadioRepositoryImpl
 import org.koin.dsl.module
 
 val repositoryModule = module {

@@ -5,21 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import io.radio.shared.base.MainDispatcher
-import io.radio.shared.domain.player.PlayerController
+import io.radio.shared.feature.player.MediaPlayer
 import io.radio.shared.feature.player.notifications.PlayerNotification
 import io.radio.shared.feature.player.notifications.PlayerNotificationController
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
 class AndroidPlayerServiceHolder : Service() {
 
     private val playerScope = CoroutineScope(SupervisorJob())
-    private val playerController by inject<PlayerController>()
+    private val playerController by inject<MediaPlayer>()
     private val notificationController by inject<PlayerNotificationController>()
 
     override fun onCreate() {
@@ -43,10 +40,9 @@ class AndroidPlayerServiceHolder : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        playerController.release()
+        GlobalScope.launch { playerController.release() }
         playerScope.cancel()
     }
-
 
     override fun onBind(intent: Intent?): IBinder? = null
 

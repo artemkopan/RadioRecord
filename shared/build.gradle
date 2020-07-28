@@ -131,6 +131,11 @@ kotlin {
             api "com.google.android.exoplayer:exoplayer-hls:$android_exo_player"
             api "com.google.android.exoplayer:exoplayer-ui:$android_exo_player"
 
+            // MVI
+            api "com.arkivanov.mvikotlin:mvikotlin:$mvi_version"
+            api "com.arkivanov.mvikotlin:mvikotlin-main:$mvi_version"
+            api "com.arkivanov.mvikotlin:mvikotlin-timetravel:$mvi_version"
+            api "com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines:$mvi_version"
         }
 
         iosMain.dependencies {
