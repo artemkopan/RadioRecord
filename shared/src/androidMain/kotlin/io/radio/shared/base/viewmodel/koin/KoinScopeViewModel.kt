@@ -4,14 +4,14 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
-import io.radio.shared.base.viewmodel.ViewModel
+import io.radio.shared.base.viewmodel.ViewBinder
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
 import kotlin.reflect.KClass
 
 
-inline fun <reified T : ViewModel> Scope.getStateViewModel(
+inline fun <reified T : ViewBinder> Scope.getStateViewModel(
     owner: SavedStateRegistryOwner,
     qualifier: Qualifier? = null,
     bundle: Bundle? = null,
@@ -20,7 +20,7 @@ inline fun <reified T : ViewModel> Scope.getStateViewModel(
     return getStateViewModel(owner, T::class, qualifier, bundle, parameters)
 }
 
-fun <T : ViewModel> Scope.getStateViewModel(
+fun <T : ViewBinder> Scope.getStateViewModel(
     owner: SavedStateRegistryOwner,
     clazz: KClass<T>,
     qualifier: Qualifier? = null,
@@ -47,7 +47,7 @@ private fun SavedStateRegistryOwner.getViewModelStore(): ViewModelStore {
     }
 }
 
-inline fun <reified T : ViewModel> Scope.stateViewModel(
+inline fun <reified T : ViewBinder> Scope.stateViewModel(
     owner: SavedStateRegistryOwner,
     qualifier: Qualifier? = null,
     bundle: Bundle? = null,
@@ -56,7 +56,7 @@ inline fun <reified T : ViewModel> Scope.stateViewModel(
     return lazy(LazyThreadSafetyMode.NONE) { getStateViewModel(owner, T::class, qualifier, bundle, parameters) }
 }
 
-fun <T : ViewModel> Scope.stateViewModel(
+fun <T : ViewBinder> Scope.stateViewModel(
     owner: SavedStateRegistryOwner,
     clazz: KClass<T>,
     qualifier: Qualifier? = null,
@@ -68,7 +68,7 @@ fun <T : ViewModel> Scope.stateViewModel(
 
 
 
-inline fun <reified T : ViewModel> Scope.viewModel(
+inline fun <reified T : ViewBinder> Scope.viewBinder(
     owner: ViewModelStoreOwner,
     qualifier: Qualifier? = null,
     noinline parameters: ParametersDefinition? = null
@@ -76,7 +76,7 @@ inline fun <reified T : ViewModel> Scope.viewModel(
     return lazy(LazyThreadSafetyMode.NONE) { getViewModel(owner, T::class, qualifier, parameters) }
 }
 
-inline fun <reified T : ViewModel> Scope.getViewModel(
+inline fun <reified T : ViewBinder> Scope.getViewModel(
     owner: ViewModelStoreOwner,
     qualifier: Qualifier? = null,
     noinline parameters: ParametersDefinition? = null
@@ -84,7 +84,7 @@ inline fun <reified T : ViewModel> Scope.getViewModel(
     return getViewModel(owner, T::class, qualifier, parameters)
 }
 
-fun <T : ViewModel> Scope.getViewModel(
+fun <T : ViewBinder> Scope.getViewModel(
     owner: ViewModelStoreOwner,
     clazz: KClass<T>,
     qualifier: Qualifier? = null,
@@ -102,7 +102,7 @@ fun <T : ViewModel> Scope.getViewModel(
     )
 }
 
-fun <T : ViewModel> Scope.getViewModel(viewModelParameters: ViewModelParameter<T>): T {
+fun <T : ViewBinder> Scope.getViewModel(viewModelParameters: ViewModelParameter<T>): T {
     val viewModelProvider = createViewModelProvider(viewModelParameters)
     return viewModelProvider.resolveInstance(viewModelParameters)
 }

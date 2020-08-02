@@ -1,16 +1,18 @@
 package io.radio.di
 
+//import io.radio.data.player.AndroidPlayerController
+//import io.radio.shared.domain.player.BasePlayerController
+//import io.radio.shared.domain.player.PlayerController
 import io.radio.data.AppResourcesImpl
-import io.radio.data.player.AndroidPlayerController
 import io.radio.di.Qualifier.PlayerCoroutine
 import io.radio.presentation.createPlayerPendingIntent
 import io.radio.shared.configs.SystemConfig
 import io.radio.shared.configs.SystemConfigImpl
-import io.radio.shared.domain.player.BasePlayerController
-import io.radio.shared.domain.player.PlayerController
-import io.radio.shared.feature.player.MediaPlayer
-import io.radio.shared.feature.player.notifications.PlayerNotificationController
+import io.radio.shared.formatters.ErrorFormatter
+import io.radio.shared.formatters.ErrorFormatterImpl
 import io.radio.shared.resources.AppResources
+import io.radio.shared.store.player.MediaPlayer
+import io.radio.shared.store.player.notifications.PlayerNotificationController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -38,16 +40,18 @@ val dataModule = module {
         )
     }
 
-    single { BasePlayerController(get(named(PlayerCoroutine)), get(), get()) }
-
-    single<PlayerController> {
-        AndroidPlayerController(
-            get(),
-            get(named(PlayerCoroutine)),
-            get(),
-            get()
-        )
-    }
+    single<ErrorFormatter> { ErrorFormatterImpl() }
+//
+//    single { BasePlayerController(get(named(PlayerCoroutine)), get(), get()) }
+//
+//    single<PlayerController> {
+//        AndroidPlayerController(
+//            get(),
+//            get(named(PlayerCoroutine)),
+//            get(),
+//            get()
+//        )
+//    }
 
     single {
         MediaPlayer(get(), get())

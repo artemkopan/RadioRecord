@@ -3,6 +3,7 @@
 package io.radio.shared.base.fragment
 
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import io.radio.shared.base.MainDispatcher
 import io.radio.shared.base.extensions.lazyNonSafety
 import io.radio.shared.presentation.UiCoroutineHolder
@@ -22,18 +23,20 @@ open class BaseFragment : Fragment, UiCoroutineHolder {
     constructor() : super()
     constructor(contentLayoutId: Int) : super(contentLayoutId)
 
-    override val scope by lazyNonSafety {
+    override val viewScope by lazyNonSafety {
         CoroutineScope(SupervisorJob() + MainDispatcher)
     }
 
     override fun onDestroyView() {
-        scope.coroutineContext.cancelChildren()
+        viewScope.coroutineContext.cancelChildren()
         super.onDestroyView()
     }
 
     fun <T> Flow<T>.subscribe(action: suspend (T) -> Unit) =
-        conflate().onEach(action).launchIn(scope)
+        conflate().onEach(action).launchIn(viewScope)
 }
 
 inline fun BaseFragment.popBack() = requireActivity().onBackPressedDispatcher.onBackPressed()
 
+inline infix fun BaseFragment.showSnackbar(message: String) =
+    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()

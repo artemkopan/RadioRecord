@@ -4,6 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 
 interface UiCoroutineHolder {
 
-    val scope: CoroutineScope
+    val viewScope: CoroutineScope
 
 }

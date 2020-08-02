@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import io.radio.shared.base.MainDispatcher
-import io.radio.shared.feature.player.MediaPlayer
-import io.radio.shared.feature.player.notifications.PlayerNotification
-import io.radio.shared.feature.player.notifications.PlayerNotificationController
+import io.radio.shared.store.player.MediaPlayer
+import io.radio.shared.store.player.notifications.PlayerNotification
+import io.radio.shared.store.player.notifications.PlayerNotificationController
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

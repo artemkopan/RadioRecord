@@ -3,7 +3,7 @@ package io.radio.shared.base.viewmodel.koin
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelProvider
-import io.radio.shared.base.viewmodel.ViewModel
+import io.radio.shared.base.viewmodel.ViewBinder
 import org.koin.core.error.DefinitionParameterException
 import org.koin.core.parameter.DefinitionParameters
 import org.koin.core.parameter.emptyParametersHolder
@@ -12,12 +12,12 @@ import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
 
 
-internal fun <T : ViewModel> ViewModelProvider.resolveInstance(viewModelParameters: ViewModelParameter<T>): T {
+internal fun <T : ViewBinder> ViewModelProvider.resolveInstance(viewModelParameters: ViewModelParameter<T>): T {
     val javaClass = viewModelParameters.clazz.java
     return get(viewModelParameters, viewModelParameters.qualifier, javaClass)
 }
 
-internal fun <T : ViewModel> ViewModelProvider.get(
+internal fun <T : ViewBinder> ViewModelProvider.get(
     viewModelParameters: ViewModelParameter<T>,
     qualifier: Qualifier?,
     javaClass: Class<T>
@@ -29,7 +29,7 @@ internal fun <T : ViewModel> ViewModelProvider.get(
     }
 }
 
-internal fun <T : ViewModel> Scope.createViewModelProvider(
+internal fun <T : ViewBinder> Scope.createViewModelProvider(
     viewModelParameters: ViewModelParameter<T>
 ): ViewModelProvider {
     return ViewModelProvider(
@@ -46,7 +46,7 @@ internal fun <T : ViewModel> Scope.createViewModelProvider(
 /**
  * Create Bundle/State ViewModel Factory
  */
-fun <T : ViewModel> Scope.stateViewModelFactory(
+fun <T : ViewBinder> Scope.stateViewModelFactory(
     vmParams: ViewModelParameter<T>
 ): AbstractSavedStateViewModelFactory {
     val registryOwner = (vmParams.stateRegistryOwner
@@ -78,7 +78,7 @@ fun <T : ViewModel> Scope.stateViewModelFactory(
 /**
  * Create Default ViewModel Factory
  */
-fun <T : ViewModel> Scope.defaultViewModelFactory(parameters: ViewModelParameter<T>): ViewModelProvider.Factory {
+fun <T : ViewBinder> Scope.defaultViewModelFactory(parameters: ViewModelParameter<T>): ViewModelProvider.Factory {
     return object : ViewModelProvider.Factory {
         override fun <T : androidx.lifecycle.ViewModel?> create(modelClass: Class<T>): T {
             return get(parameters.clazz, parameters.qualifier, parameters.parameters)

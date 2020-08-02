@@ -76,7 +76,6 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     testImplementation "org.koin:koin-test:$koin_version"
-    api "org.koin:koin-android-viewmodel:$android_koin_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

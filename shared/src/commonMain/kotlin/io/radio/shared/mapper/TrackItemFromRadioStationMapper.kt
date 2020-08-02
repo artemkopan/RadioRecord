@@ -3,14 +3,14 @@ package io.radio.shared.mapper
 import io.radio.shared.base.Mapper
 import io.radio.shared.base.toOptional
 import io.radio.shared.model.CoverImage
-import io.radio.shared.model.RadioStation
+import io.radio.shared.model.Station
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackSource
 import kotlin.time.milliseconds
 
-class TrackItemFromRadioStationMapper : Mapper<TrackItem, RadioStation>() {
+class TrackItemFromRadioStationMapper : Mapper<TrackItem, Station>() {
 
-    override fun map(from: RadioStation, params: Any?): TrackItem = with(from) {
+    override fun map(from: Station, params: Any?): TrackItem = with(from) {
         TrackItem(
             from.id,
             from.title,

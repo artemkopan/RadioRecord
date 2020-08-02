@@ -1,29 +1,38 @@
 package io.radio.di
 
-//import io.radio.shared.presentation.player.PlayerViewModelOld
-//import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModelOld
-import io.radio.shared.presentation.podcast.PodcastsViewModel
-import io.radio.shared.presentation.stations.StationsViewModel
-import org.koin.android.viewmodel.dsl.viewModel
+import io.radio.shared.base.viewmodel.StateStorage
+import io.radio.shared.presentation.player.PlayerViewBinder
+import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
+import io.radio.shared.presentation.podcast.details.PodcastDetailsVewBinder
+import io.radio.shared.presentation.podcast.home.PodcastViewBinder
+import io.radio.shared.presentation.stations.StationViewBinder
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 val presentationModule = module {
 
-//    viewModel { (params: SavedStateHandle) ->
-//        PodcastDetailsViewModelOld(
-//            params,
-//            get(),
-//            get(),
-//            get(),
-//            get(),
-//            get(),
-//            get()
-//        )
-//    }
+    factory { (state: StateStorage) -> StationViewBinder(state, get(), get()) }
+    factory { (state: StateStorage) -> PodcastViewBinder(state, get(), get(), get(), get()) }
 
-    viewModel { PodcastsViewModel(get(), get(), get()) }
-    viewModel { StationsViewModel(get(), get(), get()) }
-//    viewModel { PlayerViewModelOld(get(), get(), get(), get(), get(), get(), get()) }
+    factory { (state: StateStorage) ->
+        val params = state.get<PodcastDetailsParams>("params")
 
+        PodcastDetailsVewBinder(
+            state,
+            get(parameters = { parametersOf(params!!.id) }),
+            get(),
+            get(),
+            get()
+        )
+    }
+
+    factory { (state: StateStorage) ->
+        PlayerViewBinder(
+            state,
+            get(),
+            get(),
+            get()
+        )
+    }
 
 }

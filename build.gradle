@@ -2,7 +2,6 @@
 buildscript {
 
     ext.kotlin_version = '1.3.72'
-    ext.android_nav_version = "2.3.0"
     ext.koin_version = "3.0.0-alpha-2"
 
     ext.coroutine_version = "1.3.8"
@@ -13,7 +12,8 @@ buildscript {
 
     ext.sqldelight_version = "1.2.0"
 
-    ext.android_koin_version = '2.1.4'
+    ext.android_nav_version = "2.3.0"
+
     ext.android_lifecycle_version = "2.2.0"
     ext.android_palette_version = "1.0.0"
     ext.android_fragment_version = "1.3.0-alpha02"

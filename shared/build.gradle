@@ -84,7 +84,6 @@ kotlin {
 
             //KOIN
             implementation "org.koin:koin-core:$koin_version"
-
         }
 
         androidMain.dependencies {
@@ -122,20 +121,15 @@ kotlin {
             }
 
             // DI
-            api "org.koin:koin-core:$android_koin_version"
-            api "org.koin:koin-android:$android_koin_version"
-            api "org.koin:koin-android-viewmodel:$android_koin_version"
+            api "org.koin:koin-core:$koin_version"
+            api "org.koin:koin-android:$koin_version"
+            api "org.koin:koin-android-viewmodel:$koin_version"
 
             // EXO PLAYER
             api "com.google.android.exoplayer:exoplayer-core:$android_exo_player"
             api "com.google.android.exoplayer:exoplayer-hls:$android_exo_player"
             api "com.google.android.exoplayer:exoplayer-ui:$android_exo_player"
 
-            // MVI
-            api "com.arkivanov.mvikotlin:mvikotlin:$mvi_version"
-            api "com.arkivanov.mvikotlin:mvikotlin-main:$mvi_version"
-            api "com.arkivanov.mvikotlin:mvikotlin-timetravel:$mvi_version"
-            api "com.arkivanov.mvikotlin:mvikotlin-extensions-coroutines:$mvi_version"
         }
 
         iosMain.dependencies {

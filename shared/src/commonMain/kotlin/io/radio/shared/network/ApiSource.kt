@@ -8,7 +8,7 @@ import io.radio.shared.mapper.RadioPodcastMapper
 import io.radio.shared.mapper.RadioStationMapper
 import io.radio.shared.model.Podcast
 import io.radio.shared.model.PodcastDetails
-import io.radio.shared.model.RadioStation
+import io.radio.shared.model.Station
 import io.radio.shared.network.reponse.DataResultResponse
 import io.radio.shared.network.reponse.RadioPodcastDetailsResponse
 import io.radio.shared.network.reponse.RadioPodcastResponse
@@ -17,7 +17,7 @@ import io.radio.shared.network.reponse.RadioStationResponse
 
 interface ApiSource {
 
-    suspend fun getStations(): List<RadioStation>
+    suspend fun getStations(): List<Station>
 
     suspend fun getPodcasts(): List<Podcast>
 
@@ -34,7 +34,7 @@ class ApiSourceImpl constructor(
 
     private val urlBuilder get() = URLBuilder(API_URL)
 
-    override suspend fun getStations(): List<RadioStation> {
+    override suspend fun getStations(): List<Station> {
         return networkConfiguration.httpClient.get<DataResultResponse<List<RadioStationResponse>>>(
                 url = urlBuilder.path("radioapi/stations").build()
             )

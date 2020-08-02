@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="io.radio.feature.home.HomeFragment"
+        android:name="io.radio.presentation.home.HomeFragment"
         android:label="HomeFragment"
         tools:layout="@layout/fragment_home">
         <action
@@ -18,7 +18,7 @@
 
     <fragment
         android:id="@+id/podcastDetailsFragment"
-        android:name="io.radio.feature.podcast.details.PodcastDetailsFragment"
+        android:name="io.radio.presentation.podcast.details.PodcastDetailsFragment"
         android:label="PodcastDetailsFragment"
         tools:layout="@layout/fragment_podcast_details">
         <argument
@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/playerFragment"
-        android:name="io.radio.feature.player.PlayerFragment"
+        android:name="io.radio.presentation.player.PlayerFragment"
         android:label="PlayerFragment"
         tools:layout="@layout/fragment_player" />
 

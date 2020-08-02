@@ -1,15 +1,10 @@
 package io.radio.shared.base.mvi
 
-import io.radio.shared.base.Persistable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
-interface Middleware<A, S : Persistable> {
+interface Middleware<Action : Any, Result : Any, State : Any> {
 
-    fun dispatch(
-        actions: Flow<A>,
-        states: StateFlow<S>
-    ): Flow<A>
+    fun accept(actions: Flow<Action>, state: StateFlow<State>): Flow<Result>
 
 }
-

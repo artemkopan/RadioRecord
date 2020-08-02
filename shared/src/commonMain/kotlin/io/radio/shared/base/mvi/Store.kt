@@ -1,59 +1,72 @@
 package io.radio.shared.base.mvi
 
 import io.radio.shared.base.IoDispatcher
-import io.radio.shared.base.MainDispatcher
+import io.radio.shared.base.Logger
 import io.radio.shared.base.Persistable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withContext
 
 
-interface Store<A, S : Persistable, E : Persistable> {
-    suspend fun bind(mviView: MviView<A, S, E>)
+interface Store<Action : Any, Result : Any, State : Persistable> {
+
+    val stateFlow: StateFlow<State>
+
+    fun dispatchAction(action: Action)
 }
 
-class StoreImpl<A, S : Persistable, E : Persistable>(
-    private val reducer: Reducer<S, A, E>,
-    private val middlewareList: List<Middleware<A, S>>,
-    initialState: S,
-    coroutineScope: CoroutineScope
-) : Store<A, S, E> {
+open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
+    private val coroutineScope: CoroutineScope,
+    private val middlewareList: List<Middleware<Action, Result, State>>,
+    private val bootstrapperList: List<Bootstrapper<Action, Result, State>>,
+    private val reducer: Reducer<Result, State>,
+    initialState: State
+) : Store<Action, Result, State> {
 
-    private val stateFlow = MutableStateFlow(initialState)
-    private val sideEffectsFlow = MutableStateFlow<E?>(null)
-    private val actions = BroadcastChannel<A>(1)
+    private val stateMutableFlow = MutableStateFlow(initialState)
+    override val stateFlow: StateFlow<State>
+        get() = stateMutableFlow
+
+    private val actions = BroadcastChannel<Action>(1)
+    private val results = BroadcastChannel<Result>(1)
 
     init {
-        coroutineScope.launch { wire() }
+        wire()
     }
 
-    override suspend fun bind(mviView: MviView<A, S, E>) {
-        withContext(MainDispatcher) {
-            stateFlow.onEach { mviView.render(it) }.launchIn(this)
-            sideEffectsFlow.onEach { it?.let { mviView.sideEffect(it) } }.launchIn(this)
-            mviView.actions.onEach { actions.send(it) }.launchIn(this)
+    override fun dispatchAction(action: Action) {
+        coroutineScope.launch {
+            actions.send(action).also { Logger.d(TAG, "Dispatch action: $action") }
         }
     }
 
-    private suspend fun wire() {
-        withContext(IoDispatcher) {
+    private fun wire() {
+        coroutineScope.launch(IoDispatcher) {
             val actionsFlow = actions.asFlow()
-            supervisorScope {
-                actionsFlow
-                    .onEach {
-                        stateFlow.value = reducer.reduce(stateFlow.value, it, sideEffectsFlow)
+            val resultsFlow = results.asFlow()
+
+            bootstrapperList.map { it.accept(actionsFlow, resultsFlow, stateMutableFlow) }
+                .merge()
+                .onEach {
+                    dispatchAction(it)
+                }
+                .launchIn(this)
+
+            middlewareList.map { it.accept(actionsFlow, stateMutableFlow) }
+                .merge()
+                .onEach { result ->
+                    launch { results.send(result) }
+                    val state = stateMutableFlow.value
+                    stateMutableFlow.value = reducer.reduce(result, state).also {
+                        Logger.d(TAG, "Reduce result: $it, old state -> $state, new sate -> $it")
                     }
-                    .launchIn(this)
-            }
-            supervisorScope {
-                merge(*middlewareList.map { it.dispatch(actionsFlow, stateFlow) }
-                    .toTypedArray())
-                    .onEach { actions.send(it) }
-                    .launchIn(this)
-            }
+                }
+                .launchIn(this)
         }
+    }
+
+    private companion object {
+        const val TAG = "Store"
     }
 }

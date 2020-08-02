@@ -25,7 +25,7 @@ class TrackPositionScrollerHelper(
             if (wasScrolledByUser) {
                 onShowScrollButton(true)
                 scrollButtonJob.runAndCancelPrevious {
-                    uiCoroutineHolder.scope.launch {
+                    uiCoroutineHolder.viewScope.launch {
                         delay(SCROLL_BUTTON_DELAY)
                         onShowScrollButton(false)
                     }
