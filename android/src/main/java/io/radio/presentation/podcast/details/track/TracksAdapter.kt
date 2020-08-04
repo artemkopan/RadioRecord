@@ -16,17 +16,16 @@ import io.radio.shared.base.recycler.ItemHolder
 import io.radio.shared.base.recycler.inflate
 import io.radio.shared.base.recycler.plugins.ClickItemAdapterEvent
 import io.radio.shared.base.recycler.plugins.ClickItemAdapterPlugin
-import io.radio.shared.model.TrackMediaStateItem
-import io.radio.shared.store.player.MediaState
+import io.radio.shared.model.TrackPlaybackStateItem
+import io.radio.shared.store.player.PlaybackState
 import kotlinx.android.synthetic.main.item_track.*
 
-class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaStateItem>) :
-    ListAdapter<TrackMediaStateItem, TracksAdapter.TrackViewHolder>(
-        Diff
-    ) {
+class TracksAdapter(
+    clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackStateItem>
+) : ListAdapter<TrackPlaybackStateItem, TracksAdapter.TrackViewHolder>(Diff) {
 
     private val clickPlugin =
-        ClickItemAdapterPlugin<TrackMediaStateItem>(
+        ClickItemAdapterPlugin<TrackPlaybackStateItem>(
             clickItemAdapterEvent
         ) { getItem(it) }
 
@@ -55,9 +54,9 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaState
     }
 
     inner class TrackViewHolder(override val containerView: View) :
-        ItemHolder<TrackMediaStateItem>(containerView) {
+        ItemHolder<TrackPlaybackStateItem>(containerView) {
 
-        override fun bind(item: TrackMediaStateItem, payloads: List<Any>) {
+        override fun bind(item: TrackPlaybackStateItem, payloads: List<Any>) {
             clickPlugin.bindOnClickListener(this, playButton)
             clickPlugin.bindOnClickListener(this, itemView)
             clickPlugin.bindOnClickListener(this, warningIcon)
@@ -66,33 +65,33 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaState
             titleView.text = item.track.title
             subTitleView.text = item.track.subTitle
             subTitleView.isVisible = item.track.subTitle.isNotEmpty()
-//            timeView.text = item.durationFormatted
+            timeView.text = item.durationFormatted
 
             fun animatePlayPauseButton() = payloads.contains(PlayPausePayload)
 
             when (item.state) {
-                MediaState.Buffering -> {
+                PlaybackState.Buffering -> {
                     switchProgress(true)
                     playButton.play(false)
                     switchError(false, payloads)
                 }
-                MediaState.Idle -> {
+                PlaybackState.Idle -> {
                     switchProgress(false)
                     playButton.play(false)
                     switchError(false, payloads)
                 }
-                MediaState.Play -> {
+                PlaybackState.Play -> {
                     switchProgress(false)
                     playButton.pause(animatePlayPauseButton())
                     switchError(false, payloads)
                 }
-                MediaState.Ended,
-                MediaState.Pause -> {
+                PlaybackState.Ended,
+                PlaybackState.Pause -> {
                     switchProgress(false)
                     playButton.play(animatePlayPauseButton())
                     switchError(false, payloads)
                 }
-                is MediaState.Error -> {
+                is PlaybackState.Error -> {
                     switchProgress(false)
                     playButton.play(false)
                     switchError(true, payloads)
@@ -141,30 +140,30 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackMediaState
         private val PreparingPayload = Any()
         private val ErrorPayload = Any()
 
-        private val Diff = object : DiffUtil.ItemCallback<TrackMediaStateItem>() {
+        private val Diff = object : DiffUtil.ItemCallback<TrackPlaybackStateItem>() {
             override fun areItemsTheSame(
-                oldItem: TrackMediaStateItem,
-                newItem: TrackMediaStateItem
+                oldItem: TrackPlaybackStateItem,
+                newItem: TrackPlaybackStateItem
             ): Boolean {
                 return oldItem.track.id == newItem.track.id
             }
 
             override fun areContentsTheSame(
-                oldItem: TrackMediaStateItem,
-                newItem: TrackMediaStateItem
+                oldItem: TrackPlaybackStateItem,
+                newItem: TrackPlaybackStateItem
             ): Boolean {
                 return oldItem == newItem
             }
 
             override fun getChangePayload(
-                oldItem: TrackMediaStateItem,
-                newItem: TrackMediaStateItem
+                oldItem: TrackPlaybackStateItem,
+                newItem: TrackPlaybackStateItem
             ): Any? {
                 return when {
                     oldItem.state != newItem.state && newItem.state.isPlayOrPause() -> PlayPausePayload
-                    newItem.state == MediaState.Buffering -> PreparingPayload
-                    oldItem.state is MediaState.Error && newItem.state !is MediaState.Error -> ErrorPayload
-                    oldItem.state !is MediaState.Error && newItem.state is MediaState.Error -> ErrorPayload
+                    newItem.state == PlaybackState.Buffering -> PreparingPayload
+                    oldItem.state is PlaybackState.Error && newItem.state !is PlaybackState.Error -> ErrorPayload
+                    oldItem.state !is PlaybackState.Error && newItem.state is PlaybackState.Error -> ErrorPayload
                     else -> Unit
                 }
             }

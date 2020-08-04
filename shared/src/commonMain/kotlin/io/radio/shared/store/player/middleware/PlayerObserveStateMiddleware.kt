@@ -3,26 +3,29 @@ package io.radio.shared.store.player.middleware
 import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.mvi.Middleware
 import io.radio.shared.store.player.MediaPlayer
-import io.radio.shared.store.player.MediaState
+import io.radio.shared.store.player.PlaybackState
 import io.radio.shared.store.player.PlayerStore.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 
 class PlayerObserveStateMiddleware(
     private val mediaPlayer: MediaPlayer
 ) : Middleware<Action, Result, State> {
 
     override fun accept(
-        actions: Flow<Action>,
-        state: StateFlow<State>
+        actionFlow: Flow<Action>,
+        state: () -> State
     ): Flow<Result> {
-        return mediaPlayer.stateFlow.map {
+        return mediaPlayer.playbackStateFlow.map {
             when (it) {
-                MediaState.Idle -> Result.PlaybackIdle
-                MediaState.Buffering -> Result.PlaybackBuffering
-                MediaState.Play -> Result.PlaybackPlay
-                MediaState.Pause -> Result.PlaybackPause
-                MediaState.Ended -> Result.PlaybackEnded
-                is MediaState.Error -> Result.PlaybackError(it.throwable)
+                PlaybackState.Idle -> Result.PlaybackIdle
+                PlaybackState.Buffering -> Result.PlaybackBuffering
+                PlaybackState.Play -> Result.PlaybackPlay
+                PlaybackState.Pause -> Result.PlaybackPause
+                PlaybackState.Ended -> Result.PlaybackEnded
+                is PlaybackState.Error -> Result.PlaybackError(it.throwable)
             }
         }
             .flowOn(IoDispatcher)

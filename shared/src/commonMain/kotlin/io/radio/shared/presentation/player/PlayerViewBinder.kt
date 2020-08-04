@@ -1,18 +1,20 @@
 package io.radio.shared.presentation.player
 
-import io.radio.shared.base.extensions.formatTag
+import io.radio.shared.base.mvi.Binder
 import io.radio.shared.base.mvi.bind
 import io.radio.shared.base.viewmodel.StateStorage
 import io.radio.shared.base.viewmodel.ViewBinder
+import io.radio.shared.base.viewmodel.ViewBinderHelper
 import io.radio.shared.formatters.ErrorFormatter
 import io.radio.shared.formatters.TrackFormatter
-import io.radio.shared.presentation.player.PlayerView.Intent
+import io.radio.shared.presentation.player.PlayerView.*
 import io.radio.shared.store.player.PlayerStore
 import io.radio.shared.store.player.PlayerStore.Action
 import io.radio.shared.store.player.PlayerStoreFactory
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlin.time.DurationUnit
 import kotlin.time.seconds
 
@@ -21,15 +23,23 @@ class PlayerViewBinder(
     playerStoreFactory: PlayerStoreFactory,
     private val trackFormatter: TrackFormatter,
     private val errorFormatter: ErrorFormatter
-) : ViewBinder() {
+) : ViewBinder(), Binder<PlayerView> {
 
     private val store = playerStoreFactory.create(scope, stateStorage)
+    private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
 
-    suspend fun attachView(view: PlayerView) {
+    init {
+        store.stateFlow.onEach {
+            it.dispatchModel()
+            it.dispatchEvent()
+        }.launchIn(scope)
+    }
+
+
+    override suspend fun bind(view: PlayerView) {
         bind {
+            helper bindTo view
             view.intents.mapToStoreActions() bindTo store
-            store.stateFlow.mapToModel() bindTo view
-            store.stateFlow.mapToEvent() bindTo view
         }
     }
 
@@ -49,51 +59,39 @@ class PlayerViewBinder(
         }
     }
 
-    private fun Flow<PlayerStore.State>.mapToModel(): Flow<PlayerView.Model> {
-        return map { state ->
-            with(state) {
-                val currentDuration = scrubbingPosition ?: currentDuration
-                val currentDurationSec = currentDuration?.toInt(DurationUnit.SECONDS) ?: 0
-                val currentDurationFormatted = currentDuration?.let(trackFormatter::formatDuration)
-                    .orEmpty()
+    private suspend fun PlayerStore.State.dispatchModel() {
+        val currentDuration = scrubbingPosition ?: currentDuration
+        val currentDurationSec = currentDuration?.toInt(DurationUnit.SECONDS) ?: 0
+        val currentDurationFormatted = currentDuration?.let(trackFormatter::formatDuration)
+            .orEmpty()
 
-                PlayerView.Model(
-                    title = track?.title.orEmpty(),
-                    subTitle = track?.subTitle.orEmpty(),
-                    cover = track?.cover?.data?.img.orEmpty(),
-                    isNextAvailable = isNextAvailable,
-                    isPreviousAvailable = isPreviousAvailable,
-                    isSeekingAvailable = isSeekAvailable,
-                    isFastForwardAvailable = isFastForwardAvailable,
-                    isRewindAvailable = isRewindAvailable,
-                    currentDuration = currentDurationSec,
-                    currentDurationFormatted = currentDurationFormatted,
-                    totalDuration = totalDuration?.toInt(DurationUnit.SECONDS) ?: 0,
-                    totalDurationFormatted = totalDuration?.let(trackFormatter::formatDuration)
-                        .orEmpty(),
-                    isLoading = isPreparing,
-                    isPlaying = isPlaying,
-                    slip = forwardDuration?.let {
-                        PlayerView.Model.Slip.Forward(trackFormatter.formatDuration(it))
-                    } ?: rewindDuration?.let {
-                        PlayerView.Model.Slip.Rewind(trackFormatter.formatDuration(it))
-                    }
-                )
+        Model(
+            title = track?.title.orEmpty(),
+            subTitle = track?.subTitle.orEmpty(),
+            cover = track?.cover?.data?.img.orEmpty(),
+            isNextAvailable = isNextAvailable,
+            isPreviousAvailable = isPreviousAvailable,
+            isSeekingAvailable = isSeekAvailable,
+            isFastForwardAvailable = isFastForwardAvailable,
+            isRewindAvailable = isRewindAvailable,
+            currentDuration = currentDurationSec,
+            currentDurationFormatted = currentDurationFormatted,
+            totalDuration = totalDuration?.toInt(DurationUnit.SECONDS) ?: 0,
+            totalDurationFormatted = totalDuration?.let(trackFormatter::formatDuration)
+                .orEmpty(),
+            isLoading = isPreparing,
+            isPlaying = isPlaying,
+            slip = forwardDuration?.let {
+                Model.Slip.Forward(trackFormatter.formatDuration(it))
+            } ?: rewindDuration?.let {
+                Model.Slip.Rewind(trackFormatter.formatDuration(it))
             }
-        }
+        ).also { helper.dispatchModel(it) }
     }
 
-    private fun Flow<PlayerStore.State>.mapToEvent(): Flow<PlayerView.Event> {
-        return mapNotNull {
-            with(it) {
-                when {
-                    error != null -> PlayerView.Event.Error(
-                        errorFormatter.format(error),
-                        error formatTag "track"
-                    )
-                    else -> null
-                }
-            }
+    private suspend fun PlayerStore.State.dispatchEvent() {
+        if (error != null) {
+            helper.dispatchEffect(Effect.Error(errorFormatter.format(error)))
         }
     }
 

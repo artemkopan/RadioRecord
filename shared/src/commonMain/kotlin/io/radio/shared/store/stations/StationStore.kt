@@ -11,14 +11,18 @@ interface StationStore : Store<Action, Result, State> {
 
         object LoadStations : Action()
 
-        data class PlayStation(val station: Station): Action()
+        data class PlayStation(val station: Station) : Action()
 
     }
 
     sealed class Result {
 
         object Loading : Result()
-        data class Success(val data: List<Station>) : Result()
+
+        data class StationList(val data: List<Station>) : Result()
+
+        data class PlayingStation(val station: Station?) : Result()
+
         data class Error(val throwable: Throwable) : Result()
 
     }
@@ -26,7 +30,8 @@ interface StationStore : Store<Action, Result, State> {
     data class State(
         val isLoading: Boolean = false,
         val error: Throwable? = null,
-        val data: List<Station> = emptyList()
+        val data: List<Station> = emptyList(),
+        val playingStation: Station? = null
     ) : Persistable
 
 }

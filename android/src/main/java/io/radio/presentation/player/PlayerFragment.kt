@@ -9,14 +9,15 @@ import com.google.android.material.transition.MaterialSharedAxis
 import io.radio.R
 import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.base.fragment.popBack
-import io.radio.shared.base.fragment.showSnackbar
+import io.radio.shared.base.fragment.showToast
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
-import io.radio.shared.base.mvi.MviViewDelegate
+import io.radio.shared.base.mvi.bind
 import io.radio.shared.base.mvi.bindOnChangeListener
 import io.radio.shared.base.mvi.bindOnClick
 import io.radio.shared.base.viewmodel.koin.viewBinder
+import io.radio.shared.model.parseResourceString
 import io.radio.shared.presentation.player.PlayerView
 import io.radio.shared.presentation.player.PlayerView.*
 import io.radio.shared.presentation.player.PlayerViewBinder
@@ -25,17 +26,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.launch
 
-class PlayerFragment : BaseFragment(R.layout.fragment_player) {
+class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
 
     private val viewBinder by viewBinder<PlayerViewBinder>()
-    private val mviViewDelegate = object : MviViewDelegate<Intent, Model, Event>(
-        savedStateRegistryOwner = this@PlayerFragment,
-        intentFlow = ::bindIntents,
-        onRender = ::render,
-        onEvent = ::event
-    ), PlayerView {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,27 +42,28 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
         super.onViewCreated(view, savedInstanceState)
         playerToolbar.setNavigationOnClickListener { popBack() }
         playerSubTitleView.movementMethod = ScrollingMovementMethod.getInstance()
-        viewScope.launch { viewBinder.attachView(mviViewDelegate) }
+        this bind viewBinder
     }
 
-    private fun bindIntents(): Flow<Intent> = merge(
-        playerPlayButton.bindOnClick().map { Intent.PlayPause },
-        playerSkipPreviousButton.bindOnClick().map { Intent.PlayPrevious },
-        playerSkipNextButton.bindOnClick().map { Intent.PlayNext },
-        playerTimeBar.bindOnChangeListener().transform {
-            if (it.fromUser) emit(
-                Intent.FindPosition(
-                    it.progress,
-                    it.isScrubbing
+    override val intents: Flow<Intent>
+        get() = merge(
+            playerPlayButton.bindOnClick().map { Intent.PlayPause },
+            playerSkipPreviousButton.bindOnClick().map { Intent.PlayPrevious },
+            playerSkipNextButton.bindOnClick().map { Intent.PlayNext },
+            playerTimeBar.bindOnChangeListener().transform {
+                if (it.fromUser) emit(
+                    Intent.FindPosition(
+                        it.progress,
+                        it.isScrubbing
+                    )
                 )
-            )
-        },
-        playerRewindAreaView.bindOnClick().map { Intent.SlipRewind },
-        playerForwardAreaView.bindOnClick().map { Intent.SlipForward }
-    )
+            },
+            playerRewindAreaView.bindOnClick().map { Intent.SlipRewind },
+            playerForwardAreaView.bindOnClick().map { Intent.SlipForward }
+        )
 
-    private fun render(state: Model) {
-        with(state) {
+    override fun render(model: Model) {
+        with(model) {
             playerCoverImage.loadImage(
                 cover, params = ImageLoaderParams(transformations = listOf(CircleTransformation()))
             )
@@ -90,7 +85,11 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
                 playerPlayButton.play(true)
             }
 
-            state.slip?.let {
+            playerTimeBar.isEnabled = isSeekingAvailable
+            playerTimeBar.progress = currentDuration
+            playerTimeBar.max = totalDuration
+
+            model.slip?.let {
                 when (it) {
                     is Model.Slip.Rewind -> {
                         showSlipView(it.timeFormatted, false)
@@ -103,9 +102,9 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
         }
     }
 
-    private fun event(event: Event) = with(event) {
+    override fun acceptEffect(effect: Effect) = with(effect) {
         when (this) {
-            is Event.Error -> showSnackbar(message)
+            is Effect.Error -> showToast(parseResourceString(message))
         }
     }
 

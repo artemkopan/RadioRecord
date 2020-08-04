@@ -5,15 +5,18 @@ import io.radio.shared.base.mvi.Middleware
 import io.radio.shared.store.player.MediaPlayer
 import io.radio.shared.store.player.PlayerStore.*
 import io.radio.shared.store.player.PlayerStore.Result.PlaylistAvailability
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 
 class PlayerObserveMetaDataMiddleware(
     private val mediaPlayer: MediaPlayer
 ) : Middleware<Action, Result, State> {
 
     override fun accept(
-        actions: Flow<Action>,
-        state: StateFlow<State>
+        actionFlow: Flow<Action>,
+        state: () -> State
     ): Flow<Result> {
         return mediaPlayer.playerMetaDataFlow.map {
             PlaylistAvailability(

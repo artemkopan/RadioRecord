@@ -7,7 +7,10 @@ import io.radio.shared.date.DateProvider
 import io.radio.shared.store.player.MediaPlayer
 import io.radio.shared.store.player.PlayerStore.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.transformLatest
 import kotlin.time.Duration
 import kotlin.time.seconds
 
@@ -21,10 +24,10 @@ class PlayerSlipMiddleware(
     private var lastEventTime: Duration? = null
 
     override fun accept(
-        actions: Flow<Action>,
-        state: StateFlow<State>
+        actionFlow: Flow<Action>,
+        state: () -> State
     ): Flow<Result> {
-        return actions.transformLatest { action ->
+        return actionFlow.transformLatest { action ->
 
             val isForward = when (action) {
                 is Action.SlipForward -> true
@@ -36,7 +39,7 @@ class PlayerSlipMiddleware(
 
             val currentEventTime = dateProvider.currentTime
 
-            val lastEventTime = this@PlayerSlipMiddleware.lastEventTime
+            val lastEventTime = lastEventTime
             this@PlayerSlipMiddleware.lastEventTime = currentEventTime
 
             val hasLastEvent = lastEventTime != null

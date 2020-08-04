@@ -3,27 +3,40 @@ package io.radio.shared.store.player.middleware
 import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.mvi.Middleware
 import io.radio.shared.store.player.MediaPlayer
+import io.radio.shared.store.player.PlaybackState
 import io.radio.shared.store.player.PlayerStore.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.transformLatest
 
 class PlayerSeekMiddleware(
     private val mediaPlayer: MediaPlayer
 ) : Middleware<Action, Result, State> {
 
+    private var wasPaused: Boolean? = null
+
     override fun accept(
-        actions: Flow<Action>,
-        state: StateFlow<State>
+        actionFlow: Flow<Action>,
+        state: () -> State
     ): Flow<Result> {
-        return actions.transform {
+        return actionFlow.transformLatest {
             if (it is Action.FindPosition) {
                 val position = it.position
                 if (it.isScrubbing) {
+                    if (wasPaused == null) {
+                        //don't change pause state while scrubbing
+                        wasPaused = mediaPlayer.playbackStateFlow.value == PlaybackState.Pause
+                    }
                     mediaPlayer.pause()
                     emit(Result.TrackScrubbing(position) as Result)
                 } else {
-                    emit(Result.TrackScrubbing(null) as Result)
                     mediaPlayer.seekTo(position)
-                    mediaPlayer.play()
+                    if (wasPaused == false) {
+                        mediaPlayer.play()
+                    }
+                    wasPaused = null
+                    emit(Result.TrackScrubbing(null) as Result)
                 }
             }
         }

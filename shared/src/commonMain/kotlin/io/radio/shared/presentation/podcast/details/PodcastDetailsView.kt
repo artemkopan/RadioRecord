@@ -2,13 +2,13 @@ package io.radio.shared.presentation.podcast.details
 
 import io.radio.shared.base.Persistable
 import io.radio.shared.base.mvi.MviView
-import io.radio.shared.base.mvi.ViewEvent
 import io.radio.shared.model.Playlist
+import io.radio.shared.model.ResourceString
 import io.radio.shared.model.TrackItem
-import io.radio.shared.model.TrackMediaStateItem
+import io.radio.shared.model.TrackPlaybackStateItem
 import io.radio.shared.presentation.podcast.details.PodcastDetailsView.*
 
-interface PodcastDetailsView : MviView<Intent, Model, Event> {
+interface PodcastDetailsView : MviView<Intent, Model, Effect> {
 
     sealed class Intent {
 
@@ -20,19 +20,17 @@ interface PodcastDetailsView : MviView<Intent, Model, Event> {
     data class Model(
         val logo: String = "",
         val title: String = "",
-        val tracksWithState: List<TrackMediaStateItem> = emptyList(),
+        val tracksWithState: List<TrackPlaybackStateItem> = emptyList(),
         val playlist: Playlist? = null,
         val headerColor: Int = 0
     ) : Persistable
 
-    sealed class Event : ViewEvent {
+    sealed class Effect : Persistable {
 
-        object NavigateToPlayer : Event() {
-            override val tag: String
-                get() = "NavigateToPlayer"
-        }
+        object NavigateToPlayer : Effect()
 
-        data class Error(val message: String, override val tag: String) : Event()
+        data class PodcastError(val message: ResourceString) : Effect()
+        data class PlayerError(val message: ResourceString) : Effect()
 
     }
 

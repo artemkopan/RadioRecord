@@ -1,23 +1,26 @@
 package io.radio.shared.presentation.podcast.home
 
-import io.radio.shared.base.extensions.formatTag
+import io.radio.shared.base.mvi.Binder
 import io.radio.shared.base.mvi.bind
 import io.radio.shared.base.viewmodel.StateStorage
 import io.radio.shared.base.viewmodel.ViewBinder
+import io.radio.shared.base.viewmodel.ViewBinderHelper
 import io.radio.shared.formatters.ErrorFormatter
 import io.radio.shared.image.Color
 import io.radio.shared.image.ImageLightness
 import io.radio.shared.image.Size
 import io.radio.shared.model.Podcast
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
+import io.radio.shared.presentation.podcast.home.PodcastView.*
 import io.radio.shared.resources.AppResources
 import io.radio.shared.store.image.ImageParamsStore
 import io.radio.shared.store.image.ImageParamsStoreFactory
 import io.radio.shared.store.podcasts.home.PodcastStore
 import io.radio.shared.store.podcasts.home.PodcastStoreFactory
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 
 class PodcastViewBinder(
     private val stateStorage: StateStorage,
@@ -25,23 +28,33 @@ class PodcastViewBinder(
     imageParamsStoreFactory: ImageParamsStoreFactory,
     private val errorFormatter: ErrorFormatter,
     private val appResources: AppResources
-) : ViewBinder() {
+) : ViewBinder(), Binder<PodcastView> {
+
+    private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
 
     private val podcastStore = podcastStoreFactory.create(scope, stateStorage)
     private val imageStore = imageParamsStoreFactory.create(scope, stateStorage)
 
-    suspend fun attachView(view: PodcastView) {
-        bind {
-            podcastStore.stateFlow.mapPodcastStateToModel() bindTo view
-            podcastStore.stateFlow.mapPodcastStateToEvent() bindTo view
+    init {
+        podcastStore.stateFlow.onEach {
+            it.dispatchModel()
+            it.dispatchEffect()
+        }.launchIn(scope)
 
+        imageStore.stateFlow.onEach {
+            it.dispatchEffectFromImageParamsStore()
+        }.launchIn(scope)
+    }
+
+    override suspend fun bind(view: PodcastView) {
+        bind {
+            helper bindTo view
             view.intents.mapIntentToImageParamsAction() bindTo imageStore
-            imageStore.stateFlow.mapImageParamsStateToEvent() bindTo view
         }
     }
 
-    private fun Flow<PodcastView.Intent>.mapIntentToImageParamsAction() = mapNotNull {
-        if (it is PodcastView.Intent.SelectPodcast) {
+    private fun Flow<Intent>.mapIntentToImageParamsAction() = mapNotNull {
+        if (it is Intent.SelectPodcast) {
             stateStorage[KEY_PODCAST] = it.podcast
             ImageParamsStore.Action.GetImageParamsByUrl(
                 it.podcast.cover,
@@ -53,34 +66,34 @@ class PodcastViewBinder(
         }
     }
 
-    private fun Flow<PodcastStore.State>.mapPodcastStateToModel() = map {
-        PodcastView.Model(it.isLoading, it.data)
+    private suspend fun PodcastStore.State.dispatchModel() {
+        helper.dispatchModel(Model(isLoading, podcastList))
     }
 
-    private fun Flow<PodcastStore.State>.mapPodcastStateToEvent() = mapNotNull {
-        it.error?.let { throwable ->
-            PodcastView.Event.Error(
-                errorFormatter.format(throwable),
-                throwable formatTag "loading_podcast"
+    private suspend fun PodcastStore.State.dispatchEffect() {
+        error?.let { throwable ->
+            Effect.Error(
+                errorFormatter.format(throwable)
             )
+        }?.let {
+            helper.dispatchEffect(it)
         }
     }
 
-    private fun Flow<ImageParamsStore.State>.mapImageParamsStateToEvent() = mapNotNull {
-        val podcast = stateStorage.get<Podcast>(KEY_PODCAST) ?: return@mapNotNull null
-        return@mapNotNull when {
-            it.error != null -> PodcastView.Event.Error(
-                errorFormatter.format(it.error),
-                it.error formatTag "loading_details_${podcast.id}"
+    private suspend fun ImageParamsStore.State.dispatchEffectFromImageParamsStore() {
+        val podcast = stateStorage.get<Podcast>(KEY_PODCAST) ?: return
+        when {
+            error != null -> Effect.Error(
+                errorFormatter.format(error)
             )
             else -> {
-                PodcastView.Event.NavigateToDetails(
+                Effect.NavigateToDetails(
                     PodcastDetailsParams(
                         id = podcast.id,
                         name = podcast.name,
                         cover = podcast.cover,
-                        headerColor = it.dominantDarkerColor.value,
-                        toolbarColor = if (it.imageLightness == ImageLightness.Dark) {
+                        headerColor = dominantDarkerColor.value,
+                        toolbarColor = if (imageLightness == ImageLightness.Dark) {
                             appResources.primaryColor
                         } else {
                             appResources.accentColor
@@ -88,7 +101,7 @@ class PodcastViewBinder(
                     )
                 )
             }
-        }
+        }.let { helper.dispatchEffect(it) }
     }
 
     companion object {

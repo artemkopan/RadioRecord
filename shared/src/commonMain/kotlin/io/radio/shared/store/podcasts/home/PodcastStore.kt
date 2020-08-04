@@ -16,16 +16,15 @@ interface PodcastStore : Store<Action, Result, State> {
 
     sealed class Result {
 
-        object Loading : Result()
-        data class Success(val data: List<Podcast>) : Result()
-        data class Error(val throwable: Throwable) : Result()
-
+        object PodcastListLoading : Result()
+        data class PodcastListLoaded(val data: List<Podcast>) : Result()
+        data class PodcastListError(val throwable: Throwable) : Result()
     }
 
     data class State(
         val isLoading: Boolean = false,
         val error: Throwable? = null,
-        val data: List<Podcast> = emptyList()
+        val podcastList: List<Podcast> = emptyList()
     ) : Persistable
 
 }

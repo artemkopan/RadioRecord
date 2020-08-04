@@ -2,12 +2,12 @@ package io.radio.shared.presentation.podcast.home
 
 import io.radio.shared.base.Persistable
 import io.radio.shared.base.mvi.MviView
-import io.radio.shared.base.mvi.ViewEvent
 import io.radio.shared.model.Podcast
+import io.radio.shared.model.ResourceString
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 import io.radio.shared.presentation.podcast.home.PodcastView.*
 
-interface PodcastView : MviView<Intent, Model, Event> {
+interface PodcastView : MviView<Intent, Model, Effect> {
 
     sealed class Intent {
 
@@ -17,14 +17,11 @@ interface PodcastView : MviView<Intent, Model, Event> {
 
     data class Model(val isLoading: Boolean, val data: List<Podcast>) : Persistable
 
-    sealed class Event : ViewEvent {
+    sealed class Effect : Persistable {
 
-        data class Error(val message: String, override val tag: String) : Event()
+        data class Error(val message: ResourceString) : Effect()
 
-        data class NavigateToDetails(val params: PodcastDetailsParams) : Event() {
-            override val tag: String
-                get() = "Navigate to details"
-        }
+        data class NavigateToDetails(val params: PodcastDetailsParams) : Effect()
     }
 
 }

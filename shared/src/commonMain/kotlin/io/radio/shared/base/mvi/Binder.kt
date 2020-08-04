@@ -1,15 +1,25 @@
+@file:Suppress("FunctionName", "NOTHING_TO_INLINE", "UNCHECKED_CAST")
+
 package io.radio.shared.base.mvi
 
 import io.radio.shared.base.MainDispatcher
 import io.radio.shared.base.Persistable
+import io.radio.shared.base.viewmodel.ViewBinderHelper
+import io.radio.shared.presentation.UiCoroutineHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
+
+interface Binder<MviView : Any> {
+    suspend fun bind(view: MviView)
+}
+
+inline infix fun <MviView : Any> UiCoroutineHolder.bind(binder: Binder<MviView>) {
+    viewScope.launch { binder.bind(this@bind as MviView) }
+}
 
 /**
  * A builder function for the [Binder]
@@ -42,7 +52,7 @@ interface BindingsBuilder {
      */
     infix fun <Model : Persistable> Flow<Model>.bindTo(viewRenderer: ViewRenderer<Model>)
 
-    infix fun <Event : Persistable> Flow<Event>.bindTo(viewEvents: ViewEvents<Event>)
+    infix fun <Event : Persistable> Flow<Event>.bindTo(viewEffects: ViewEffects<Event>)
 
     /**
      * Creates a binding between this [Flow] and the provided [Store]
@@ -51,6 +61,12 @@ interface BindingsBuilder {
      * @param store a [Store] that will consume the `Intents`
      */
     infix fun <Action : Any> Flow<Action>.bindTo(store: Store<Action, *, *>)
+
+    infix fun <T> Flow<T>.bindTo(stateFlow: MutableStateFlow<T>)
+
+    infix fun <Model : Persistable, Effect : Persistable> ViewBinderHelper<Model, Effect>.bindTo(
+        view: MviView<*, Model, Effect>
+    )
 }
 
 @OptIn(InternalCoroutinesApi::class)
@@ -70,14 +86,25 @@ private class BuilderBinder(
         }
     }
 
-    override fun <Event : Persistable> Flow<Event>.bindTo(viewEvents: ViewEvents<Event>) {
+    override fun <Event : Persistable> Flow<Event>.bindTo(viewEffects: ViewEffects<Event>) {
         this bindTo {
-            viewEvents.acceptEvent(it)
+            viewEffects.acceptEffect(it)
         }
     }
 
     override fun <T : Any> Flow<T>.bindTo(store: Store<T, *, *>) {
         this bindTo { store.dispatchAction(it) }
+    }
+
+    override fun <T> Flow<T>.bindTo(stateFlow: MutableStateFlow<T>) {
+        this bindTo { stateFlow.value = it }
+    }
+
+    override fun <Model : Persistable, Effect : Persistable> ViewBinderHelper<Model, Effect>.bindTo(
+        view: MviView<*, Model, Effect>
+    ) {
+        modelFlow bindTo { view.render(it) }
+        effectFlow bindTo { view.acceptEffect(it) }
     }
 
     fun start() {

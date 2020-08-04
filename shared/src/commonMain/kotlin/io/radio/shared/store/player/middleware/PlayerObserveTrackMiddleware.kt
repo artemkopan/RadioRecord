@@ -11,8 +11,8 @@ class PlayerObserveTrackMiddleware(
 ) : Middleware<Action, Result, State> {
 
     override fun accept(
-        actions: Flow<Action>,
-        state: StateFlow<State>
+        actionFlow: Flow<Action>,
+        state: () -> State
     ): Flow<Result> {
         return mediaPlayer.trackFlow.transformLatest { trackOpt ->
             val track = trackOpt.data ?: run {

@@ -8,7 +8,7 @@ import io.radio.shared.base.mvi.StoreImpl
 import io.radio.shared.base.viewmodel.StateStorage
 import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
-import io.radio.shared.model.TrackMediaStateItem
+import io.radio.shared.model.TrackPlaybackStateItem
 import io.radio.shared.store.playlist.PlaylistStore.*
 import kotlinx.coroutines.CoroutineScope
 
@@ -22,14 +22,14 @@ interface PlaylistStore : Store<Action, Result, State> {
 
         data class TracksWithMediaState(
             val playlist: Playlist,
-            val tracks: List<TrackMediaStateItem>
+            val tracks: List<TrackPlaybackStateItem>
         ) : Result()
 
     }
 
     data class State(
         val playlist: Playlist? = null,
-        val tracks: List<TrackMediaStateItem> = emptyList()
+        val tracks: List<TrackPlaybackStateItem> = emptyList()
     ) : Persistable
 }
 

@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
@@ -25,14 +24,16 @@ import io.radio.presentation.podcast.details.track.TracksAdapter
 import io.radio.presentation.routePlayer
 import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.base.fragment.popBack
+import io.radio.shared.base.fragment.showToast
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.doOnFinallyImageCallback
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.BlurTransformation
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
 import io.radio.shared.base.imageloader.transformations.GranularRoundedCornersTransformation
-import io.radio.shared.base.mvi.MviViewDelegate
+import io.radio.shared.base.mvi.bind
 import io.radio.shared.base.viewmodel.koin.viewBinder
+import io.radio.shared.model.parseResourceString
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
 import io.radio.shared.presentation.podcast.details.PodcastDetailsVewBinder
 import io.radio.shared.presentation.podcast.details.PodcastDetailsView
@@ -42,20 +43,12 @@ import kotlinx.android.synthetic.main.fragment_podcast_details.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.launch
 
 
-class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
+class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), PodcastDetailsView {
 
     private val viewBinder by viewBinder<PodcastDetailsVewBinder>()
-
     private val adapterIntentsChannel = BroadcastChannel<Intent>(1)
-    private val mviView = object : MviViewDelegate<Intent, Model, Event>(
-        savedStateRegistryOwner = this@PodcastDetailsFragment,
-        intentFlow = ::bindIntents,
-        onRender = ::render,
-        onEvent = ::event
-    ), PodcastDetailsView {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,19 +98,14 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         initTracksAdapter()
         initTrackPositionHandler()
 
+        this bind viewBinder
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewScope.launch { viewBinder.attachView(mviView) }
-    }
+    override val intents: Flow<Intent>
+        get() = adapterIntentsChannel.asFlow()
 
 
-    private fun bindIntents(): Flow<Intent> {
-        return adapterIntentsChannel.asFlow()
-    }
-
-    private fun render(model: Model) {
+    override fun render(model: Model) {
         (podcastTracksRecycler.adapter as TracksAdapter).run {
             submitList(model.tracksWithState)
             stateRestorationPolicy = StateRestorationPolicy.ALLOW
@@ -126,16 +114,13 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         (podcastTracksRecycler.tag as? TrackPositionScrollerHelper)?.run {
             model.playlist?.position?.let(::onTrackChanged)
         }
-//        loadHeader(model)
-//        loadCover(model) { startPostponedEnterTransition() }
     }
 
-    private fun event(event: Event) = with(event) {
+    override fun acceptEffect(effect: Effect) = with (effect) {
         when (this) {
-            Event.NavigateToPlayer -> routePlayer()
-            is Event.Error -> {
-                Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
-            }
+            Effect.NavigateToPlayer -> routePlayer()
+            is Effect.PodcastError -> showToast(parseResourceString(message))
+            is Effect.PlayerError -> showToast(parseResourceString(message))
         }
     }
 

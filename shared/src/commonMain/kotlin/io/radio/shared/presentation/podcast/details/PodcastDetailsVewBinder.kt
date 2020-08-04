@@ -1,12 +1,13 @@
 package io.radio.shared.presentation.podcast.details
 
-import io.radio.shared.base.extensions.formatTag
+import io.radio.shared.base.mvi.Binder
 import io.radio.shared.base.mvi.bind
 import io.radio.shared.base.viewmodel.StateStorage
 import io.radio.shared.base.viewmodel.ViewBinder
+import io.radio.shared.base.viewmodel.ViewBinderHelper
 import io.radio.shared.formatters.ErrorFormatter
 import io.radio.shared.model.TrackItem
-import io.radio.shared.presentation.podcast.details.PodcastDetailsView.Model
+import io.radio.shared.presentation.podcast.details.PodcastDetailsView.*
 import io.radio.shared.store.player.PlayerStore
 import io.radio.shared.store.player.PlayerStoreFactory
 import io.radio.shared.store.playlist.PlaylistStore
@@ -21,29 +22,30 @@ class PodcastDetailsVewBinder(
     playerStoreFactory: PlayerStoreFactory,
     playlistStoreFactory: PlaylistStoreFactory,
     private val errorFormatter: ErrorFormatter
-) : ViewBinder() {
+) : ViewBinder(), Binder<PodcastDetailsView> {
+
+
+    private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
 
     private val podcastStore = podcastDetailsStoreFactory.create(scope, stateStorage)
     private val playerStore = playerStoreFactory.create(scope, stateStorage)
     private val playlistStore: PlaylistStore = playlistStoreFactory.create(scope, stateStorage)
 
-    suspend fun attachView(view: PodcastDetailsView) {
-        bind {
-            combineTransform(
-                podcastStore.stateFlow,
-                playerStore.stateFlow,
-                playlistStore.stateFlow,
-                stateToModel
-            ).distinctUntilChanged() bindTo view
+    init {
+        combineTransform(
+            podcastStore.stateFlow,
+            playerStore.stateFlow,
+            playlistStore.stateFlow,
+            dispatchModelAndEffect()
+        ).distinctUntilChanged().launchIn(scope)
+    }
 
-            combineTransform(
-                podcastStore.stateFlow,
-                playerStore.stateFlow,
-                stateToEvent
-            ) bindTo view
+    override suspend fun bind(view: PodcastDetailsView) {
+        bind {
+            helper bindTo view
 
             view.intents.transform(intentToPlayerAction) bindTo playerStore
-            view.intents.transform(intentToEvent) bindTo view
+            view.intents.transform(intentToEffect) bindTo view
 
             podcastStore.stateFlow
                 .distinctUntilChangedBy { it.tracks }
@@ -52,47 +54,54 @@ class PodcastDetailsVewBinder(
     }
 
 
-    private val stateToModel: suspend FlowCollector<Model>.(PodcastDetailsStore.State, PlayerStore.State, PlaylistStore.State) -> Unit =
+    private fun dispatchModelAndEffect(): suspend FlowCollector<Model>.(PodcastDetailsStore.State, PlayerStore.State, PlaylistStore.State) -> Unit =
         { podcast, player, playlist ->
-            emit(
+            helper.dispatchModel(
                 Model(
                     podcast.podcastDetails?.cover.orEmpty(),
                     podcast.podcastDetails?.name.orEmpty(),
                     playlist.tracks
                 )
             )
-        }
 
-    private val stateToEvent: suspend FlowCollector<PodcastDetailsView.Event>.(a: PodcastDetailsStore.State, b: PlayerStore.State) -> Unit =
-        { podcast, _ ->
-            podcast.error?.let {
-                emit(
-                    PodcastDetailsView.Event.Error(
-                        errorFormatter.format(it),
-                        it formatTag "podcast_details"
-                    )
-                )
+            if (podcast.error != null) {
+                helper.dispatchEffect(Effect.PodcastError(errorFormatter.format(podcast.error)))
+            }
+            if (player.error != null) {
+                helper.dispatchEffect(Effect.PlayerError(errorFormatter.format(player.error)))
             }
         }
 
-    private val intentToEvent: suspend FlowCollector<PodcastDetailsView.Event>.(PodcastDetailsView.Intent) -> Unit =
+
+    private val intentToEffect: suspend FlowCollector<Effect>.(Intent) -> Unit =
         {
             when (it) {
-                is PodcastDetailsView.Intent.TrackClick -> emit(PodcastDetailsView.Event.NavigateToPlayer)
+                is Intent.TrackClick -> emit(Effect.NavigateToPlayer)
             }
         }
 
-    private val intentToPlayerAction: suspend FlowCollector<PlayerStore.Action>.(PodcastDetailsView.Intent) -> Unit =
+    private val intentToPlayerAction: suspend FlowCollector<PlayerStore.Action>.(Intent) -> Unit =
         transform@{
-            val trackItem: TrackItem = when (it) {
-                is PodcastDetailsView.Intent.TrackClick -> it.trackItem
-                is PodcastDetailsView.Intent.PlayPauseClick -> it.trackItem
+            val switchPlayback: Boolean
+
+            val trackItem: TrackItem
+            when (it) {
+                is Intent.TrackClick -> {
+                    switchPlayback = false
+                    trackItem = it.trackItem
+                }
+                is Intent.PlayPauseClick -> {
+                    switchPlayback = true
+                    trackItem = it.trackItem
+                }
             }
             emit(
-                PlayerStore.Action.PrepareOrSwitchPlayPause(
+                PlayerStore.Action.Prepare(
                     track = trackItem,
                     tracks = playlistStore.stateFlow.first().playlist?.tracks ?: return@transform,
-                    autoPlay = true
+                    autoPlay = true,
+                    forcePrepareIfTrackPrepared = false,
+                    switchPlaybackIfTrackPrepared = switchPlayback
                 )
             )
         }

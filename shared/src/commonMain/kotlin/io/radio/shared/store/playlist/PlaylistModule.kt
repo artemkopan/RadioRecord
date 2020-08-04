@@ -4,6 +4,6 @@ import org.koin.dsl.module
 
 val playlistModule = module {
 
-    factory { PlaylistObserveTracksStateMiddleware(get()) }
+    factory { PlaylistObserveTracksStateMiddleware(get(), get()) }
     factory { PlaylistStoreFactory(get()) }
 }

@@ -10,9 +10,10 @@ import io.radio.R
 import io.radio.presentation.home.postScrolledFraction
 import io.radio.presentation.routeDetails
 import io.radio.shared.base.fragment.BaseFragment
-import io.radio.shared.base.fragment.showSnackbar
-import io.radio.shared.base.mvi.MviViewDelegate
+import io.radio.shared.base.fragment.showToast
+import io.radio.shared.base.mvi.bind
 import io.radio.shared.base.viewmodel.koin.viewBinder
+import io.radio.shared.model.parseResourceString
 import io.radio.shared.presentation.podcast.home.PodcastView
 import io.radio.shared.presentation.podcast.home.PodcastView.*
 import io.radio.shared.presentation.podcast.home.PodcastViewBinder
@@ -23,19 +24,12 @@ import kotlinx.android.synthetic.main.fragment_podcasts.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
+class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts), PodcastView {
 
     private val viewBinder by viewBinder<PodcastViewBinder>()
     private val adapterIntentsChannel = BroadcastChannel<Intent>(1)
-    private val mviView = object : MviViewDelegate<Intent, Model, Event>(
-        this@PodcastsFragment,
-        ::bindIntents,
-        ::render,
-        ::event
-    ), PodcastView {}
 
     private var selectedExtra: WeakReference<Navigator.Extras>? = null
 
@@ -61,7 +55,7 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
             ) { postScrolledFraction(it) }
         )
 
-        viewScope.launch { viewBinder.attachView(mviView) }
+        this bind viewBinder
     }
 
     override fun onResume() {
@@ -69,11 +63,10 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
         radioPodcastRecycleView.updateScrollOffsetListener()
     }
 
-    fun bindIntents(): Flow<Intent> {
-        return adapterIntentsChannel.asFlow()
-    }
+    override val intents: Flow<Intent>
+        get() = adapterIntentsChannel.asFlow()
 
-    private fun render(model: Model) = with(model) {
+    override fun render(model: Model) = with(model) {
         progressBar.isVisible = isLoading
         radioPodcastRecycleView.isVisible = !isLoading
         (radioPodcastRecycleView.tag as PodcastsAdapter).submitList(data) {
@@ -81,10 +74,10 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts) {
         }
     }
 
-    private fun event(event: Event) = with(event) {
+    override fun acceptEffect(effect: Effect) = with(effect) {
         when (this) {
-            is Event.Error -> showSnackbar(message)
-            is Event.NavigateToDetails -> routeDetails(params, selectedExtra?.get())
+            is Effect.Error -> showToast(parseResourceString(message))
+            is Effect.NavigateToDetails -> routeDetails(params, selectedExtra?.get())
         }
     }
 

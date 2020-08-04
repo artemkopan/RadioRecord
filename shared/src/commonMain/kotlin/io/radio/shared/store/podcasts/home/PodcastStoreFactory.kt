@@ -1,37 +1,42 @@
 package io.radio.shared.store.podcasts.home
 
 import io.radio.shared.base.mvi.Reducer
+import io.radio.shared.base.mvi.SimpleBootstrapper
 import io.radio.shared.base.mvi.StoreFactory
 import io.radio.shared.base.mvi.StoreImpl
 import io.radio.shared.base.viewmodel.StateStorage
+import io.radio.shared.store.podcasts.home.PodcastStore.*
 import kotlinx.coroutines.CoroutineScope
 
 class PodcastStoreFactory(
-    private val loadPodcastBootstrapper: LoadPodcastBootstrapper,
     private val loadPodcastMiddleware: LoadPodcastMiddleware
-) : StoreFactory<PodcastStore.Action, PodcastStore.Result, PodcastStore.State> {
+) : StoreFactory<Action, Result, State> {
 
     override fun create(
         coroutineScope: CoroutineScope,
         stateStorage: StateStorage
     ): PodcastStore {
-        return object : StoreImpl<PodcastStore.Action, PodcastStore.Result, PodcastStore.State>(
+        return object : StoreImpl<Action, Result, State>(
             coroutineScope,
             listOf(loadPodcastMiddleware),
-            listOf(loadPodcastBootstrapper),
+            listOf(SimpleBootstrapper(Action.LoadPodcast)),
             ReducerImpl,
-            PodcastStore.State()
+            State()
         ), PodcastStore {}
     }
 
 
     private object ReducerImpl :
-        Reducer<PodcastStore.Result, PodcastStore.State> {
-        override fun reduce(result: PodcastStore.Result, state: PodcastStore.State): PodcastStore.State = with(result) {
+        Reducer<Result, State> {
+        override fun reduce(result: Result, state: State): State = with(result) {
             when (this) {
-                PodcastStore.Result.Loading -> state.copy(isLoading = true, error = null)
-                is PodcastStore.Result.Success -> state.copy(isLoading = false, error = null, data = data)
-                is PodcastStore.Result.Error -> state.copy(isLoading = false, error = throwable)
+                Result.PodcastListLoading -> state.copy(isLoading = true, error = null)
+                is Result.PodcastListLoaded -> state.copy(
+                    isLoading = false,
+                    error = null,
+                    podcastList = data
+                )
+                is Result.PodcastListError -> state.copy(isLoading = false, error = throwable)
             }
         }
     }

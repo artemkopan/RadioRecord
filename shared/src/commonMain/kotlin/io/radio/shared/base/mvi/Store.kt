@@ -5,13 +5,14 @@ import io.radio.shared.base.Logger
 import io.radio.shared.base.Persistable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
 interface Store<Action : Any, Result : Any, State : Persistable> {
 
-    val stateFlow: StateFlow<State>
+    val stateFlow: Flow<State>
 
     fun dispatchAction(action: Action)
 }
@@ -24,9 +25,9 @@ open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
     initialState: State
 ) : Store<Action, Result, State> {
 
-    private val stateMutableFlow = MutableStateFlow(initialState)
-    override val stateFlow: StateFlow<State>
-        get() = stateMutableFlow
+    private val stateChannel = ConflatedBroadcastChannel(initialState)
+    override val stateFlow: Flow<State>
+        get() = stateChannel.asFlow()
 
     private val actions = BroadcastChannel<Action>(1)
     private val results = BroadcastChannel<Result>(1)
@@ -46,21 +47,26 @@ open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
             val actionsFlow = actions.asFlow()
             val resultsFlow = results.asFlow()
 
-            bootstrapperList.map { it.accept(actionsFlow, resultsFlow, stateMutableFlow) }
+
+            bootstrapperList.map { it.accept(actionsFlow, resultsFlow) { stateChannel.value } }
                 .merge()
                 .onEach {
                     dispatchAction(it)
                 }
                 .launchIn(this)
 
-            middlewareList.map { it.accept(actionsFlow, stateMutableFlow) }
+            middlewareList.map { it.accept(actionsFlow) { stateChannel.value } }
                 .merge()
                 .onEach { result ->
                     launch { results.send(result) }
-                    val state = stateMutableFlow.value
-                    stateMutableFlow.value = reducer.reduce(result, state).also {
-                        Logger.d(TAG, "Reduce result: $it, old state -> $state, new sate -> $it")
-                    }
+                    val state = stateChannel.value
+                    stateChannel.send(reducer.reduce(result, state)
+                        .also {
+                            Logger.d(
+                                TAG,
+                                "Reduce result: $it, old state -> $state, new sate -> $it"
+                            )
+                        })
                 }
                 .launchIn(this)
         }

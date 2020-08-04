@@ -2,11 +2,11 @@ package io.radio.shared.presentation.player
 
 import io.radio.shared.base.Persistable
 import io.radio.shared.base.mvi.MviView
-import io.radio.shared.base.mvi.ViewEvent
+import io.radio.shared.model.ResourceString
 import io.radio.shared.presentation.player.PlayerView.*
 
 
-interface PlayerView : MviView<Intent, Model, Event> {
+interface PlayerView : MviView<Intent, Model, Effect> {
 
     sealed class Intent {
 
@@ -45,9 +45,9 @@ interface PlayerView : MviView<Intent, Model, Event> {
 
     }
 
-    sealed class Event : ViewEvent {
+    sealed class Effect : Persistable {
 
-        data class Error(val message: String, override val tag: String) : Event()
+        data class Error(val message: ResourceString) : Effect()
 
     }
 

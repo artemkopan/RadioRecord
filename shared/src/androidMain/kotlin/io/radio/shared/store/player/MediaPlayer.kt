@@ -42,8 +42,8 @@ actual class MediaPlayer(
     private val controllerPlayer: PlayerNotificationController
 ) {
 
-    private val stateMutableFlow = MutableStateFlow<MediaState>(MediaState.Idle)
-    actual val stateFlow: StateFlow<MediaState> = stateMutableFlow
+    private val playbackStateMutableFlow = MutableStateFlow<PlaybackState>(PlaybackState.Idle)
+    actual val playbackStateFlow: StateFlow<PlaybackState> = playbackStateMutableFlow
 
     private val trackMutableFlow = MutableStateFlow<Optional<TrackItem>>(Optional.empty())
     actual val trackFlow: StateFlow<Optional<TrackItem>> = trackMutableFlow
@@ -82,7 +82,6 @@ actual class MediaPlayer(
 
     actual suspend fun prepare(trackItem: TrackItem, playlist: Playlist?, autoPlay: Boolean) =
         withContext(playerDispatcher) {
-            trackMutableFlow.value = Optional.empty()
 
             val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory(
                 Util.getUserAgent(context, "RadioRecord")
@@ -229,20 +228,20 @@ actual class MediaPlayer(
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             return when (playbackState) {
                 Player.STATE_BUFFERING -> {
-                    stateMutableFlow.value = MediaState.Buffering
+                    playbackStateMutableFlow.value = PlaybackState.Buffering
                 }
                 Player.STATE_ENDED -> {
-                    stateMutableFlow.value = MediaState.Ended
+                    playbackStateMutableFlow.value = PlaybackState.Ended
                 }
                 Player.STATE_READY -> {
-                    stateMutableFlow.value = if (exoPlayer.playWhenReady) {
-                        MediaState.Play
+                    playbackStateMutableFlow.value = if (exoPlayer.playWhenReady) {
+                        PlaybackState.Play
                     } else {
-                        MediaState.Pause
+                        PlaybackState.Pause
                     }
                 }
                 Player.STATE_IDLE -> {
-                    stateMutableFlow.value = MediaState.Idle
+                    //ignore this state because it is set after got an error which reset stateFlow
                 }
                 else -> {
                     Logger.w(TAG, "Unknown playback state $playbackState")
@@ -251,7 +250,7 @@ actual class MediaPlayer(
         }
 
         override fun onPlayerError(error: ExoPlaybackException) {
-            stateMutableFlow.value = MediaState.Error(error)
+            playbackStateMutableFlow.value = PlaybackState.Error(error)
         }
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
@@ -341,21 +340,20 @@ actual class MediaPlayer(
             }
         }
 
-        if (player.isPlaying) {
-            val contentDuration = player.contentDuration
-            if (contentDuration == C.TIME_UNSET) {
-                trackTimeLineMutableFlow.value = Optional.empty()
-            } else {
-                trackTimeLineMutableFlow.value = TimeLine(
-                    player.contentPosition.toDuration(DurationUnit.MILLISECONDS),
-                    player.bufferedPosition.toDuration(DurationUnit.MILLISECONDS),
-                    contentDuration.toDuration(DurationUnit.MILLISECONDS)
-                ).toOptional()
-            }
-            postUpdate()
-        } else if (playbackState != Player.STATE_ENDED && playbackState != Player.STATE_IDLE) {
-            postUpdate()
+        if (playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE) {
+            return
         }
+        val contentDuration = player.contentDuration
+        if (contentDuration == C.TIME_UNSET) {
+            trackTimeLineMutableFlow.value = Optional.empty()
+        } else {
+            trackTimeLineMutableFlow.value = TimeLine(
+                player.contentPosition.toDuration(DurationUnit.MILLISECONDS),
+                player.bufferedPosition.toDuration(DurationUnit.MILLISECONDS),
+                contentDuration.toDuration(DurationUnit.MILLISECONDS)
+            ).toOptional()
+        }
+        postUpdate()
     }
 
 

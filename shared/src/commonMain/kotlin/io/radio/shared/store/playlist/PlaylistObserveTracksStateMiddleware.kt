@@ -2,37 +2,40 @@ package io.radio.shared.store.playlist
 
 import io.radio.shared.base.IoDispatcher
 import io.radio.shared.base.mvi.Middleware
+import io.radio.shared.formatters.TrackFormatter
 import io.radio.shared.model.Playlist
-import io.radio.shared.model.TrackMediaStateItem
+import io.radio.shared.model.TrackPlaybackStateItem
 import io.radio.shared.store.player.MediaPlayer
-import io.radio.shared.store.player.MediaState
+import io.radio.shared.store.player.PlaybackState
 import io.radio.shared.store.playlist.PlaylistStore.*
 import kotlinx.coroutines.flow.*
 
 class PlaylistObserveTracksStateMiddleware(
-    private val mediaPlayer: MediaPlayer
+    private val mediaPlayer: MediaPlayer,
+    private val trackFormatter: TrackFormatter
 ) : Middleware<Action, Result, State> {
 
     override fun accept(
-        actions: Flow<Action>,
-        state: StateFlow<State>
+        actionFlow: Flow<Action>,
+        state: () -> State
     ): Flow<Result> {
-        return actions.transformLatest { action ->
+        return actionFlow.transformLatest { action ->
             if (action !is Action.ObserveTracksMediaState || action.tracks.isEmpty()) {
                 return@transformLatest
             }
 
-            emitAll(combine(mediaPlayer.trackFlow, mediaPlayer.stateFlow) { currentTrack, state ->
+            emitAll(combine(mediaPlayer.trackFlow, mediaPlayer.playbackStateFlow) { currentTrack, state ->
                 var position: Int = -1
                 val tracksWithState = action.tracks.mapIndexed { index, track ->
-                    TrackMediaStateItem(
+                    TrackPlaybackStateItem(
                         track,
                         if (track.id == currentTrack.data?.id) {
                             position = index
                             state
                         } else {
-                            MediaState.Idle
-                        }
+                            PlaybackState.Idle
+                        },
+                        trackFormatter.formatDuration(track.duration)
                     )
                 }
                 Result.TracksWithMediaState(

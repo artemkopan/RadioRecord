@@ -8,7 +8,7 @@ import kotlin.time.Duration
 
 expect class MediaPlayer {
 
-    val stateFlow: StateFlow<MediaState>
+    val playbackStateFlow: StateFlow<PlaybackState>
     val trackFlow: StateFlow<Optional<TrackItem>>
     val trackTimeLineFlow: StateFlow<Optional<TimeLine>>
     val playerMetaDataFlow: StateFlow<Optional<PlayerMetaData>>
@@ -39,14 +39,13 @@ data class TimeLine(
     val totalDuration: Duration
 )
 
-
-sealed class MediaState {
-    object Idle : MediaState()
-    object Buffering : MediaState()
-    object Play : MediaState()
-    object Pause : MediaState()
-    object Ended : MediaState()
-    class Error(val throwable: Throwable) : MediaState()
+sealed class PlaybackState {
+    object Idle : PlaybackState()
+    object Buffering : PlaybackState()
+    object Play : PlaybackState()
+    object Pause : PlaybackState()
+    object Ended : PlaybackState()
+    class Error(val throwable: Throwable) : PlaybackState()
 
     fun isPlayOrPause() = this is Play || this is Pause
 }

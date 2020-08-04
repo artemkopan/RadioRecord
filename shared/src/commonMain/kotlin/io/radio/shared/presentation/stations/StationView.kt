@@ -2,11 +2,11 @@ package io.radio.shared.presentation.stations
 
 import io.radio.shared.base.Persistable
 import io.radio.shared.base.mvi.MviView
-import io.radio.shared.base.mvi.ViewEvent
+import io.radio.shared.model.ResourceString
 import io.radio.shared.model.Station
 import io.radio.shared.presentation.stations.StationView.*
 
-interface StationView : MviView<Intent, Model, Event> {
+interface StationView : MviView<Intent, Model, Effect> {
 
     sealed class Intent {
 
@@ -14,15 +14,16 @@ interface StationView : MviView<Intent, Model, Event> {
 
     }
 
-    data class Model(val isLoading: Boolean, val data: List<Station>) : Persistable
+    data class Model(
+        val isLoading: Boolean,
+        val data: List<Station>
+    ) : Persistable
 
-    sealed class Event : ViewEvent {
+    sealed class Effect : Persistable {
 
-        data class Error(val message: String, override val tag: String) : Event()
+        data class Error(val message: ResourceString) : Effect()
 
-        object NavigateToPlayer : Event() {
-            override val tag: String get() = "navigate-to-player"
-        }
+        object NavigateToPlayer : Effect()
 
     }
 

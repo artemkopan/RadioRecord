@@ -1,64 +1,65 @@
 package io.radio.shared.presentation.stations
 
-import io.radio.shared.base.extensions.formatTag
+import io.radio.shared.base.mvi.Binder
 import io.radio.shared.base.mvi.bind
 import io.radio.shared.base.viewmodel.StateStorage
 import io.radio.shared.base.viewmodel.ViewBinder
+import io.radio.shared.base.viewmodel.ViewBinderHelper
 import io.radio.shared.formatters.ErrorFormatter
+import io.radio.shared.presentation.stations.StationView.*
 import io.radio.shared.store.stations.StationStore
 import io.radio.shared.store.stations.StationStoreFactory
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 
 class StationViewBinder(
     stateStorage: StateStorage,
     storeFactory: StationStoreFactory,
     private val errorFormatter: ErrorFormatter
-) : ViewBinder() {
+) : ViewBinder(), Binder<StationView> {
 
+    private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
     private val store = storeFactory.create(scope, stateStorage)
 
-    suspend fun attachView(view: StationView) {
-        bind {
-            store.stateFlow.mapToModel() bindTo view
-            store.stateFlow.mapStationStateToEvent() bindTo view
+    init {
+        store.stateFlow.onEach {
+            it.dispatchModel()
+            it.dispatchEffect()
+        }.launchIn(scope)
+    }
 
+    override suspend fun bind(view: StationView) {
+        bind {
+            helper bindTo view
             view.intents.mapToAction() bindTo store
-            view.intents.mapStationIntentToEvent() bindTo view
         }
     }
 
-    private fun Flow<StationStore.State>.mapToModel() = map {
-        StationView.Model(
-            it.isLoading,
-            it.data
+    private suspend fun StationStore.State.dispatchModel() {
+        helper.dispatchModel(Model(isLoading, data))
+    }
+
+    private suspend fun StationStore.State.dispatchEffect() {
+        helper.dispatchEffect(
+            when {
+                error != null -> {
+                    Effect.Error(errorFormatter.format(error))
+                }
+                playingStation != null -> {
+                    Effect.NavigateToPlayer
+                }
+                else -> return
+            }
         )
     }
 
-    private fun Flow<StationStore.State>.mapStationStateToEvent() = mapNotNull {
-        it.error?.let { throwable ->
-            StationView.Event.Error(
-                errorFormatter.format(throwable),
-                throwable formatTag "load_stations"
-            )
-        }
-    }
-
-    private fun Flow<StationView.Intent>.mapToAction() = mapNotNull {
-        if (it is StationView.Intent.SelectStation) {
+    private fun Flow<Intent>.mapToAction() = mapNotNull {
+        if (it is Intent.SelectStation) {
             StationStore.Action.PlayStation(it.station)
         } else {
             null
         }
     }
-
-    private fun Flow<StationView.Intent>.mapStationIntentToEvent() = mapNotNull {
-        if (it is StationView.Intent.SelectStation) {
-            StationView.Event.NavigateToPlayer
-        } else {
-            null
-        }
-    }
-
 }
