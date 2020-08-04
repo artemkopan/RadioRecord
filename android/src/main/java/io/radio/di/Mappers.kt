@@ -1,6 +1,6 @@
 package io.radio.di
 
-import io.radio.shared.data.mapper.*
+import io.radio.shared.mapper.*
 import org.koin.dsl.module
 
 

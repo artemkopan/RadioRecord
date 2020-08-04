@@ -6,13 +6,13 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import io.radio.shared.base.extensions.lazyNonSafety
-import io.radio.shared.base.viewmodel.ViewModel
+import io.radio.shared.base.viewmodel.ViewBinder
 import org.koin.core.Koin
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import kotlin.reflect.KClass
 
-inline fun <reified T : ViewModel> Koin.viewModel(
+inline fun <reified T : ViewBinder> Koin.viewBinder(
     owner: ViewModelStoreOwner,
     qualifier: Qualifier? = null,
     noinline parameters: ParametersDefinition? = null
@@ -26,7 +26,7 @@ inline fun <reified T : ViewModel> Koin.viewModel(
     }
 }
 
-inline fun <reified T : ViewModel> Koin.getViewModel(
+inline fun <reified T : ViewBinder> Koin.getViewModel(
     owner: ViewModelStoreOwner,
     qualifier: Qualifier? = null,
     noinline parameters: ParametersDefinition? = null
@@ -34,7 +34,7 @@ inline fun <reified T : ViewModel> Koin.getViewModel(
     return getViewModel(owner, T::class, qualifier, parameters)
 }
 
-fun <T : ViewModel> Koin.getViewModel(
+fun <T : ViewBinder> Koin.getViewModel(
     owner: ViewModelStoreOwner,
     clazz: KClass<T>,
     qualifier: Qualifier? = null,
@@ -43,12 +43,12 @@ fun <T : ViewModel> Koin.getViewModel(
     return _scopeRegistry.rootScope.getViewModel(owner, clazz, qualifier, parameters)
 }
 
-fun <T : ViewModel> Koin.getViewModel(viewModelParameters: ViewModelParameter<T>): T {
+fun <T : ViewBinder> Koin.getViewModel(viewModelParameters: ViewModelParameter<T>): T {
     return _scopeRegistry.rootScope.getViewModel(viewModelParameters)
 }
 
 
-inline fun <reified T : ViewModel> Koin.stateViewModel(
+inline fun <reified T : ViewBinder> Koin.stateViewModel(
     owner: SavedStateRegistryOwner,
     qualifier: Qualifier? = null,
     bundle: Bundle? = null,
@@ -59,7 +59,7 @@ inline fun <reified T : ViewModel> Koin.stateViewModel(
     }
 }
 
-inline fun <reified T : ViewModel> Koin.getStateViewModel(
+inline fun <reified T : ViewBinder> Koin.getStateViewModel(
     owner: SavedStateRegistryOwner,
     qualifier: Qualifier? = null,
     bundle: Bundle? = null,
@@ -68,7 +68,7 @@ inline fun <reified T : ViewModel> Koin.getStateViewModel(
     return getStateViewModel(owner, T::class, qualifier, bundle, parameters)
 }
 
-fun <T : ViewModel> Koin.getStateViewModel(
+fun <T : ViewBinder> Koin.getStateViewModel(
     owner: SavedStateRegistryOwner,
     clazz: KClass<T>,
     qualifier: Qualifier? = null,

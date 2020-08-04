@@ -5,12 +5,12 @@ import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.savedstate.SavedStateRegistryOwner
 import io.radio.shared.base.extensions.lazyNonSafety
-import io.radio.shared.base.viewmodel.ViewModel
+import io.radio.shared.base.viewmodel.ViewBinder
 import org.koin.android.ext.android.getKoin
 
 
 @MainThread
-inline fun <reified VM : ViewModel> Fragment.viewModels(
+inline fun <reified VM : ViewBinder> Fragment.viewBinder(
     crossinline ownerProducer: () -> SavedStateRegistryOwner = { this },
     crossinline argumentsProducer: () -> Bundle = { arguments ?: Bundle.EMPTY }
 ) = lazyNonSafety {
@@ -18,12 +18,12 @@ inline fun <reified VM : ViewModel> Fragment.viewModels(
 }
 
 @MainThread
-inline fun <reified VM : ViewModel> Fragment.parentFragmentViewModels(
+inline fun <reified VM : ViewBinder> Fragment.parentFragmentViewModel(
     crossinline argumentsProducer: () -> Bundle = { arguments ?: android.os.Bundle.EMPTY }
-) = viewModels<VM>(ownerProducer = { parentFragment as SavedStateRegistryOwner })
+) = viewBinder<VM>(ownerProducer = { parentFragment as SavedStateRegistryOwner })
 
 @MainThread
-inline fun <reified VM : ViewModel> Fragment.activityViewModels(
+inline fun <reified VM : ViewBinder> Fragment.activityViewModel(
     crossinline argumentsProducer: () -> Bundle = { arguments ?: Bundle.EMPTY }
-) = viewModels<VM>(ownerProducer = { requireActivity() })
+) = viewBinder<VM>(ownerProducer = { requireActivity() })
 

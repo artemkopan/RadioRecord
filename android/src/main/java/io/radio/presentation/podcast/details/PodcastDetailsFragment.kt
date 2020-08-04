@@ -20,28 +20,35 @@ import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
 import io.radio.R
+import io.radio.presentation.podcast.details.track.TracksAdapter
 import io.radio.presentation.routePlayer
-import io.radio.presentation.track.TracksAdapter
-import io.radio.shared.base.State
 import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.base.fragment.popBack
+import io.radio.shared.base.fragment.showToast
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.doOnFinallyImageCallback
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.BlurTransformation
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
 import io.radio.shared.base.imageloader.transformations.GranularRoundedCornersTransformation
-import io.radio.shared.base.viewmodel.koin.viewModels
-import io.radio.shared.presentation.player.TrackPositionScrollerHelper
+import io.radio.shared.base.mvi.bind
+import io.radio.shared.base.viewmodel.koin.viewBinder
+import io.radio.shared.model.parseResourceString
 import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
-import io.radio.shared.presentation.podcast.details.PodcastDetailsViewModel
+import io.radio.shared.presentation.podcast.details.PodcastDetailsVewBinder
+import io.radio.shared.presentation.podcast.details.PodcastDetailsView
+import io.radio.shared.presentation.podcast.details.PodcastDetailsView.*
+import io.radio.shared.presentation.podcast.details.TrackPositionScrollerHelper
 import kotlinx.android.synthetic.main.fragment_podcast_details.*
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 
-class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
 
-    private val viewModel by viewModels<PodcastDetailsViewModel>()
+class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), PodcastDetailsView {
+
+    private val viewBinder by viewBinder<PodcastDetailsVewBinder>()
+    private val adapterIntentsChannel = BroadcastChannel<Intent>(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,14 +79,12 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         podcastDetailsToolbar.navigationIcon?.setTint(params.toolbarColor)
         podcastDetailsToolbar.setNavigationOnClickListener { popBack() }
         podcastDetailsHeader.setCardBackgroundColor(params.headerColor)
-
         podcastDetailsHeader.doOnPreDraw {
             loadHeader(params)
             loadCover(params) {
                 startPostponedEnterTransition()
             }
         }
-
         podcastDetailsTitle.setTextColor(params.toolbarColor)
         podcastDetailsTitle.text = params.name
 
@@ -93,42 +98,51 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
         initTracksAdapter()
         initTrackPositionHandler()
 
-        viewModel.openPlayerEventFlow.subscribe { it.performContentIfNotHandled { routePlayer() } }
+        this bind viewBinder
+    }
 
-        viewModel.podcastDetailsFlow
-            .onEach {
-                when (it) {
-                    is State.Success -> {
+    override val intents: Flow<Intent>
+        get() = adapterIntentsChannel.asFlow()
 
-                    }
-                    is State.Fail -> {
 
-                    }
-                    State.Loading -> {
+    override fun render(model: Model) {
+        (podcastTracksRecycler.adapter as TracksAdapter).run {
+            submitList(model.tracksWithState)
+            stateRestorationPolicy = StateRestorationPolicy.ALLOW
+        }
 
-                    }
-                }
-            }
-            .launchIn(scope)
+        (podcastTracksRecycler.tag as? TrackPositionScrollerHelper)?.run {
+            model.playlist?.position?.let(::onTrackChanged)
+        }
+    }
+
+    override fun acceptEffect(effect: Effect) = with (effect) {
+        when (this) {
+            Effect.NavigateToPlayer -> routePlayer()
+            is Effect.PodcastError -> showToast(parseResourceString(message))
+            is Effect.PlayerError -> showToast(parseResourceString(message))
+        }
     }
 
     private fun initTracksAdapter() {
-        val tracksAdapter = TracksAdapter { _, viewId, _, trackMediaInfo, _ ->
-            when (viewId.id) {
-                R.id.playButton -> viewModel.onPlayClick(trackMediaInfo)
-                R.id.trackContainerLayout -> viewModel.onTrackClick(trackMediaInfo)
+        val tracksAdapter =
+            TracksAdapter { _, viewId, _, trackMediaInfo, _ ->
+                when (viewId.id) {
+                    R.id.playButton -> adapterIntentsChannel.offer(
+                        Intent.PlayPauseClick(
+                            trackMediaInfo.track
+                        )
+                    )
+                    R.id.trackContainerLayout -> adapterIntentsChannel.offer(
+                        Intent.TrackClick(
+                            trackMediaInfo.track
+                        )
+                    )
+                }
             }
-        }
         tracksAdapter.stateRestorationPolicy = StateRestorationPolicy.PREVENT
         podcastTracksRecycler.adapter = tracksAdapter
         podcastTracksRecycler.setHasFixedSize(true)
-
-        viewModel.trackItemsFlow
-            .subscribe {
-                tracksAdapter.submitList(it) {
-                    tracksAdapter.stateRestorationPolicy = StateRestorationPolicy.ALLOW
-                }
-            }
     }
 
     private fun initTrackPositionHandler() {
@@ -140,17 +154,19 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
 
         fun switchTrackScrollButtonVisibility(isVisible: Boolean) {
             if (podcastTrackScrollButton.isVisible == isVisible) return
-            TransitionManager.beginDelayedTransition(view as ViewGroup, transition)
+            TransitionManager.beginDelayedTransition(requireView() as ViewGroup, transition)
             podcastTrackScrollButton.isVisible = isVisible
         }
 
-        val trackPositionScrollerHelper = TrackPositionScrollerHelper(
-            this,
-            { layoutManager.findFirstCompletelyVisibleItemPosition() to layoutManager.findLastCompletelyVisibleItemPosition() },
-            { switchTrackScrollButtonVisibility(it) },
-            { podcastTracksRecycler.smoothScrollToPosition(it) }
-        )
+        val trackPositionScrollerHelper =
+            TrackPositionScrollerHelper(
+                this,
+                { layoutManager.findFirstCompletelyVisibleItemPosition() to layoutManager.findLastCompletelyVisibleItemPosition() },
+                { switchTrackScrollButtonVisibility(it) },
+                { podcastTracksRecycler.smoothScrollToPosition(it) }
+            )
 
+        podcastTracksRecycler.tag = trackPositionScrollerHelper
         podcastTracksRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == SCROLL_STATE_DRAGGING) {
@@ -159,12 +175,10 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details) {
             }
         })
 
-        podcastTracksRecycler.post {
-            viewModel.trackPositionFlow.subscribe { trackPositionScrollerHelper.onTrackChanged(it) }
-        }
         podcastTrackScrollButton.setOnClickListener {
             trackPositionScrollerHelper.onScrollButtonClicked()
         }
+
     }
 
     private fun loadHeader(params: PodcastDetailsParams) {

@@ -9,13 +9,14 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener
 import androidx.viewpager2.widget.ViewPager2
 import io.radio.R
-import io.radio.presentation.podcast.PodcastsSharedElementSupport
+import io.radio.presentation.podcast.home.PodcastsSharedElementSupport
 import io.radio.shared.base.fragment.BaseFragment
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_podcasts.*
 import kotlinx.android.synthetic.main.include_home_header.*
 
-class HomeFragment : BaseFragment(R.layout.fragment_home), HomePagerContentScroller,
+class HomeFragment : BaseFragment(R.layout.fragment_home),
+    HomePagerContentScroller,
     PodcastsSharedElementSupport {
 
     private var selectedPos = -1

@@ -4,24 +4,32 @@ import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
-import android.widget.SeekBar
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
 import io.radio.R
 import io.radio.shared.base.fragment.BaseFragment
 import io.radio.shared.base.fragment.popBack
+import io.radio.shared.base.fragment.showToast
 import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.imageloader.transformations.CircleTransformation
-import io.radio.shared.base.viewmodel.koin.viewModels
-import io.radio.shared.model.TrackMediaState
-import io.radio.shared.presentation.player.PlayerViewModel
+import io.radio.shared.base.mvi.bind
+import io.radio.shared.base.mvi.bindOnChangeListener
+import io.radio.shared.base.mvi.bindOnClick
+import io.radio.shared.base.viewmodel.koin.viewBinder
+import io.radio.shared.model.parseResourceString
+import io.radio.shared.presentation.player.PlayerView
+import io.radio.shared.presentation.player.PlayerView.*
+import io.radio.shared.presentation.player.PlayerViewBinder
 import kotlinx.android.synthetic.main.fragment_player.*
-import kotlin.time.DurationUnit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.transform
 
-class PlayerFragment : BaseFragment(R.layout.fragment_player) {
+class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
 
-    private val viewModel by viewModels<PlayerViewModel>()
+    private val viewBinder by viewBinder<PlayerViewBinder>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,49 +42,73 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
         super.onViewCreated(view, savedInstanceState)
         playerToolbar.setNavigationOnClickListener { popBack() }
         playerSubTitleView.movementMethod = ScrollingMovementMethod.getInstance()
-
-        viewModel.trackFlow.subscribe {
-            playerCoverImage.loadImage(
-                it.cover.data?.img.orEmpty(), params = ImageLoaderParams(
-                    transformations = listOf(CircleTransformation())
-                )
-            )
-            playerTitleView.text = it.title
-            playerSubTitleView.text = it.subTitle
-        }
-
-        viewModel.subTitleFlow.subscribe {
-            playerSubTitleView.text = it
-        }
-
-        viewModel.scrubbingTimeFormattedFlow.subscribe {
-            playerCurrentDurationView.text = it
-        }
-
-        viewModel.playerMetadataFlow.subscribe {
-            playerSkipNextButton.isEnabled = it.data?.enableNext == true
-            playerSkipPreviousButton.isEnabled = it.data?.enablePrevious == true
-            playerRewindAreaView.isEnabled = it.data?.enableRewind == true
-            playerForwardAreaView.isEnabled = it.data?.enableFastForward == true
-        }
-
-        playerSkipNextButton.setOnClickListener { viewModel.next() }
-        playerSkipPreviousButton.setOnClickListener { viewModel.previous() }
-
-        setupTrackStates()
-        setupTimeLineBar()
-        setupSeek()
-        playerPlayButton.setOnClickListener { viewModel.onPlayClicked() }
+        this bind viewBinder
     }
 
-    private fun setupSeek() {
-        playerRewindAreaView.setOnClickListener {
-            viewModel.rewind()
-        }
-        playerForwardAreaView.setOnClickListener {
-            viewModel.forward()
-        }
+    override val intents: Flow<Intent>
+        get() = merge(
+            playerPlayButton.bindOnClick().map { Intent.PlayPause },
+            playerSkipPreviousButton.bindOnClick().map { Intent.PlayPrevious },
+            playerSkipNextButton.bindOnClick().map { Intent.PlayNext },
+            playerTimeBar.bindOnChangeListener().transform {
+                if (it.fromUser) emit(
+                    Intent.FindPosition(
+                        it.progress,
+                        it.isScrubbing
+                    )
+                )
+            },
+            playerRewindAreaView.bindOnClick().map { Intent.SlipRewind },
+            playerForwardAreaView.bindOnClick().map { Intent.SlipForward }
+        )
 
+    override fun render(model: Model) {
+        with(model) {
+            playerCoverImage.loadImage(
+                cover, params = ImageLoaderParams(transformations = listOf(CircleTransformation()))
+            )
+            playerTitleView.text = title
+            playerSubTitleView.text = subTitle
+
+            playerCurrentDurationView.text = currentDurationFormatted
+            playerTotalDurationView.text = totalDurationFormatted
+
+            playerSkipNextButton.isEnabled = isNextAvailable
+            playerSkipPreviousButton.isEnabled = isPreviousAvailable
+            playerRewindAreaView.isEnabled = isRewindAvailable
+            playerForwardAreaView.isEnabled = isFastForwardAvailable
+
+            playerPlayButton.isEnabled = !isLoading
+            if (isPlaying) {
+                playerPlayButton.pause(true)
+            } else {
+                playerPlayButton.play(true)
+            }
+
+            playerTimeBar.isEnabled = isSeekingAvailable
+            playerTimeBar.progress = currentDuration
+            playerTimeBar.max = totalDuration
+
+            model.slip?.let {
+                when (it) {
+                    is Model.Slip.Rewind -> {
+                        showSlipView(it.timeFormatted, false)
+                    }
+                    is Model.Slip.Forward -> {
+                        showSlipView(it.timeFormatted, true)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun acceptEffect(effect: Effect) = with(effect) {
+        when (this) {
+            is Effect.Error -> showToast(parseResourceString(message))
+        }
+    }
+
+    private fun showSlipView(timeOffset: String, isForward: Boolean) {
         fun showTime(viewToShow: View, viewToHide: View) {
             viewToShow.animate()
                 .alpha(1f)
@@ -96,96 +128,20 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player) {
                 .start()
         }
 
-        viewModel.seekResultFlow.subscribe {
-            when (val result = it.data) {
-                is PlayerViewModel.SeekResult.Forward -> {
-                    playerForwardTimeView.text = result.timeOffset
-                    showTime(playerForwardTimeView, playerRewindTimeView)
-                    (playerForwardImage.drawable as Animatable).start()
-                }
-                is PlayerViewModel.SeekResult.Rewind -> {
-                    playerRewindTimeView.text = result.timeOffset
-                    showTime(playerRewindTimeView, playerForwardTimeView)
-                    (playerRewindImage.drawable as Animatable).start()
-                }
-            }
+        if (isForward) {
+            playerForwardTimeView.text = timeOffset
+            showTime(playerForwardTimeView, playerRewindTimeView)
+            (playerForwardImage.drawable as Animatable).start()
+        } else {
+            playerRewindTimeView.text = timeOffset
+            showTime(playerRewindTimeView, playerForwardTimeView)
+            (playerRewindImage.drawable as Animatable).start()
         }
     }
-
-    private fun setupTimeLineBar() {
-        viewModel.trackTimeLineFlow.subscribe {
-            val data = it.data
-            if (data == null) {
-                playerTimeBar.isEnabled = false
-                playerTimeBar.max = 0
-                playerCurrentDurationView.text = ""
-                playerTotalDurationView.text = ""
-            } else {
-                playerTimeBar.isEnabled = true
-                playerTimeBar.max = data.totalDuration.toInt(DurationUnit.SECONDS)
-                playerTimeBar.progress = data.currentPosition.toInt(DurationUnit.SECONDS)
-                playerTimeBar.secondaryProgress =
-                    data.bufferedPosition.toInt(DurationUnit.SECONDS)
-                playerCurrentDurationView.text = data.currentDurationFormatted
-                playerTotalDurationView.text = data.totalDurationFormatted
-            }
-        }
-        playerTimeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(
-                seekBar: SeekBar?,
-                progress: Int,
-                fromUser: Boolean
-            ) {
-                if (!fromUser) return
-                viewModel.onPositionChanged(progress, true)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                viewModel.onPositionChanged(seekBar.progress, false)
-            }
-        })
-    }
-
-    private fun setupTrackStates() {
-        var previousState: TrackMediaState? = null
-
-        fun animateButton(newState: TrackMediaState?): Boolean {
-            return when {
-                previousState == TrackMediaState.Buffering && newState == TrackMediaState.Play -> false
-                else -> true
-            }
-        }
-
-        viewModel.trackMediaStateFlow.subscribe {
-            when (val state = it.data) {
-                TrackMediaState.Preparing -> {
-                    playerPlayButton.isEnabled = false
-                    playerPlayButton.play(animateButton(state))
-                }
-                TrackMediaState.Buffering,
-                TrackMediaState.Play -> {
-                    playerPlayButton.isEnabled = true
-                    playerPlayButton.pause(animateButton(state))
-                }
-                TrackMediaState.Pause -> {
-                    playerPlayButton.isEnabled = true
-                    playerPlayButton.play(animateButton(state))
-                }
-                else -> {
-                    playerPlayButton.isEnabled = true
-                    playerPlayButton.play(animateButton(state))
-                }
-            }
-            previousState = it.data
-        }
-    }
-
 
     private companion object {
         const val SEEK_DURATION = 150L
     }
 
 }
+

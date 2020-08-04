@@ -11,15 +11,17 @@ import io.radio.shared.base.imageloader.ImageLoaderParams
 import io.radio.shared.base.imageloader.loadImage
 import io.radio.shared.base.recycler.plugins.ClickItemAdapterEvent
 import io.radio.shared.base.recycler.plugins.ClickItemAdapterPlugin
-import io.radio.shared.model.RadioStation
+import io.radio.shared.model.Station
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_station.*
 
-class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<RadioStation>) :
-    ListAdapter<RadioStation, StationsAdapter.StationHolder>(Diff) {
+class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<Station>) :
+    ListAdapter<Station, StationsAdapter.StationHolder>(
+        Diff
+    ) {
 
     private val clickPlugin =
-        ClickItemAdapterPlugin<RadioStation>(onClickItemAdapterEvent, { getItem(it) })
+        ClickItemAdapterPlugin<Station>(onClickItemAdapterEvent, { getItem(it) })
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StationHolder {
         return StationHolder(
@@ -35,7 +37,7 @@ class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<RadioStatio
     class StationHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),
         LayoutContainer {
 
-        fun bind(item: RadioStation) {
+        fun bind(item: Station) {
             stationPreviewImage.loadImage(
                 item.icon,
                 ImageLoaderParams(
@@ -48,12 +50,12 @@ class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<RadioStatio
     }
 
     companion object {
-        private val Diff = object : DiffUtil.ItemCallback<RadioStation>() {
-            override fun areItemsTheSame(oldItem: RadioStation, newItem: RadioStation): Boolean {
+        private val Diff = object : DiffUtil.ItemCallback<Station>() {
+            override fun areItemsTheSame(oldItem: Station, newItem: Station): Boolean {
                 return oldItem.title == newItem.title
             }
 
-            override fun areContentsTheSame(oldItem: RadioStation, newItem: RadioStation): Boolean {
+            override fun areContentsTheSame(oldItem: Station, newItem: Station): Boolean {
                 return oldItem == newItem
             }
         }
