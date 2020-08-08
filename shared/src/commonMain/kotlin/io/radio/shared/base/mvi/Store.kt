@@ -47,7 +47,6 @@ open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
             val actionsFlow = actions.asFlow()
             val resultsFlow = results.asFlow()
 
-
             bootstrapperList.map { it.accept(actionsFlow, resultsFlow) { stateChannel.value } }
                 .merge()
                 .onEach {
