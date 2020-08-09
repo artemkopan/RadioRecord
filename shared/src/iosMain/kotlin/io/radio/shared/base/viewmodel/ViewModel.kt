@@ -1,6 +1,6 @@
-package io.radio.shared.base.viewmodel
+package io.shared.mvi
 
-import io.radio.shared.base.MainDispatcher
+import io.shared.core.MainDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlin.native.concurrent.ThreadLocal

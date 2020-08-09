@@ -2,7 +2,7 @@
 
 package io.radio.shared.model
 
-import io.radio.shared.base.Optional
+import io.shared.core.Optional
 import kotlin.time.Duration
 
 data class TrackItem(

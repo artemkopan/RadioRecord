@@ -1,10 +1,10 @@
-package io.radio.shared.store.player.middleware
+package io.shared.store.player.middleware
 
 import io.radio.shared.base.IoDispatcher
-import io.radio.shared.base.mvi.Middleware
-import io.radio.shared.store.player.MediaPlayer
-import io.radio.shared.store.player.PlayerStore.*
-import io.radio.shared.store.player.PlayerStore.Result.PlaylistAvailability
+import io.shared.mvi.Middleware
+import io.shared.store.player.MediaPlayer
+import io.shared.store.player.PlayerStore.*
+import io.shared.store.player.PlayerStore.Result.PlaylistAvailability
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map

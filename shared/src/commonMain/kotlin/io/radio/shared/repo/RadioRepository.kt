@@ -1,4 +1,4 @@
-package io.radio.shared.repo
+package io.shared.repo
 
 import io.radio.shared.base.IoDispatcher
 import io.radio.shared.model.Podcast

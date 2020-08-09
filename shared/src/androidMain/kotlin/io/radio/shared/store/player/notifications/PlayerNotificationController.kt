@@ -1,4 +1,4 @@
-package io.radio.shared.store.player.notifications
+package io.shared.store.player.notifications
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -15,7 +15,7 @@ import io.radio.shared.base.extensions.CoroutineExceptionHandler
 import io.radio.shared.base.extensions.JobRunner
 import io.radio.shared.base.extensions.getBitmap
 import io.radio.shared.base.imageloader.loadImageDrawable
-import io.radio.shared.store.player.currentTrack
+import io.shared.store.player.currentTrack
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

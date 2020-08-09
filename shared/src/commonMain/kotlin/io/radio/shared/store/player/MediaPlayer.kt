@@ -1,6 +1,6 @@
-package io.radio.shared.store.player
+package io.shared.store.player
 
-import io.radio.shared.base.Optional
+import io.shared.core.Optional
 import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
 import kotlinx.coroutines.flow.StateFlow

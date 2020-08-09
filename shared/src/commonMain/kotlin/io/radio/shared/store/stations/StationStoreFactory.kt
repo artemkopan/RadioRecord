@@ -1,11 +1,11 @@
-package io.radio.shared.store.stations
+package io.shared.store.stations
 
-import io.radio.shared.base.mvi.Reducer
-import io.radio.shared.base.mvi.SimpleBootstrapper
-import io.radio.shared.base.mvi.StoreFactory
-import io.radio.shared.base.mvi.StoreImpl
-import io.radio.shared.base.viewmodel.StateStorage
-import io.radio.shared.store.stations.StationStore.*
+import io.shared.mvi.Reducer
+import io.shared.mvi.SimpleBootstrapper
+import io.shared.mvi.StoreFactory
+import io.shared.mvi.StoreImpl
+import io.shared.mvi.StateStorage
+import io.shared.store.stations.StationStore.*
 import kotlinx.coroutines.CoroutineScope
 
 class StationStoreFactory(

@@ -1,19 +1,19 @@
-package io.radio.shared.presentation.podcast.details
+package io.shared.presentation.podcast.details
 
-import io.radio.shared.base.mvi.Binder
-import io.radio.shared.base.mvi.bind
-import io.radio.shared.base.viewmodel.StateStorage
-import io.radio.shared.base.viewmodel.ViewBinder
-import io.radio.shared.base.viewmodel.ViewBinderHelper
+import io.shared.mvi.Binder
+import io.shared.mvi.bind
+import io.shared.mvi.StateStorage
+import io.shared.mvi.ViewBinder
+import io.shared.mvi.ViewBinderHelper
 import io.radio.shared.formatters.ErrorFormatter
 import io.radio.shared.model.TrackItem
-import io.radio.shared.presentation.podcast.details.PodcastDetailsView.*
-import io.radio.shared.store.player.PlayerStore
-import io.radio.shared.store.player.PlayerStoreFactory
-import io.radio.shared.store.playlist.PlaylistStore
-import io.radio.shared.store.playlist.PlaylistStoreFactory
-import io.radio.shared.store.podcasts.details.PodcastDetailsStore
-import io.radio.shared.store.podcasts.details.PodcastDetailsStoreFactory
+import io.shared.presentation.podcast.details.PodcastDetailsView.*
+import io.shared.store.player.PlayerStore
+import io.shared.store.player.PlayerStoreFactory
+import io.shared.store.playlist.PlaylistStore
+import io.shared.store.playlist.PlaylistStoreFactory
+import io.shared.store.podcasts.details.PodcastDetailsStore
+import io.shared.store.podcasts.details.PodcastDetailsStoreFactory
 import kotlinx.coroutines.flow.*
 
 class PodcastDetailsVewBinder(

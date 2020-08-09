@@ -1,4 +1,4 @@
-package io.radio.shared.store.player
+package io.shared.store.player
 
 import android.content.Context
 import androidx.core.app.NotificationCompat
@@ -19,14 +19,14 @@ import com.google.android.exoplayer2.util.NotificationUtil
 import com.google.android.exoplayer2.util.Util
 import io.radio.shared.R
 import io.radio.shared.base.Logger
-import io.radio.shared.base.MainDispatcher
-import io.radio.shared.base.Optional
+import io.shared.core.MainDispatcher
+import io.shared.core.Optional
 import io.radio.shared.base.extensions.JobRunner
-import io.radio.shared.base.toOptional
+import io.shared.core.toOptional
 import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackSource
-import io.radio.shared.store.player.notifications.PlayerNotificationController
+import io.shared.store.player.notifications.PlayerNotificationController
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

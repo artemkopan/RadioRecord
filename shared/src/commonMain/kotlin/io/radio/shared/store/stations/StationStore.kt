@@ -1,9 +1,9 @@
-package io.radio.shared.store.stations
+package io.shared.store.stations
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.Store
+import io.shared.core.Persistable
+import io.shared.mvi.Store
 import io.radio.shared.model.Station
-import io.radio.shared.store.stations.StationStore.*
+import io.shared.store.stations.StationStore.*
 
 interface StationStore : Store<Action, Result, State> {
 

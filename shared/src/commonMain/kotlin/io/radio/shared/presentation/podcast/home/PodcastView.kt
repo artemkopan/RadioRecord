@@ -1,11 +1,11 @@
-package io.radio.shared.presentation.podcast.home
+package io.shared.presentation.podcast.home
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.MviView
+import io.shared.core.Persistable
+import io.shared.mvi.MviView
 import io.radio.shared.model.Podcast
 import io.radio.shared.model.ResourceString
-import io.radio.shared.presentation.podcast.details.PodcastDetailsParams
-import io.radio.shared.presentation.podcast.home.PodcastView.*
+import io.shared.presentation.podcast.details.PodcastDetailsParams
+import io.shared.presentation.podcast.home.PodcastView.*
 
 interface PodcastView : MviView<Intent, Model, Effect> {
 

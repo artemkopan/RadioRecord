@@ -1,10 +1,10 @@
-package io.radio.shared.presentation.stations
+package io.shared.presentation.stations
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.MviView
+import io.shared.core.Persistable
+import io.shared.mvi.MviView
 import io.radio.shared.model.ResourceString
 import io.radio.shared.model.Station
-import io.radio.shared.presentation.stations.StationView.*
+import io.shared.presentation.stations.StationView.*
 
 interface StationView : MviView<Intent, Model, Effect> {
 

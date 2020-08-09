@@ -1,13 +1,13 @@
-package io.radio.shared.store.playlist
+package io.shared.store.playlist
 
 import io.radio.shared.base.IoDispatcher
-import io.radio.shared.base.mvi.Middleware
+import io.shared.mvi.Middleware
 import io.radio.shared.formatters.TrackFormatter
 import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackPlaybackStateItem
-import io.radio.shared.store.player.MediaPlayer
-import io.radio.shared.store.player.PlaybackState
-import io.radio.shared.store.playlist.PlaylistStore.*
+import io.shared.store.player.MediaPlayer
+import io.shared.store.player.PlaybackState
+import io.shared.store.playlist.PlaylistStore.*
 import kotlinx.coroutines.flow.*
 
 class PlaylistObserveTracksStateMiddleware(

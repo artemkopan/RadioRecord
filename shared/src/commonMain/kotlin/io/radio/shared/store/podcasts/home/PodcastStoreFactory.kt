@@ -1,11 +1,11 @@
-package io.radio.shared.store.podcasts.home
+package io.shared.store.podcasts.home
 
-import io.radio.shared.base.mvi.Reducer
-import io.radio.shared.base.mvi.SimpleBootstrapper
-import io.radio.shared.base.mvi.StoreFactory
-import io.radio.shared.base.mvi.StoreImpl
-import io.radio.shared.base.viewmodel.StateStorage
-import io.radio.shared.store.podcasts.home.PodcastStore.*
+import io.shared.mvi.Reducer
+import io.shared.mvi.SimpleBootstrapper
+import io.shared.mvi.StoreFactory
+import io.shared.mvi.StoreImpl
+import io.shared.mvi.StateStorage
+import io.shared.store.podcasts.home.PodcastStore.*
 import kotlinx.coroutines.CoroutineScope
 
 class PodcastStoreFactory(

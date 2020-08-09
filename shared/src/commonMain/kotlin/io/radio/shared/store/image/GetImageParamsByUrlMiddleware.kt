@@ -1,9 +1,9 @@
-package io.radio.shared.store.image
+package io.shared.store.image
 
 import io.radio.shared.base.IoDispatcher
-import io.radio.shared.base.mvi.Middleware
+import io.shared.mvi.Middleware
 import io.radio.shared.image.ImageProcessor
-import io.radio.shared.store.image.ImageParamsStore.*
+import io.shared.store.image.ImageParamsStore.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.retryWhen

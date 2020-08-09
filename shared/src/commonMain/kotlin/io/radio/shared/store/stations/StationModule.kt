@@ -1,4 +1,4 @@
-package io.radio.shared.store.stations
+package io.shared.store.stations
 
 import org.koin.dsl.module
 

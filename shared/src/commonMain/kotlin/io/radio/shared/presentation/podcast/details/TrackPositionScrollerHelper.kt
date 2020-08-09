@@ -1,12 +1,12 @@
-package io.radio.shared.presentation.podcast.details
+package io.shared.presentation.podcast.details
 
 import io.radio.shared.base.extensions.JobRunner
-import io.radio.shared.presentation.UiCoroutineHolder
+import io.shared.presentation.CoroutineScopeProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class TrackPositionScrollerHelper(
-    private val uiCoroutineHolder: UiCoroutineHolder,
+    private val coroutineScopeProvider: CoroutineScopeProvider,
     private val findVisiblePositionsBounds: () -> Pair<Int, Int>,
     private val onShowScrollButton: (Boolean) -> Unit,
     private val onScrollTo: (Int) -> Unit
@@ -25,7 +25,7 @@ class TrackPositionScrollerHelper(
             if (wasScrolledByUser) {
                 onShowScrollButton(true)
                 scrollButtonJob.runAndCancelPrevious {
-                    uiCoroutineHolder.viewScope.launch {
+                    coroutineScopeProvider.scope.launch {
                         delay(SCROLL_BUTTON_DELAY)
                         onShowScrollButton(false)
                     }

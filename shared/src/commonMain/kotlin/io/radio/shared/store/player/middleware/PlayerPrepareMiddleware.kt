@@ -1,11 +1,11 @@
-package io.radio.shared.store.player.middleware
+package io.shared.store.player.middleware
 
-import io.radio.shared.base.mvi.Middleware
+import io.shared.mvi.Middleware
 import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
-import io.radio.shared.store.player.MediaPlayer
-import io.radio.shared.store.player.PlaybackState
-import io.radio.shared.store.player.PlayerStore.*
+import io.shared.store.player.MediaPlayer
+import io.shared.store.player.PlaybackState
+import io.shared.store.player.PlayerStore.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 

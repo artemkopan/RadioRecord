@@ -1,9 +1,9 @@
-package io.radio.shared.store.podcasts.home
+package io.shared.store.podcasts.home
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.Store
+import io.shared.core.Persistable
+import io.shared.mvi.Store
 import io.radio.shared.model.Podcast
-import io.radio.shared.store.podcasts.home.PodcastStore.*
+import io.shared.store.podcasts.home.PodcastStore.*
 
 interface PodcastStore : Store<Action, Result, State> {
 

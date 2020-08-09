@@ -1,9 +1,9 @@
-package io.radio.shared.store.stations
+package io.shared.store.stations
 
 import io.radio.shared.base.IoDispatcher
-import io.radio.shared.base.mvi.Middleware
-import io.radio.shared.repo.RadioRepository
-import io.radio.shared.store.stations.StationStore.*
+import io.shared.mvi.Middleware
+import io.shared.repo.RadioRepository
+import io.shared.store.stations.StationStore.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.retryWhen

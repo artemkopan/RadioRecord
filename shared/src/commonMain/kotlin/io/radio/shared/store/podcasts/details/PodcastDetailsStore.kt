@@ -1,10 +1,10 @@
-package io.radio.shared.store.podcasts.details
+package io.shared.store.podcasts.details
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.Store
+import io.shared.core.Persistable
+import io.shared.mvi.Store
 import io.radio.shared.model.PodcastDetails
 import io.radio.shared.model.TrackItem
-import io.radio.shared.store.podcasts.details.PodcastDetailsStore.*
+import io.shared.store.podcasts.details.PodcastDetailsStore.*
 
 interface PodcastDetailsStore : Store<Action, Result, State> {
 

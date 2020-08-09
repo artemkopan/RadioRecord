@@ -1,6 +1,6 @@
 package io.radio.shared.model
 
-import io.radio.shared.base.Persistable
+import io.shared.core.Persistable
 
 data class Podcast(
     val id: Int,

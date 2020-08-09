@@ -1,9 +1,9 @@
-package io.radio.shared.store.player
+package io.shared.store.player
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.Store
+import io.shared.core.Persistable
+import io.shared.mvi.Store
 import io.radio.shared.model.TrackItem
-import io.radio.shared.store.player.PlayerStore.*
+import io.shared.store.player.PlayerStore.*
 import kotlin.time.Duration
 
 interface PlayerStore : Store<Action, Result, State> {

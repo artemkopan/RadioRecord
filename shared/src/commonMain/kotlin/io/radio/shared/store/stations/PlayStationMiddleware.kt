@@ -1,9 +1,9 @@
-package io.radio.shared.store.stations
+package io.shared.store.stations
 
-import io.radio.shared.base.mvi.Middleware
+import io.shared.mvi.Middleware
 import io.radio.shared.mapper.TrackItemFromRadioStationMapper
-import io.radio.shared.store.player.MediaPlayer
-import io.radio.shared.store.stations.StationStore.*
+import io.shared.store.player.MediaPlayer
+import io.shared.store.stations.StationStore.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.transform

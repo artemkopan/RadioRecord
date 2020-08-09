@@ -1,11 +1,11 @@
-package io.radio.shared.store.image
+package io.shared.store.image
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.Store
+import io.shared.core.Persistable
+import io.shared.mvi.Store
 import io.radio.shared.image.Color
 import io.radio.shared.image.ImageLightness
 import io.radio.shared.image.Size
-import io.radio.shared.store.image.ImageParamsStore.*
+import io.shared.store.image.ImageParamsStore.*
 
 interface ImageParamsStore : Store<Action, Result, State> {
 

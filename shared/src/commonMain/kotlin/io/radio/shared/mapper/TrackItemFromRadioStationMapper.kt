@@ -1,7 +1,7 @@
 package io.radio.shared.mapper
 
 import io.radio.shared.base.Mapper
-import io.radio.shared.base.toOptional
+import io.shared.core.toOptional
 import io.radio.shared.model.CoverImage
 import io.radio.shared.model.Station
 import io.radio.shared.model.TrackItem

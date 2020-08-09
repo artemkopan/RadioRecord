@@ -1,21 +1,18 @@
 import com.android.build.gradle.BaseExtension
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.getValue
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 
 fun Project.setupMultiplatform() {
     plugins.apply("kotlin-multiplatform")
     plugins.apply("com.android.library")
 
     setupAndroidSdkVersions()
+    setupAndroidFilesPath()
 
     kotlin {
         android {
@@ -29,6 +26,7 @@ fun Project.setupMultiplatform() {
             commonMain {
                 dependencies {
                     implementation(Deps.Jetbrains.Kotlin.StdLib.Common)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Common.Core)
                 }
             }
 
@@ -44,6 +42,8 @@ fun Project.setupMultiplatform() {
 
                 dependencies {
                     implementation(Deps.Jetbrains.Kotlin.StdLib.Jdk7)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Core)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Android)
                 }
             }
 
@@ -55,14 +55,34 @@ fun Project.setupMultiplatform() {
                 }
             }
 
-            iosCommonMain().dependsOn(commonMain())
-            iosCommonTest().dependsOn(commonTest())
+            iosMain {
+                dependsOn(commonMain())
 
-            iosX64Main().dependsOn(iosCommonMain())
-            iosX64Test().dependsOn(iosCommonTest())
+                dependencies {
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Native.Core)
+                }
+            }
 
-            iosArm64Main().dependsOn(iosCommonMain())
-            iosArm64Test().dependsOn(iosCommonTest())
+            iosTest().dependsOn(commonTest())
+
+            iosX64Main().dependsOn(iosMain())
+            iosX64Test().dependsOn(iosTest())
+
+            iosArm64Main().dependsOn(iosMain())
+            iosArm64Test().dependsOn(iosTest())
+
+            all {
+                languageSettings.apply {
+                    enableLanguageFeature("InlineClasses")
+                    useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
+                    useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                    useExperimentalAnnotation("kotlinx.coroutines.ObsoleteCoroutinesApi")
+                    useExperimentalAnnotation("kotlinx.coroutines.FlowPreview")
+                    useExperimentalAnnotation("kotlin.time.ExperimentalTime")
+                    useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
+                    useExperimentalAnnotation("kotlinx.coroutines.InternalCoroutinesApi")
+                }
+            }
         }
     }
 }
@@ -78,15 +98,21 @@ fun Project.setupAndroidSdkVersions() {
     }
 }
 
+private fun Project.setupAndroidFilesPath() {
+    android {
+        sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        sourceSets["main"].res.srcDirs("src/androidMain/res")
+    }
+}
+
 // Workaround since iosX64() and iosArm64() function are not resolved if used in a module with Kotlin 1.3.70
-fun Project.setupAppBinaries() {
+fun Project.setupAppBinaries(baseName: String, vararg dependencies: Any) {
     fun KotlinNativeTarget.setupIosBinaries() {
         binaries {
             framework {
-                baseName = "RadioRecord"
+                this.baseName = baseName
                 freeCompilerArgs = freeCompilerArgs.plus("-Xobjc-generics").toMutableList()
-
-                export(project(":shared:mvi"))
+                dependencies.forEach { export(it) }
             }
         }
     }
@@ -131,11 +157,11 @@ fun SourceSets.androidTest(block: KotlinSourceSet.() -> Unit = {}): KotlinSource
 
 // iosCommon
 
-fun SourceSets.iosCommonMain(block: KotlinSourceSet.() -> Unit = {}): KotlinSourceSet =
-    getOrCreate("iosCommonMain").apply(block)
+fun SourceSets.iosMain(block: KotlinSourceSet.() -> Unit = {}): KotlinSourceSet =
+    getOrCreate("iosMain").apply(block)
 
-fun SourceSets.iosCommonTest(block: KotlinSourceSet.() -> Unit = {}): KotlinSourceSet =
-    getOrCreate("iosCommonTest").apply(block)
+fun SourceSets.iosTest(block: KotlinSourceSet.() -> Unit = {}): KotlinSourceSet =
+    getOrCreate("iosTest").apply(block)
 
 // iosX64
 

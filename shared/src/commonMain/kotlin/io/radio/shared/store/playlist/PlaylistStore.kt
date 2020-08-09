@@ -1,15 +1,15 @@
-package io.radio.shared.store.playlist
+package io.shared.store.playlist
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.Reducer
-import io.radio.shared.base.mvi.Store
-import io.radio.shared.base.mvi.StoreFactory
-import io.radio.shared.base.mvi.StoreImpl
-import io.radio.shared.base.viewmodel.StateStorage
+import io.shared.core.Persistable
+import io.shared.mvi.Reducer
+import io.shared.mvi.Store
+import io.shared.mvi.StoreFactory
+import io.shared.mvi.StoreImpl
+import io.shared.mvi.StateStorage
 import io.radio.shared.model.Playlist
 import io.radio.shared.model.TrackItem
 import io.radio.shared.model.TrackPlaybackStateItem
-import io.radio.shared.store.playlist.PlaylistStore.*
+import io.shared.store.playlist.PlaylistStore.*
 import kotlinx.coroutines.CoroutineScope
 
 interface PlaylistStore : Store<Action, Result, State> {

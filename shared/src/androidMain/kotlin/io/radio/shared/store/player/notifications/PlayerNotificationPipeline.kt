@@ -1,4 +1,4 @@
-package io.radio.shared.store.player.notifications
+package io.shared.store.player.notifications
 
 import kotlinx.coroutines.flow.Flow
 

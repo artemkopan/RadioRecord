@@ -1,9 +1,9 @@
-package io.radio.shared.presentation.player
+package io.shared.presentation.player
 
-import io.radio.shared.base.Persistable
-import io.radio.shared.base.mvi.MviView
+import io.shared.core.Persistable
+import io.shared.mvi.MviView
 import io.radio.shared.model.ResourceString
-import io.radio.shared.presentation.player.PlayerView.*
+import io.shared.presentation.player.PlayerView.*
 
 
 interface PlayerView : MviView<Intent, Model, Effect> {

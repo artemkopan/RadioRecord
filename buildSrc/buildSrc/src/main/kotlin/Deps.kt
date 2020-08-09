@@ -45,54 +45,111 @@ object Deps {
                 object Runtime : Dependency(group = Kotlinx, name = "kotlinx-serialization-runtime", version = version)
                 object RuntimeNative : Dependency(group = Kotlinx, name = "kotlinx-serialization-runtime-native", version = version)
             }
+
+            object Coroutine {
+                private const val version = "1.3.8"
+
+                object Common {
+                    object Core : Dependency(group = Kotlinx, name = "kotlinx-coroutines-core-common", version = version)
+                }
+
+                object Native {
+                    object Core : Dependency(group = Kotlinx, name = "kotlinx-coroutines-core-native", version = version)
+                }
+
+                object Jvm {
+                    object Core : Dependency(group = Kotlinx, name = "kotlinx-coroutines-core", version = version)
+                    object Android : Dependency(group = Kotlinx, name = "kotlinx-coroutines-android", version = version)
+                }
+            }
         }
+    }
+
+    object Ktor : Group(name = "io.ktor") {
+        private const val version = "1.3.1"
+
+        object Core : Dependency(Ktor, name = "ktor-client-core", version = version)
+        object Json : Dependency(Ktor, name = "ktor-client-json", version = version)
+        object Serialization : Dependency(Ktor, name = "ktor-client-serialization", version = version)
+        object Logging : Dependency(Ktor, name = "ktor-client-logging", version = version)
+
+        object Jvm {
+            object Okhttp : Dependency(Ktor, name = "ktor-client-okhttp", version = version)
+            object Json : Dependency(Ktor, name = "ktor-client-json-jvm", version = version)
+            object Serialization : Dependency(Ktor, name = "ktor-client-serialization-jvm", version = version)
+            object Logging : Dependency(Ktor, name = "ktor-client-logging-jvm", version = version)
+        }
+
+        object Native {
+            object Ios : Dependency(Ktor, name = "ktor-client-ios", version = version)
+            object Core : Dependency(Ktor, name = "ktor-client-core-native", version = version)
+            object Json : Dependency(Ktor, name = "ktor-client-json-native", version = version)
+            object Serialization : Dependency(Ktor, name = "ktor-client-serialization-native", version = version)
+            object Logging : Dependency(Ktor, name = "ktor-client-logging-native", version = version)
+        }
+    }
+
+    object Koin : Group(name = "org.koin") {
+        private const val version = "3.0.0-alpha-2"
+
+        object Core : Dependency(Koin, name = "koin-core", version = version)
+
+        object Android : Dependency(Koin, name = "koin-android", version = version)
+        object AndroidScope : Dependency(Koin, name = "koin-android-scope", version = version)
+        object AndroidViewModel : Dependency(Koin, name = "koin-android-viewmodel", version = version)
     }
 
     object Android {
         object Tools {
             object Build : Group(name = "com.android.tools.build") {
-                object Gradle : Dependency(group = Build, name = "gradle", version = "3.5.2")
+                object Gradle : Dependency(group = Build, name = "gradle", version = "4.0.1")
             }
         }
     }
 
     object AndroidX {
+
         object Core : Group(name = "androidx.core") {
-            object Ktx : Dependency(group = Core, name = "core-ktx", version = "1.1.0")
+            object CoreKtx : Dependency(group = Core, name = "core-ktx", version = "1.5.0-alpha01")
         }
 
         object AppCompat : Group(name = "androidx.appcompat") {
             object AppCompat :
-                Dependency(group = AndroidX.AppCompat, name = "appcompat", version = "1.1.0")
+                Dependency(group = AndroidX.AppCompat, name = "appcompat", version = "1.3.0-alpha01")
         }
 
         object RecyclerView : Group(name = "androidx.recyclerview") {
             object RecyclerView :
-                Dependency(group = AndroidX.RecyclerView, name = "recyclerview", version = "1.1.0")
+                Dependency(group = AndroidX.RecyclerView, name = "recyclerview", version = "1.2.0-alpha05")
         }
 
         object ConstraintLayout : Group(name = "androidx.constraintlayout") {
             object ConstraintLayout : Dependency(
                 group = AndroidX.ConstraintLayout,
                 name = "constraintlayout",
-                version = "1.1.3"
+                version = "2.0.0-rc1"
             )
         }
 
+        object Palette : Group(name = "androidx.palette") {
+            object Palette : Dependency(group = AndroidX.Palette, name = "palette", version = "1.0.0")
+        }
+
         object Fragment : Group(name = "androidx.fragment") {
-            object FragmentKtx : Dependency(group = AndroidX.Fragment, name = "fragment-ktx", version = "2.3.0")
+            object Ktx : Dependency(group = AndroidX.Fragment, name = "fragment-ktx", version = "1.3.0-alpha07")
         }
 
         object LifeCycle : Group(name = "androidx.lifecycle") {
-            private const val version = "2.2.0"
+            private const val version = "2.3.0-alpha06"
 
+            object RuntimeKtx : Dependency(group = LifeCycle, name = "lifecycle-runtime-ktx", version = version)
             object Viewmodel : Dependency(group = LifeCycle, name = "lifecycle-viewmodel", version = version)
             object CommonJava8 : Dependency(group = LifeCycle, name = "lifecycle-common-java8", version = version)
             object ViewmodelSavedstate : Dependency(group = LifeCycle, name = "lifecycle-viewmodel-savedstate", version = version)
         }
 
         object SwypeRefreshLayout : Group(name = "androidx.swiperefreshlayout") {
-            object SwypeRefreshLayout : Dependency(group = AndroidX.SwypeRefreshLayout, name = "swiperefreshlayout", version = "1.0.0")
+            object SwypeRefreshLayout : Dependency(group = AndroidX.SwypeRefreshLayout, name = "swiperefreshlayout", version = "1.2.0-alpha01")
         }
 
         object Navigation : Group(name = "androidx.navigation") {
@@ -104,27 +161,44 @@ object Deps {
                 object SafeArgs : Dependency(group = AndroidX.Navigation, name = "navigation-safe-args-gradle-plugin", version = version)
             }
         }
+
+        object ViewPager2 : Group(name = "androidx.viewpager2"){
+            object ViewPager2 : Dependency(group = AndroidX.ViewPager2, name = "viewpager2", version = "1.1.0-alpha01")
+        }
     }
 
     object Google {
         object Android {
             object Material : Group(name = "com.google.android.material") {
                 object Material :
-                    Dependency(group = Android.Material, name = "material", version = "1.1.0")
+                    Dependency(group = Android.Material, name = "material", version = "1.2.0")
             }
 
             object Gms : Group(name = "com.google.gms") {
                 object Services : Dependency(group = Gms, name = "google-services", version = "4.3.3")
             }
+
+            object ExoPlayer : Group("com.google.android.exoplayer") {
+                private const val version = "2.11.7"
+
+                object Core : Dependency(group = ExoPlayer, name = "exoplayer-core", version = version)
+                object Hls : Dependency(group = ExoPlayer, name = "exoplayer-hls", version = version)
+                object Ui : Dependency(group = ExoPlayer, name = "exoplayer-ui", version = version)
+            }
         }
     }
 
-    object Glide {
-        object Glide : Group(name = "com.github.bumptech.glide") {
-            object Picasso : Dependency(group = Glide, name = "glide", version = "4.11.0")
-        }
+    object Glide : Group(name = "com.github.bumptech.glide") {
+        object Glide : Dependency(group = Deps.Glide, name = "glide", version = "4.11.0")
     }
 
+    object Nappier : Group(name = "com.github.aakira") {
+        private const val version = "1.3.0"
+
+        object Nappier : Dependency(group = Deps.Nappier, name = "napier", version = version)
+        object NappierIos : Dependency(group = Deps.Nappier, name = "napier-ios", version = version)
+        object NappierAndroid : Dependency(group = Deps.Nappier, name = "napier-android", version = version)
+    }
 
     open class Group(val name: String)
 

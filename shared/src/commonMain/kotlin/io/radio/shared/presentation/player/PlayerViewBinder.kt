@@ -1,16 +1,16 @@
-package io.radio.shared.presentation.player
+package io.shared.presentation.player
 
-import io.radio.shared.base.mvi.Binder
-import io.radio.shared.base.mvi.bind
-import io.radio.shared.base.viewmodel.StateStorage
-import io.radio.shared.base.viewmodel.ViewBinder
-import io.radio.shared.base.viewmodel.ViewBinderHelper
+import io.shared.mvi.Binder
+import io.shared.mvi.bind
+import io.shared.mvi.StateStorage
+import io.shared.mvi.ViewBinder
+import io.shared.mvi.ViewBinderHelper
 import io.radio.shared.formatters.ErrorFormatter
 import io.radio.shared.formatters.TrackFormatter
-import io.radio.shared.presentation.player.PlayerView.*
-import io.radio.shared.store.player.PlayerStore
-import io.radio.shared.store.player.PlayerStore.Action
-import io.radio.shared.store.player.PlayerStoreFactory
+import io.shared.presentation.player.PlayerView.*
+import io.shared.store.player.PlayerStore
+import io.shared.store.player.PlayerStore.Action
+import io.shared.store.player.PlayerStoreFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
