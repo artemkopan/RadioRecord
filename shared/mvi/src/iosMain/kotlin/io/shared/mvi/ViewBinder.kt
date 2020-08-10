@@ -4,6 +4,7 @@ import io.shared.core.MainDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlin.native.concurrent.ThreadLocal
+import kotlin.native.internal.GC
 
 
 @ThreadLocal
@@ -18,7 +19,7 @@ actual open class ViewBinder actual constructor() {
         // run Kotlin/Native GC
         if (!isGCWorking) {
             isGCWorking = true
-//todo           GC.collect()
+            GC.collect()
             isGCWorking = false
         }
     }

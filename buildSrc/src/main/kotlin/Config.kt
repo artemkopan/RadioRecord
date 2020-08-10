@@ -19,7 +19,7 @@ fun Project.setupMultiplatform() {
             publishLibraryVariants("release", "debug")
         }
 
-        iosX64()
+        iosX64("ios")
         iosArm64()
 
         sourceSets {
@@ -118,8 +118,13 @@ fun Project.setupAppBinaries(baseName: String, vararg dependencies: Any) {
     }
 
     kotlin {
-        iosX64().setupIosBinaries()
-        iosArm64().setupIosBinaries()
+
+        iosX64 {
+            setupIosBinaries()
+        }
+        iosArm64{
+            setupIosBinaries()
+        }
     }
 }
 

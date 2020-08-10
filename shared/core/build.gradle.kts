@@ -5,7 +5,6 @@ plugins {
 }
 
 setupMultiplatform()
-setupAppBinaries("Core")
 
 kotlin {
 

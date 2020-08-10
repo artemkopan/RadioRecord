@@ -66,7 +66,7 @@ object Deps {
     }
 
     object Ktor : Group(name = "io.ktor") {
-        private const val version = "1.3.1"
+        private const val version = "1.3.2"
 
         object Core : Dependency(Ktor, name = "ktor-client-core", version = version)
         object Json : Dependency(Ktor, name = "ktor-client-json", version = version)

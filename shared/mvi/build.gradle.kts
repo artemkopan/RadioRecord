@@ -5,7 +5,6 @@ plugins {
 }
 
 setupMultiplatform()
-setupAppBinaries("Mvi", project(":shared:core"))
 
 kotlin {
 

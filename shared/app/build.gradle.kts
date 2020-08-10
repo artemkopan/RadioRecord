@@ -12,8 +12,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":shared:core"))
-                implementation(project(":shared:mvi"))
+                api(project(":shared:core"))
+                api(project(":shared:mvi"))
 
                 // SERIALIZATION
                 implementation(Deps.Jetbrains.Kotlinx.Serialization.RuntimeCommon)
@@ -79,6 +79,7 @@ kotlin {
 ////https://youtrack.jetbrains.com/issue/KT-27170
 //configurations.create("compileClasspath")
 //
+
 //val packForXcode by tasks.creating(Sync::class) {
 //    group = "build"
 //    val mode = System.getenv("CONFIGURATION") ?: "DEBUG"

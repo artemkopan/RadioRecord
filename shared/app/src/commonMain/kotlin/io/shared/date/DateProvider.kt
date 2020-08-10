@@ -6,6 +6,4 @@ expect class DateProvider {
 
     val currentTime: Duration
 
-    fun formatSec(duration: Duration): String
-
 }

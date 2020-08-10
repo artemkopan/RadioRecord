@@ -20,14 +20,11 @@ import io.radio.shared.model.TrackPlaybackStateItem
 import io.shared.store.player.PlaybackState
 import kotlinx.android.synthetic.main.item_track.*
 
-class TracksAdapter(
-    clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackStateItem>
-) : ListAdapter<TrackPlaybackStateItem, TracksAdapter.TrackViewHolder>(Diff) {
+class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackStateItem>) :
+    ListAdapter<TrackPlaybackStateItem, TracksAdapter.TrackViewHolder>(Diff) {
 
     private val clickPlugin =
-        ClickItemAdapterPlugin<TrackPlaybackStateItem>(
-            clickItemAdapterEvent
-        ) { getItem(it) }
+        ClickItemAdapterPlugin<TrackPlaybackStateItem>(clickItemAdapterEvent) { getItem(it) }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
         return TrackViewHolder(inflate(parent, R.layout.item_track))
