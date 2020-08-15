@@ -1,9 +1,64 @@
 package io.shared.core
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
+import platform.darwin.*
+import kotlin.coroutines.CoroutineContext
 
-actual val MainDispatcher: CoroutineDispatcher get() = Dispatchers.Main
+actual val MainDispatcher: CoroutineDispatcher get() = MainLoopDispatcher
 
 //todo waiting for coroutines 1.4
-actual val IoDispatcher: CoroutineDispatcher get() = Dispatchers.Main
+actual val IoDispatcher: CoroutineDispatcher get() = MainLoopDispatcher
+
+
+private object MainLoopDispatcher: CoroutineDispatcher(), Delay {
+
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        dispatch_async(dispatch_get_main_queue()) {
+            try {
+                block.run()
+            } catch (err: Throwable) {
+                Logger.e(message = "UNCAUGHT", throwable = err, tag = "MainLoopDispatcher")
+                throw err
+            }
+        }
+    }
+
+    @InternalCoroutinesApi
+    override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, timeMillis * 1_000_000), dispatch_get_main_queue()) {
+            try {
+                with(continuation) {
+                    resumeUndispatched(Unit)
+                }
+            } catch (err: Throwable) {
+                Logger.e(message = "UNCAUGHT", throwable = err, tag = "MainLoopDispatcher")
+                throw err
+            }
+        }
+    }
+
+    @InternalCoroutinesApi
+    override fun invokeOnTimeout(timeMillis: Long, block: Runnable): DisposableHandle {
+        val handle = object : DisposableHandle {
+            var disposed = false
+                private set
+
+            override fun dispose() {
+                disposed = true
+            }
+        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, timeMillis * 1_000_000), dispatch_get_main_queue()) {
+            try {
+                if (!handle.disposed) {
+                    block.run()
+                }
+            } catch (err: Throwable) {
+                Logger.e(message = "UNCAUGHT", throwable = err, tag = "MainLoopDispatcher")
+                throw err
+            }
+        }
+
+        return handle
+    }
+
+}

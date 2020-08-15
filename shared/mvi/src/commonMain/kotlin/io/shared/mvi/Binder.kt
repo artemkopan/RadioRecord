@@ -6,7 +6,6 @@ import io.shared.core.CoroutineScopeProvider
 import io.shared.core.MainDispatcher
 import io.shared.core.Persistable
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -80,7 +79,6 @@ interface BindingsBuilder {
     )
 }
 
-@OptIn(InternalCoroutinesApi::class)
 private class BuilderBinder(
     private val scope: CoroutineScope
 ) : BindingsBuilder {

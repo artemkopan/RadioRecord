@@ -3,6 +3,7 @@ package io.shared.di
 import io.shared.configs.SystemConfigImpl
 import io.shared.core.IoDispatcher
 import io.shared.core.Logger
+import io.shared.core.MainDispatcher
 import io.shared.formatters.ErrorFormatter
 import io.shared.mapper.*
 import io.shared.mvi.BinderDisposable
@@ -94,7 +95,7 @@ class ServiceLocator {
             PlayStationMiddleware(MediaPlayer(), TrackItemFromRadioStationMapper())
         )
 
-        GlobalScope.launch(IoDispatcher) {
+        GlobalScope.launch(MainDispatcher) {
             factory.create(this, StateStorage()).stateFlow
                 .onEach {
                     state(it)

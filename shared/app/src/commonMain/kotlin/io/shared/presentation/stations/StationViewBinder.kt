@@ -32,9 +32,7 @@ class StationViewBinder(
                 Logger.d("Receive state = $it", tag = "StationViewBinder")
                 it.dispatchModel()
                 it.dispatchEffect()
-            }.launchIn(CoroutineScope(CoroutineExceptionHandler {
-                Logger.e("Error in scope", throwable = it)
-            }))
+            }.launchIn(scope)
             .also {
                 Logger.d("Launched in job: $it")
             }
@@ -42,7 +40,7 @@ class StationViewBinder(
 
     override suspend fun bind(view: StationView) {
         Logger.d("bind view: $view")
-        GlobalScope.launch {
+        scope.launch {
             flow<String> {
                 for (i in 0..10) emit(i.toString())
             }

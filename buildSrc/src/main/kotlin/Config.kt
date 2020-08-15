@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_VARIABLE")
+
 import com.android.build.gradle.BaseExtension
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -14,10 +16,6 @@ fun Project.setupMultiplatform() {
 
     setupAndroidSdkVersions()
     setupAndroidFilesPath()
-
-    repositories {
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
-    }
 
     kotlin {
         android {
@@ -122,7 +120,7 @@ fun Project.setupAppBinaries(baseName: String, vararg dependencies: Any) {
         }
 
         compilations["main"].apply {
-            val cNSObserver by cinterops.creating {
+            val observer by cinterops.creating {
                 val file = project.file("src/nativeInterop/cinterop/observer.def")
                 if (!file.exists()) {
                     throw FileNotFoundException("file not found: ${file.absolutePath}")

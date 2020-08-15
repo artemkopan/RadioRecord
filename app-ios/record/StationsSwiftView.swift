@@ -34,8 +34,10 @@ struct StationsSwiftView: View {
             if(stations == nil){
                 EmptyView()
             } else {
+                
+                
                 List {
-                    ForEach(0..<stations!.count) { index in
+                    ForEach(0..<stations!.count, id: \.self) { index in
                         RemoteImage(url: stations![index].icon).listRowInsets(EdgeInsets())
                     }
                 }

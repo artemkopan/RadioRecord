@@ -35,15 +35,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         print("Load app")
         
-        ServiceLocator().bindStationViewBinder { model in
-            print(model)
-        }
+//        ServiceLocator().bindStationViewBinder { model in
+//            print(model)
+//        }
         
 //        ServiceLocator().getStations { state  in
 //            print(state)
 //        }
 ////        binder.self
-//        binder.bindDisposable(view:StationViewProxy2())
+//        ServiceLocator().getStationViewBinder().bindDisposable(view:StationViewProxy2())
         
 //        ServiceLocator().getStations(state: { _ in
 //
