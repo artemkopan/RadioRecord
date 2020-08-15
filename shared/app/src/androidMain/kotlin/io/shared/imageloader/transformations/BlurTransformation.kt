@@ -1,4 +1,4 @@
-package io.radio.shared.base.imageloader.transformations
+package io.shared.imageloader.transformations
 
 import android.content.Context
 import android.graphics.*
@@ -10,7 +10,7 @@ import androidx.annotation.ColorInt
 import com.bumptech.glide.load.Key
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
-import io.radio.shared.base.imageloader.ImageTransformation
+import io.shared.imageloader.ImageTransformation
 import java.security.MessageDigest
 
 

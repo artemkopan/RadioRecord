@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package io.radio.shared.base.extensions
+package io.radio.extensions
 
 import android.content.Context
 import android.content.pm.PackageManager

@@ -21,6 +21,14 @@ sealed class TrackSource {
     data class Progressive(val link: String) : TrackSource()
     data class ProgressiveStream(val link: String) : TrackSource()
 
+    inline fun getLinkFromSource(): String {
+        return when (this) {
+            is Hls -> link
+            is Progressive -> link
+            is ProgressiveStream -> link
+        }
+    }
+
     inline val isStream
         get() = when (this) {
             is Hls,

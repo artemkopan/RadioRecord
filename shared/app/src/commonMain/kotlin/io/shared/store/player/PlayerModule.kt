@@ -8,6 +8,7 @@ val playerModule = module {
     factory { PlayerChangeTrackMiddleware(get()) }
     factory { PlayerObserveMetaDataMiddleware(get()) }
     factory { PlayerObserveStateMiddleware(get()) }
+    factory { PlayerObserveErrorMiddleware(get()) }
     factory { PlayerObserveTimelineMiddleware(get()) }
     factory { PlayerObserveTrackMiddleware(get()) }
     factory { PlayerPlayPauseMiddleware(get()) }
@@ -15,6 +16,6 @@ val playerModule = module {
     factory { PlayerSlipMiddleware(get(), get()) }
     factory { PlayerPrepareMiddleware(get()) }
 
-    factory { PlayerStoreFactory(get(), get(),get(),get(), get(), get(), get(), get(), get()) }
+    factory { PlayerStoreFactory(get(), get(),get(), get(),get(), get(), get(), get(), get(), get()) }
 
 }

@@ -10,17 +10,16 @@ import android.util.Size
 import androidx.collection.LruCache
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
-import io.radio.shared.base.imageloader.loadImageDrawable
 import io.shared.app.R
 import io.shared.core.IoDispatcher
 import io.shared.core.Logger
 import io.shared.core.extensions.CoroutineExceptionHandler
 import io.shared.core.extensions.JobRunner
+import io.shared.imageloader.loadImageDrawable
 import io.shared.model.TrackItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class PlayerNotificationController(

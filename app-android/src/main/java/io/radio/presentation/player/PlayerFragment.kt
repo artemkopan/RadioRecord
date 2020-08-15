@@ -11,10 +11,10 @@ import io.radio.base.BaseFragment
 import io.radio.base.popBack
 import io.radio.base.showToast
 import io.radio.di.binder.viewBinder
-import io.radio.shared.base.extensions.parseResourceString
-import io.radio.shared.base.imageloader.ImageLoaderParams
-import io.radio.shared.base.imageloader.loadImage
-import io.radio.shared.base.imageloader.transformations.CircleTransformation
+import io.radio.extensions.parseResourceString
+import io.shared.imageloader.ImageLoaderParams
+import io.shared.imageloader.loadImage
+import io.shared.imageloader.transformations.CircleTransformation
 import io.shared.mvi.bind
 import io.shared.mvi.bindOnChangeListener
 import io.shared.mvi.bindOnClick

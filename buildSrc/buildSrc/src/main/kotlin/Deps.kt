@@ -174,10 +174,6 @@ object Deps {
                     Dependency(group = Android.Material, name = "material", version = "1.2.0")
             }
 
-            object Gms : Group(name = "com.google.gms") {
-                object Services : Dependency(group = Gms, name = "google-services", version = "4.3.3")
-            }
-
             object ExoPlayer : Group("com.google.android.exoplayer") {
                 private const val version = "2.11.7"
 
@@ -186,18 +182,14 @@ object Deps {
                 object Ui : Dependency(group = ExoPlayer, name = "exoplayer-ui", version = version)
             }
         }
+
+        object Gms : Group(name = "com.google.gms") {
+            object Services : Dependency(group = Gms, name = "google-services", version = "4.3.3")
+        }
     }
 
     object Glide : Group(name = "com.github.bumptech.glide") {
         object Glide : Dependency(group = Deps.Glide, name = "glide", version = "4.11.0")
-    }
-
-    object Nappier : Group(name = "com.github.aakira") {
-        private const val version = "1.3.0"
-
-        object Nappier : Dependency(group = Deps.Nappier, name = "napier", version = version)
-        object NappierIos : Dependency(group = Deps.Nappier, name = "napier-ios", version = version)
-        object NappierAndroid : Dependency(group = Deps.Nappier, name = "napier-android", version = version)
     }
 
     open class Group(val name: String)

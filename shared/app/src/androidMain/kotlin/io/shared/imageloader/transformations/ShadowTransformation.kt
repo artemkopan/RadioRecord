@@ -1,4 +1,4 @@
-package io.radio.shared.base.imageloader.transformations
+package io.shared.imageloader.transformations
 
 import android.R.attr.angle
 import android.graphics.*
@@ -8,7 +8,7 @@ import com.bumptech.glide.load.Key
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.util.Util
-import io.radio.shared.base.imageloader.ImageTransformation
+import io.shared.imageloader.ImageTransformation
 import java.security.MessageDigest
 
 

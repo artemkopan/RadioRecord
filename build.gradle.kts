@@ -13,7 +13,7 @@ buildscript {
         classpath(Deps.Jetbrains.Kotlin.Plugin.Serialization)
         classpath(Deps.Android.Tools.Build.Gradle)
         classpath(Deps.AndroidX.Navigation.Plugin.SafeArgs)
-        classpath(Deps.Google.Android.Gms.Services)
+        classpath(Deps.Google.Gms.Services)
     }
 }
 
@@ -21,10 +21,10 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { setUrl("https://dl.bintray.com/ekito/koin") }
+        maven("https://dl.bintray.com/ekito/koin")
     }
 
-    tasks{
+    tasks {
         withType<KotlinCompile> {
             kotlinOptions {
                 jvmTarget = "1.8"

@@ -44,7 +44,7 @@ interface PlayerStore : Store<Action, Result, State> {
 
         data class TrackChanged(val track: TrackItem?) : Result()
 
-        data class PlaybackError(val throwable: Throwable) : Result()
+        data class PlaybackError(val throwable: Throwable?) : Result()
 
         object PlaybackBuffering : Result()
 

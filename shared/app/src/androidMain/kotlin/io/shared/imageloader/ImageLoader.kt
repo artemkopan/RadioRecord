@@ -1,6 +1,6 @@
 @file:Suppress("EXPERIMENTAL_FEATURE_WARNING", "unused")
 
-package io.radio.shared.base.imageloader
+package io.shared.imageloader
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -18,8 +18,8 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import io.radio.shared.base.imageloader.ImageLoaderParams.Scale.*
 import io.shared.core.Logger
+import io.shared.imageloader.ImageLoaderParams.Scale.*
 import java.io.File
 
 @SuppressLint("CheckResult")

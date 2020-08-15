@@ -1,6 +1,6 @@
 package io.shared.image
 
-interface ImageProcessor {
+expect class ImageProcessor {
 
     suspend fun <Source : Any> getImage(source: Source, width: Int, height: Int): Image
 

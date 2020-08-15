@@ -61,6 +61,10 @@ actual class MediaPlayer(
     private val playlistMutableFlow = MutableStateFlow<Optional<Playlist>>(Optional.empty())
     actual val playlistFlow: StateFlow<Optional<Playlist>> = playlistMutableFlow
 
+    private val errorMutableStateFlow = MutableStateFlow<Optional<PlaybackError>>(Optional.empty())
+    actual val errorFlow: StateFlow<Optional<PlaybackError>>
+        get() = errorMutableStateFlow
+
     private val playerDispatcher = MainDispatcher
     private val timelineJobRunner = JobRunner()
     private val window = Timeline.Window()
@@ -228,11 +232,13 @@ actual class MediaPlayer(
             return when (playbackState) {
                 Player.STATE_BUFFERING -> {
                     playbackStateMutableFlow.value = PlaybackState.Buffering
+                    errorMutableStateFlow.value = Optional.empty()
                 }
                 Player.STATE_ENDED -> {
                     playbackStateMutableFlow.value = PlaybackState.Ended
                 }
                 Player.STATE_READY -> {
+                    errorMutableStateFlow.value = Optional.empty()
                     playbackStateMutableFlow.value = if (exoPlayer.playWhenReady) {
                         PlaybackState.Play
                     } else {
@@ -249,7 +255,13 @@ actual class MediaPlayer(
         }
 
         override fun onPlayerError(error: ExoPlaybackException) {
-            playbackStateMutableFlow.value = PlaybackState.Error(error)
+            errorMutableStateFlow.value = Optional.of(
+                PlaybackError(
+                    trackItem = _exoPlayer?.currentTrack,
+                    message = error.message ?: "playback error",
+                    cause = error
+                )
+            )
         }
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {

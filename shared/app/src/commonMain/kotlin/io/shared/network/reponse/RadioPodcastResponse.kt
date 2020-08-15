@@ -1,4 +1,4 @@
-package io.radio.shared.network.reponse
+package io.shared.network.reponse
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

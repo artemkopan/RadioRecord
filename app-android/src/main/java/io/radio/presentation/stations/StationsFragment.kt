@@ -8,9 +8,9 @@ import io.radio.R
 import io.radio.base.BaseFragment
 import io.radio.base.showToast
 import io.radio.di.binder.viewBinder
+import io.radio.extensions.parseResourceString
 import io.radio.presentation.home.postScrolledFraction
 import io.radio.presentation.routePlayer
-import io.radio.shared.base.extensions.parseResourceString
 import io.radio.views.SizeScrollOffsetListener
 import io.radio.views.addScrollOffsetListener
 import io.radio.views.updateScrollOffsetListener

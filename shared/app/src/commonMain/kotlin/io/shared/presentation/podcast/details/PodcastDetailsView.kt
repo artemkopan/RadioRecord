@@ -1,10 +1,10 @@
 package io.shared.presentation.podcast.details
 
-import io.radio.shared.model.TrackPlaybackStateItem
 import io.shared.core.Persistable
 import io.shared.model.Playlist
 import io.shared.model.ResourceString
 import io.shared.model.TrackItem
+import io.shared.model.TrackPlaybackStateItem
 import io.shared.mvi.MviView
 import io.shared.presentation.podcast.details.PodcastDetailsView.*
 

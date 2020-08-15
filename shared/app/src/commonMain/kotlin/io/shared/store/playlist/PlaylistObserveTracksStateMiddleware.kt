@@ -1,9 +1,9 @@
 package io.shared.store.playlist
 
-import io.radio.shared.model.TrackPlaybackStateItem
 import io.shared.core.IoDispatcher
 import io.shared.formatters.TrackFormatter
 import io.shared.model.Playlist
+import io.shared.model.TrackPlaybackStateItem
 import io.shared.mvi.Middleware
 import io.shared.store.player.MediaPlayer
 import io.shared.store.player.PlaybackState
@@ -24,18 +24,27 @@ class PlaylistObserveTracksStateMiddleware(
                 return@transformLatest
             }
 
-            emitAll(combine(mediaPlayer.trackFlow, mediaPlayer.playbackStateFlow) { currentTrack, state ->
+            emitAll(combine(
+                mediaPlayer.trackFlow,
+                mediaPlayer.playbackStateFlow,
+                mediaPlayer.errorFlow
+            ) { currentTrack, state, errorOpt ->
                 var position: Int = -1
                 val tracksWithState = action.tracks.mapIndexed { index, track ->
                     TrackPlaybackStateItem(
-                        track,
-                        if (track.id == currentTrack.data?.id) {
+                        track = track,
+                        state = if (track.id == currentTrack.data?.id) {
                             position = index
                             state
                         } else {
                             PlaybackState.Idle
                         },
-                        trackFormatter.formatDuration(track.duration)
+                        error = if (errorOpt.data?.trackItem == track) {
+                            errorOpt.data
+                        } else {
+                            null
+                        },
+                        durationFormatted = trackFormatter.formatDuration(track.duration)
                     )
                 }
                 Result.TracksWithMediaState(

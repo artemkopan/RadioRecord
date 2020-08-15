@@ -9,14 +9,45 @@
 import UIKit
 import RadioRecord
 
+
+class StationViewProxy2: AbsMviView<StationViewIntent,StationViewModel,StationViewEffect>, StationView{
+    
+  var model: StationViewModel?;
+  var effect: StationViewEffect?
+  var showErrorAlert: Bool = false
+    
+    override func render(model: StationViewModel) {
+        self.model = model;
+        print(model)
+    }
+    
+    override func acceptEffect(effect: StationViewEffect) {
+        self.effect = effect;
+        showErrorAlert = (effect as? StationViewEffect.Error) != nil
+        print(effect)
+    }
+    
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        print("Load app")
         
+        ServiceLocator().bindStationViewBinder { model in
+            print(model)
+        }
         
+//        ServiceLocator().getStations { state  in
+//            print(state)
+//        }
+////        binder.self
+//        binder.bindDisposable(view:StationViewProxy2())
+        
+//        ServiceLocator().getStations(state: { _ in
+//
+//        })
         // Override point for customization after application launch.
         return true
     }

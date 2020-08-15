@@ -1,14 +1,16 @@
 package io.shared.presentation.stations
 
+import io.shared.core.Logger
+import io.shared.core.extensions.CoroutineExceptionHandler
 import io.shared.formatters.ErrorFormatter
 import io.shared.mvi.*
 import io.shared.presentation.stations.StationView.*
 import io.shared.store.stations.StationStore
 import io.shared.store.stations.StationStoreFactory
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class StationViewBinder(
     stateStorage: StateStorage,
@@ -20,13 +22,36 @@ class StationViewBinder(
     private val store = storeFactory.create(scope, stateStorage)
 
     init {
-        store.stateFlow.onEach {
-            it.dispatchModel()
-            it.dispatchEffect()
-        }.launchIn(scope)
+        Logger.d(message = "Init station binder2")
+
+        store.stateFlow
+            .onStart { Logger.d("Flow started") }
+            .onCompletion { Logger.d("Flow completed", throwable = it) }
+            .onEmpty { Logger.d("Flow empty") }
+            .onEach {
+                Logger.d("Receive state = $it", tag = "StationViewBinder")
+                it.dispatchModel()
+                it.dispatchEffect()
+            }.launchIn(CoroutineScope(CoroutineExceptionHandler {
+                Logger.e("Error in scope", throwable = it)
+            }))
+            .also {
+                Logger.d("Launched in job: $it")
+            }
     }
 
     override suspend fun bind(view: StationView) {
+        Logger.d("bind view: $view")
+        GlobalScope.launch {
+            flow<String> {
+                for (i in 0..10) emit(i.toString())
+            }
+                .onEach {
+                    Logger.d("test flow: $it")
+                }
+                .collect()
+        }
+
         bind {
             helper bindTo view
             view.intents.mapToAction() bindTo store

@@ -13,12 +13,24 @@ import kotlinx.coroutines.supervisorScope
 
 
 interface Binder<MviView : Any> {
+
     suspend fun bind(view: MviView)
+
+    fun bindDisposable(view: MviView): BinderDisposable {
+        val job = CoroutineScope(MainDispatcher).launch { bind(view) }
+        return object : BinderDisposable {
+            override fun dispose() {
+                job.cancel()
+            }
+        }
+    }
+
 }
 
 inline infix fun <MviView : Any> CoroutineScopeProvider.bind(binder: Binder<MviView>) {
     scope.launch { binder.bind(this@bind as MviView) }
 }
+
 
 /**
  * A builder function for the [Binder]

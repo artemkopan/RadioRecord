@@ -16,7 +16,7 @@ import io.radio.recycler.ItemHolder
 import io.radio.recycler.inflate
 import io.radio.recycler.plugins.ClickItemAdapterEvent
 import io.radio.recycler.plugins.ClickItemAdapterPlugin
-import io.radio.shared.model.TrackPlaybackStateItem
+import io.shared.model.TrackPlaybackStateItem
 import io.shared.store.player.PlaybackState
 import kotlinx.android.synthetic.main.item_track.*
 
@@ -88,12 +88,12 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackSt
                     playButton.play(animatePlayPauseButton())
                     switchError(false, payloads)
                 }
-                is PlaybackState.Error -> {
-                    switchProgress(false)
-                    playButton.play(false)
-                    switchError(true, payloads)
-                }
                 else -> throw NotImplementedError("Not implemented state: ${item.state}")
+            }
+            item.error?.let {
+                switchProgress(false)
+                playButton.play(false)
+                switchError(true, payloads)
             }
         }
 
@@ -159,8 +159,7 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackSt
                 return when {
                     oldItem.state != newItem.state && newItem.state.isPlayOrPause() -> PlayPausePayload
                     newItem.state == PlaybackState.Buffering -> PreparingPayload
-                    oldItem.state is PlaybackState.Error && newItem.state !is PlaybackState.Error -> ErrorPayload
-                    oldItem.state !is PlaybackState.Error && newItem.state is PlaybackState.Error -> ErrorPayload
+                    newItem.error != null && oldItem.error != newItem.error -> ErrorPayload
                     else -> Unit
                 }
             }

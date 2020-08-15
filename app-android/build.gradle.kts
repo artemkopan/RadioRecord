@@ -42,7 +42,7 @@ dependencies {
     implementation(project(":shared:core"))
     implementation(project(":shared:mvi"))
 
-    implementation(Deps.Jetbrains.Kotlin.StdLib.Jdk7)
+//    implementation(Deps.Jetbrains.Kotlin.StdLib.Jdk7)
     implementation(Deps.AndroidX.Core.CoreKtx)
     implementation(Deps.AndroidX.AppCompat.AppCompat)
     implementation(Deps.AndroidX.Fragment.Ktx)
@@ -56,8 +56,7 @@ dependencies {
     implementation(Deps.AndroidX.ViewPager2.ViewPager2)
     implementation(Deps.AndroidX.Navigation.FragmentKtx)
 
-    implementation(Deps.Koin.AndroidScope)
+//    implementation(Deps.Koin.AndroidScope)
 
     implementation(Deps.Google.Android.Material.Material)
-    implementation(Deps.Nappier.NappierAndroid)
 }

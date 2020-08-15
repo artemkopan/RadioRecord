@@ -1,18 +1,23 @@
 import com.android.build.gradle.BaseExtension
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import java.io.FileNotFoundException
 
 fun Project.setupMultiplatform() {
+
     plugins.apply("kotlin-multiplatform")
     plugins.apply("com.android.library")
 
     setupAndroidSdkVersions()
     setupAndroidFilesPath()
+
+    repositories {
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+    }
 
     kotlin {
         android {
@@ -115,14 +120,24 @@ fun Project.setupAppBinaries(baseName: String, vararg dependencies: Any) {
                 dependencies.forEach { export(it) }
             }
         }
+
+        compilations["main"].apply {
+            val cNSObserver by cinterops.creating {
+                val file = project.file("src/nativeInterop/cinterop/observer.def")
+                if (!file.exists()) {
+                    throw FileNotFoundException("file not found: ${file.absolutePath}")
+                }
+                defFile(file)
+                packageName("c.observer")
+            }
+        }
     }
 
     kotlin {
-
         iosX64 {
             setupIosBinaries()
         }
-        iosArm64{
+        iosArm64 {
             setupIosBinaries()
         }
     }

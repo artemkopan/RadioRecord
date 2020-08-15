@@ -3,7 +3,7 @@ package io.shared.core
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
-actual val MainDispatcher: CoroutineDispatcher get() = Dispatchers.Main.immediate
+actual val MainDispatcher: CoroutineDispatcher get() = Dispatchers.Main
 
-//todo waiting on coroutines 1.4
-actual val IoDispatcher: CoroutineDispatcher get() = Dispatchers.Unconfined
+//todo waiting for coroutines 1.4
+actual val IoDispatcher: CoroutineDispatcher get() = Dispatchers.Main

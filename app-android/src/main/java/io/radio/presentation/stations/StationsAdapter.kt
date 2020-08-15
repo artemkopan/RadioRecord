@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import io.radio.R
 import io.radio.recycler.plugins.ClickItemAdapterEvent
 import io.radio.recycler.plugins.ClickItemAdapterPlugin
-import io.radio.shared.base.imageloader.ImageLoaderParams
-import io.radio.shared.base.imageloader.loadImage
+import io.shared.imageloader.ImageLoaderParams
+import io.shared.imageloader.loadImage
 import io.shared.model.Station
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_station.*

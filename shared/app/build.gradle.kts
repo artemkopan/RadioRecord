@@ -1,10 +1,6 @@
 plugins {
-    kotlin("multiplatform")
     kotlin("plugin.serialization")
-    id("com.android.library")
-    id("kotlin-android-extensions")
 }
-
 setupMultiplatform()
 setupAppBinaries("RadioRecord", project(":shared:mvi"), project(":shared:core"))
 
@@ -77,7 +73,7 @@ kotlin {
 
 
 ////https://youtrack.jetbrains.com/issue/KT-27170
-//configurations.create("compileClasspath")
+configurations.create("compileClasspath")
 //
 
 //val packForXcode by tasks.creating(Sync::class) {

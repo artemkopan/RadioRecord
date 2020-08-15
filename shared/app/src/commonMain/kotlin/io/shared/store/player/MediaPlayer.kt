@@ -14,6 +14,7 @@ expect class MediaPlayer {
     val playerMetaDataFlow: StateFlow<Optional<PlayerMetaData>>
     val streamMetaDataFlow: StateFlow<Optional<StreamMetaData>>
     val playlistFlow: StateFlow<Optional<Playlist>>
+    val errorFlow: StateFlow<Optional<PlaybackError>>
 
     suspend fun prepare(trackItem: TrackItem, playlist: Playlist?, autoPlay: Boolean)
 
@@ -45,7 +46,6 @@ sealed class PlaybackState {
     object Play : PlaybackState()
     object Pause : PlaybackState()
     object Ended : PlaybackState()
-    class Error(val throwable: Throwable) : PlaybackState()
 
     fun isPlayOrPause() = this is Play || this is Pause
 }
@@ -61,3 +61,8 @@ data class PlayerMetaData(
 
 data class StreamMetaData(val title: String)
 
+data class PlaybackError(
+    val trackItem: TrackItem?,
+    override val message: String,
+    override val cause: Throwable?
+) : Error(message, cause)

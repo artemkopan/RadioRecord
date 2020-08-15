@@ -25,7 +25,6 @@ class PlayerObserveStateMiddleware(
                 PlaybackState.Play -> Result.PlaybackPlay
                 PlaybackState.Pause -> Result.PlaybackPause
                 PlaybackState.Ended -> Result.PlaybackEnded
-                is PlaybackState.Error -> Result.PlaybackError(it.throwable)
             }
         }
             .flowOn(IoDispatcher)
