@@ -25,9 +25,9 @@ actual class LoggerPrinter {
 
     actual fun performLog(
         priority: Logger.Level,
-        tag: String?,
+        message: String?,
         throwable: Throwable?,
-        message: String?
+        tag: String?
     ) {
         println(buildLog(priority, tag, message))
     }
@@ -66,4 +66,5 @@ actual class LoggerPrinter {
         tag = tag.replace("COROUTINE", "")
         return tag
     }
+
 }

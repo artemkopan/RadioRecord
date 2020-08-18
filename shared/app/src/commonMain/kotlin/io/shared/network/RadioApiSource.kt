@@ -7,10 +7,7 @@ import io.shared.mapper.RadioStationMapper
 import io.shared.model.Podcast
 import io.shared.model.PodcastDetails
 import io.shared.model.Station
-import io.shared.network.reponse.DataResultResponse
-import io.shared.network.reponse.RadioPodcastDetailsResponse
-import io.shared.network.reponse.RadioPodcastResponse
-import io.shared.network.reponse.RadioStationResponse
+import io.shared.network.reponse.*
 
 
 interface RadioApiSource {
@@ -31,16 +28,16 @@ class RadioApiSourceImpl constructor(
 ) : RadioApiSource {
 
     override suspend fun getStations(): List<Station> {
-        return httpClientProvider.httpClient.get<DataResultResponse<List<RadioStationResponse>>>(
-            url = httpClientProvider.urlBuilder.path("radioapi/stations").build()
+        return httpClientProvider.httpClient.get<DataResultResponse<RadioStationListResponse>>(
+            url = httpClientProvider.urlBuilder.path("api/stations").build()
         )
             .result
-            .let { radioStationMapper.mapList(it) }
+            .let { radioStationMapper.mapList(it.stations) }
     }
 
     override suspend fun getPodcasts(): List<Podcast> {
         return httpClientProvider.httpClient.get<DataResultResponse<List<RadioPodcastResponse>>>(
-            url = httpClientProvider.urlBuilder.path("radioapi/podcasts/").build()
+            url = httpClientProvider.urlBuilder.path("api/podcasts/").build()
         )
             .result
             .let { radioPodcastMapper.mapList(it) }
@@ -48,7 +45,7 @@ class RadioApiSourceImpl constructor(
 
     override suspend fun getPodcastById(id: Int): PodcastDetails {
         return httpClientProvider.httpClient.get<DataResultResponse<RadioPodcastDetailsResponse>>(
-            url = httpClientProvider.urlBuilder.path("radioapi/podcast/")
+            url = httpClientProvider.urlBuilder.path("api/podcast/")
                 .apply {
                     parameters.append("id", id.toString())
                 }

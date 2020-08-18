@@ -17,7 +17,9 @@ class RadioPodcastDetailsItemMapper constructor() :
                 artist.orEmpty(),
                 song.orEmpty(),
                 playlist.orEmpty(),
-                link.orEmpty().replace("radioreord", "radiorecord") //temp solution due to bug on backend
+                link.orEmpty(),
+                image100.orEmpty(),
+                image600.orEmpty()
             )
         }
 

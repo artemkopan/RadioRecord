@@ -4,12 +4,11 @@ import android.util.Log
 
 
 actual class LoggerPrinter {
-
     actual fun performLog(
         priority: Logger.Level,
-        tag: String?,
+        message: String?,
         throwable: Throwable?,
-        message: String?
+        tag: String?
     ) {
         //todo add timber logging
         Log.d(tag, message, throwable)

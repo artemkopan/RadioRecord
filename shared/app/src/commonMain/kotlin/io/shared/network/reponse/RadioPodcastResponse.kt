@@ -7,8 +7,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RadioPodcastResponse(
 
-    @SerialName("cover")
-    val cover: String? = null,
+    @SerialName("cover_vertical")
+    val coverVertical: String? = null,
+
+    @SerialName("cover_horizontal")
+    val coverHorizontal: String? = null,
 
     @SerialName("name")
     val name: String? = null,

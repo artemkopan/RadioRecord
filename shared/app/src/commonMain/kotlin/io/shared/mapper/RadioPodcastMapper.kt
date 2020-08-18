@@ -10,7 +10,7 @@ class RadioPodcastMapper : Mapper<Podcast, RadioPodcastResponse>() {
         Podcast(
             from.id.orZero,
             from.name.orEmpty(),
-            from.cover.orEmpty()
+            from.coverVertical.orEmpty()
         )
     }
 

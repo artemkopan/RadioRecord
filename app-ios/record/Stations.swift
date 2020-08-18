@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import RadioRecord
+import AVFoundation
 
 struct Stations: View{
     
@@ -26,8 +27,8 @@ struct Stations: View{
         if (self.holder == nil) {
             self.holder = ServiceBinderHolder()
         }
-    
         self.disposable = self.holder!.binder.bindDisposable(view: self.proxy)
+        UITableView.appearance().separatorStyle = .none
     }
     
     private func onDisappear() {

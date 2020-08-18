@@ -15,7 +15,7 @@ class TrackItemFromRadioPodcastMapper : Mapper<TrackItem, RadioPodcastDetailsIte
             from.id,
             from.title,
             from.song,
-            (params as? CoverImage).toOptional(),
+            CoverImage(from.image600.ifEmpty { (params as? CoverImage)?.img ?: "" }).toOptional(),
             time.toDuration(DurationUnit.SECONDS),
             TrackSource.Progressive(from.link)
         )

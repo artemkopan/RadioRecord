@@ -8,11 +8,11 @@
 
 import SwiftUI
 import RadioRecord
+import AVFoundation
 
 struct StationsSwiftView: View {
     
     @ObservedObject var proxy: StationViewProxy
-    
     
     var body: some View{
         NavigationView {
@@ -27,6 +27,8 @@ struct StationsSwiftView: View {
         })
     }
     
+    
+    
     private var content: some View {
         let stations = self.proxy.model?.data
         
@@ -34,11 +36,18 @@ struct StationsSwiftView: View {
             if(stations == nil){
                 EmptyView()
             } else {
-                
-                
-                List {
-                    ForEach(0..<stations!.count, id: \.self) { index in
-                        RemoteImage(url: stations![index].icon).listRowInsets(EdgeInsets())
+                List{
+                    ForEach(0..<stations!.count,id: \.self){index in
+                        Button(action: {
+                            self.proxy.dispatchIntent(intent: StationViewIntent.SelectStation(station: stations![index]))
+                        }){
+                            HStack{
+                                RemoteImage(url: stations![index].iconGray)
+                                .frame(width: 100, height: 100)
+                                .listRowInsets(EdgeInsets())
+                                Text(stations![index].title)
+                            }
+                        }
                     }
                 }
             }

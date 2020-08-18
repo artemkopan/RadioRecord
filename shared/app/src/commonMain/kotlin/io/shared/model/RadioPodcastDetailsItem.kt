@@ -7,5 +7,7 @@ data class RadioPodcastDetailsItem(
     val artist: String,
     val song: String,
     val playlist: String,
-    val link: String
+    val link: String,
+    val image100: String,
+    val image600: String
 )

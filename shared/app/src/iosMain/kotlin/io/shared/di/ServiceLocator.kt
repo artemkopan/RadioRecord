@@ -25,11 +25,13 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.koin.core.context.startKoin
+import org.koin.core.parameter.parametersOf
 
 class ServiceLocator {
-//
+
 //    private val koin = startKoin {
-//        logger(KoinLogger())
+////        logger(KoinLogger())
 //        modules(commonModules)
 //    }.koin
 
@@ -49,60 +51,6 @@ class ServiceLocator {
                 PlayStationMiddleware(MediaPlayer(), TrackItemFromRadioStationMapper())
             ), ErrorFormatter()
         )
-    }
-
-    fun bindStationViewBinder(render: (StationView.Model) -> Unit): BinderDisposable {
-//        return koin.get(parameters = { parametersOf(StateStorage()) })
-        val radioApiSource = RadioApiSourceImpl(
-            HttpClientProviderImpl(SystemConfigImpl(), HttpEngineProvider()),
-            RadioStationMapper(),
-            RadioPodcastMapper(),
-            RadioPodcastDetailsMapper(RadioPodcastDetailsItemMapper())
-        )
-        val radioRepository = RadioRepositoryImpl(radioApiSource)
-
-        return StationViewBinder(
-            StateStorage(), StationStoreFactory(
-                LoadStationMiddleware(radioRepository),
-                PlayStationMiddleware(MediaPlayer(), TrackItemFromRadioStationMapper())
-            ), ErrorFormatter()
-        ).bindDisposable(object : StationView {
-            override val intents: Flow<StationView.Intent>
-                get() = emptyFlow()
-
-            override fun render(model: StationView.Model) {
-                render(model)
-            }
-
-            override fun acceptEffect(effect: StationView.Effect) {
-
-            }
-        })
-    }
-
-    fun getStations(state: (StationStore.State) -> Unit) {
-
-        val radioApiSource = RadioApiSourceImpl(
-            HttpClientProviderImpl(SystemConfigImpl(), HttpEngineProvider()),
-            RadioStationMapper(),
-            RadioPodcastMapper(),
-            RadioPodcastDetailsMapper(RadioPodcastDetailsItemMapper())
-        )
-        val radioRepository = RadioRepositoryImpl(radioApiSource)
-
-        val factory = StationStoreFactory(
-            LoadStationMiddleware(radioRepository),
-            PlayStationMiddleware(MediaPlayer(), TrackItemFromRadioStationMapper())
-        )
-
-        GlobalScope.launch(MainDispatcher) {
-            factory.create(this, StateStorage()).stateFlow
-                .onEach {
-                    state(it)
-                    Logger.d(message = "State: $it")
-                }
-                .launchIn(this)
-        }
     }
 
 }

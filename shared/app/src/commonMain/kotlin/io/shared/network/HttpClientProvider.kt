@@ -55,6 +55,6 @@ class HttpClientProviderImpl(
         get() = URLBuilder(API_URL)
 
     companion object {
-        private const val API_URL = "http://www.radiorecord.ru"
+        private const val API_URL = "http://app-api.radiorecord.ru"
     }
 }

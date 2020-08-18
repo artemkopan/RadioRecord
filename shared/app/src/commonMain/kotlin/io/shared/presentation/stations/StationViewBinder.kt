@@ -22,34 +22,15 @@ class StationViewBinder(
     private val store = storeFactory.create(scope, stateStorage)
 
     init {
-        Logger.d(message = "Init station binder2")
-
         store.stateFlow
-            .onStart { Logger.d("Flow started") }
-            .onCompletion { Logger.d("Flow completed", throwable = it) }
-            .onEmpty { Logger.d("Flow empty") }
             .onEach {
                 Logger.d("Receive state = $it", tag = "StationViewBinder")
                 it.dispatchModel()
                 it.dispatchEffect()
             }.launchIn(scope)
-            .also {
-                Logger.d("Launched in job: $it")
-            }
     }
 
     override suspend fun bind(view: StationView) {
-        Logger.d("bind view: $view")
-        scope.launch {
-            flow<String> {
-                for (i in 0..10) emit(i.toString())
-            }
-                .onEach {
-                    Logger.d("test flow: $it")
-                }
-                .collect()
-        }
-
         bind {
             helper bindTo view
             view.intents.mapToAction() bindTo store

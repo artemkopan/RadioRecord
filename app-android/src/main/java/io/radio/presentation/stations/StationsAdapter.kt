@@ -39,7 +39,7 @@ class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<Station>) :
 
         fun bind(item: Station) {
             stationPreviewImage.loadImage(
-                item.icon,
+                item.iconGray,
                 ImageLoaderParams(
                     animate = ImageLoaderParams.Animation.CrossFade
                 )

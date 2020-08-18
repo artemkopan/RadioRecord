@@ -9,10 +9,8 @@ class RadioStationMapper : Mapper<Station, RadioStationResponse>() {
         Station(
             prefix!!.hashCode(),
             title.orEmpty(),
-            iconPng.orEmpty(),
-            icon.orEmpty(),
-            stream.orEmpty(),
-            stream32.orEmpty(),
+            iconGray.orEmpty(),
+            iconFillWhite.orEmpty(),
             stream64.orEmpty(),
             stream128.orEmpty(),
             stream320.orEmpty()

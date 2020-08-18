@@ -3,10 +3,12 @@
 import com.android.build.gradle.BaseExtension
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.api.tasks.Sync
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import java.io.File
 import java.io.FileNotFoundException
 
 fun Project.setupMultiplatform() {
@@ -140,6 +142,7 @@ fun Project.setupAppBinaries(baseName: String, vararg dependencies: Any) {
         }
     }
 }
+
 
 fun Project.android(block: BaseExtension.() -> Unit) {
     extensions.getByType<BaseExtension>().block()
