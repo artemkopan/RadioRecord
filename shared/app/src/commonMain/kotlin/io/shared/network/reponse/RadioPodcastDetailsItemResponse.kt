@@ -28,8 +28,5 @@ data class RadioPodcastDetailsItemResponse(
 	val id: Int? = null,
 
 	@SerialName("time")
-	val time: Int? = null,
-
-	@SerialName("title")
-	val title: String? = null
+	val time: Int? = null
 )

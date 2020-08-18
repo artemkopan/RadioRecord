@@ -13,7 +13,7 @@ class TrackItemFromRadioPodcastMapper : Mapper<TrackItem, RadioPodcastDetailsIte
     override fun map(from: RadioPodcastDetailsItem, params: Any?): TrackItem = with(from) {
         TrackItem(
             from.id,
-            from.title,
+            from.artist,
             from.song,
             CoverImage(from.image600.ifEmpty { (params as? CoverImage)?.img ?: "" }).toOptional(),
             time.toDuration(DurationUnit.SECONDS),

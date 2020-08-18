@@ -13,7 +13,6 @@ class RadioPodcastDetailsItemMapper constructor() :
             RadioPodcastDetailsItem(
                 id.orZero,
                 time.orZero,
-                title.orEmpty(),
                 artist.orEmpty(),
                 song.orEmpty(),
                 playlist.orEmpty(),

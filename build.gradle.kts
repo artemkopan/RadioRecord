@@ -23,20 +23,22 @@ allprojects {
         jcenter()
         maven("https://dl.bintray.com/ekito/koin")
     }
-}
 
-tasks {
-    withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf(
-                "-XXLanguage:+InlineClasses",
-                "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xuse-experimental=kotlin.time.ExperimentalTime",
-                "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
-                "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
-            )
+    tasks {
+        withType<KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = "1.8"
+                freeCompilerArgs = listOf(
+                    "-Xallow-jvm-ir-dependencies",
+                    "-Xskip-prerelease-check",
+                    "-XXLanguage:+InlineClasses",
+                    "-Xopt-in=kotlin.RequiresOptIn",
+                    "-Xuse-experimental=kotlin.time.ExperimentalTime",
+                    "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
+                    "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
+                )
+            }
         }
     }
 }

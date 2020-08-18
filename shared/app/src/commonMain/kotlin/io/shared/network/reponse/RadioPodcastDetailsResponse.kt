@@ -15,6 +15,6 @@ data class RadioPodcastDetailsResponse(
 	@SerialName("name")
 	val name: String? = null,
 
-	@SerialName("items")
+	@SerialName("tracks")
 	val items: List<RadioPodcastDetailsItemResponse>? = null
 )

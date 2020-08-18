@@ -1,5 +1,5 @@
 plugins {
-    kotlin("plugin.serialization")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 setupMultiplatform()
 setupAppBinaries("RadioRecord", project(":shared:mvi"), project(":shared:core"))

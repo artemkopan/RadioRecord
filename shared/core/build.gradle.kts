@@ -11,6 +11,7 @@ kotlin {
         androidMain {
             dependencies {
                 implementation(Deps.AndroidX.LifeCycle.ViewmodelSavedstate)
+                implementation(Deps.Timber.Timber)
             }
         }
 

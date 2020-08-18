@@ -1,6 +1,7 @@
 @file:Suppress("UNUSED_VARIABLE")
 
 import com.android.build.gradle.BaseExtension
+import org.gradle.api.JavaVersion
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.tasks.Sync
@@ -15,6 +16,7 @@ fun Project.setupMultiplatform() {
 
     plugins.apply("kotlin-multiplatform")
     plugins.apply("com.android.library")
+    plugins.apply("kotlin-android-extensions")
 
     setupAndroidSdkVersions()
     setupAndroidFilesPath()

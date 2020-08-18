@@ -62,7 +62,7 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackSt
             titleView.text = item.track.title
             subTitleView.text = item.track.subTitle
             subTitleView.isVisible = item.track.subTitle.isNotEmpty()
-            timeView.text = item.durationFormatted
+//            timeView.text = item.durationFormatted
 
             fun animatePlayPauseButton() = payloads.contains(PlayPausePayload)
 
