@@ -5,7 +5,10 @@ import io.shared.image.Color
 import io.shared.image.ImageLightness
 import io.shared.image.Size
 import io.shared.model.Podcast
-import io.shared.mvi.*
+import io.shared.mvi.Binder
+import io.shared.mvi.StateStorage
+import io.shared.mvi.ViewBinder
+import io.shared.mvi.ViewBinderHelper
 import io.shared.presentation.podcast.details.PodcastDetailsParams
 import io.shared.presentation.podcast.home.PodcastView.*
 import io.shared.resources.AppResources
@@ -13,6 +16,7 @@ import io.shared.store.image.ImageParamsStore
 import io.shared.store.image.ImageParamsStoreFactory
 import io.shared.store.podcasts.home.PodcastStore
 import io.shared.store.podcasts.home.PodcastStoreFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapNotNull
@@ -24,7 +28,7 @@ class PodcastViewBinder(
     imageParamsStoreFactory: ImageParamsStoreFactory,
     private val errorFormatter: ErrorFormatter,
     private val appResources: AppResources
-) : ViewBinder(), Binder<PodcastView> {
+) : ViewBinder(), Binder<Intent, Model, Effect> {
 
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
 
@@ -42,12 +46,16 @@ class PodcastViewBinder(
         }.launchIn(scope)
     }
 
-    override suspend fun bind(view: PodcastView) {
-        bind {
-            helper bindTo view
-            view.intents.mapIntentToImageParamsAction() bindTo imageStore
-        }
+    override fun bindIntents(scope: CoroutineScope, intentFlow: Flow<Intent>) {
+        intentFlow.mapIntentToImageParamsAction().bindTo(imageStore, scope)
     }
+
+    override val modelFlow: Flow<Model>
+        get() = helper.modelFlow
+
+    override val effectFlow: Flow<Effect>
+        get() = helper.effectFlow
+
 
     private fun Flow<Intent>.mapIntentToImageParamsAction() = mapNotNull {
         if (it is Intent.SelectPodcast) {

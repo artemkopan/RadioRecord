@@ -1,22 +1,25 @@
 package io.shared.presentation.stations
 
 import io.shared.core.Logger
-import io.shared.core.extensions.CoroutineExceptionHandler
 import io.shared.formatters.ErrorFormatter
-import io.shared.mvi.*
+import io.shared.mvi.Binder
+import io.shared.mvi.StateStorage
+import io.shared.mvi.ViewBinder
+import io.shared.mvi.ViewBinderHelper
 import io.shared.presentation.stations.StationView.*
 import io.shared.store.stations.StationStore
 import io.shared.store.stations.StationStoreFactory
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 
 class StationViewBinder(
     stateStorage: StateStorage,
     storeFactory: StationStoreFactory,
     private val errorFormatter: ErrorFormatter
-) : ViewBinder(), Binder<StationView> {
+) : ViewBinder(), Binder<Intent, Model, Effect> {
 
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
     private val store = storeFactory.create(scope, stateStorage)
@@ -30,12 +33,18 @@ class StationViewBinder(
             }.launchIn(scope)
     }
 
-    override suspend fun bind(view: StationView) {
-        bind {
-            helper bindTo view
-            view.intents.mapToAction() bindTo store
-        }
+    override fun bindIntents(
+        scope: CoroutineScope,
+        intentFlow: Flow<Intent>
+    ) {
+        intentFlow.mapToAction().bindTo(store, scope)
     }
+
+    override val modelFlow: Flow<Model>
+        get() = helper.modelFlow
+
+    override val effectFlow: Flow<Effect>
+        get() = helper.effectFlow
 
     private suspend fun StationStore.State.dispatchModel() {
         helper.dispatchModel(Model(isLoading, data))

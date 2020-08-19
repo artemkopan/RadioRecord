@@ -12,10 +12,10 @@ import io.radio.base.popBack
 import io.radio.base.showToast
 import io.radio.di.binder.viewBinder
 import io.radio.extensions.parseResourceString
+import io.shared.core.Logger
 import io.shared.imageloader.ImageLoaderParams
 import io.shared.imageloader.loadImage
 import io.shared.imageloader.transformations.CircleTransformation
-import io.shared.mvi.bind
 import io.shared.mvi.bindOnChangeListener
 import io.shared.mvi.bindOnClick
 import io.shared.presentation.player.PlayerView
@@ -42,7 +42,7 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
         super.onViewCreated(view, savedInstanceState)
         playerToolbar.setNavigationOnClickListener { popBack() }
         playerSubTitleView.movementMethod = ScrollingMovementMethod.getInstance()
-        this bind viewBinder
+        scope.attachBinder(viewBinder)
     }
 
     override val intents: Flow<Intent>

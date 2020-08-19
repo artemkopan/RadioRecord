@@ -9,4 +9,8 @@ data class RadioPodcastDetailsItem(
     val link: String,
     val image100: String,
     val image600: String
-)
+) {
+    override fun toString(): String {
+        return "RadioPodcastDetailsItem(id=$id, artist=$artist...)"
+    }
+}

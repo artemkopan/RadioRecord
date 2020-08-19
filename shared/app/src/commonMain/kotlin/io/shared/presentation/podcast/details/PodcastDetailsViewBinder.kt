@@ -1,8 +1,12 @@
 package io.shared.presentation.podcast.details
 
+import io.shared.core.Logger
 import io.shared.formatters.ErrorFormatter
 import io.shared.model.TrackItem
-import io.shared.mvi.*
+import io.shared.mvi.Binder
+import io.shared.mvi.StateStorage
+import io.shared.mvi.ViewBinder
+import io.shared.mvi.ViewBinderHelper
 import io.shared.presentation.podcast.details.PodcastDetailsView.*
 import io.shared.store.player.PlayerStore
 import io.shared.store.player.PlayerStoreFactory
@@ -10,15 +14,16 @@ import io.shared.store.playlist.PlaylistStore
 import io.shared.store.playlist.PlaylistStoreFactory
 import io.shared.store.podcasts.details.PodcastDetailsStore
 import io.shared.store.podcasts.details.PodcastDetailsStoreFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 
-class PodcastDetailsVewBinder(
+class PodcastDetailsViewBinder(
     stateStorage: StateStorage,
     podcastDetailsStoreFactory: PodcastDetailsStoreFactory,
     playerStoreFactory: PlayerStoreFactory,
     playlistStoreFactory: PlaylistStoreFactory,
     private val errorFormatter: ErrorFormatter
-) : ViewBinder(), Binder<PodcastDetailsView> {
+) : ViewBinder(), Binder<Intent, Model, Effect> {
 
 
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
@@ -33,22 +38,30 @@ class PodcastDetailsVewBinder(
             playerStore.stateFlow,
             playlistStore.stateFlow,
             dispatchModelAndEffect()
-        ).distinctUntilChanged().launchIn(scope)
+        )
+            .distinctUntilChanged()
+            .launchIn(scope)
+
+        podcastStore.stateFlow
+            .distinctUntilChangedBy { it.tracks }
+            .map(podcastStateToPlayerAction())
+            .bindTo(playlistStore, scope)
     }
 
-    override suspend fun bind(view: PodcastDetailsView) {
-        bind {
-            helper bindTo view
-
-            view.intents.transform(intentToPlayerAction) bindTo playerStore
-            view.intents.transform(intentToEffect) bindTo view
-
-            podcastStore.stateFlow
-                .distinctUntilChangedBy { it.tracks }
-                .map(podcastStateToPlayerAction) bindTo playlistStore
-        }
+    override fun bindIntents(
+        scope: CoroutineScope,
+        intentFlow: Flow<Intent>
+    ) {
+        intentFlow.transform(intentToPlayerAction).bindTo(playerStore, scope)
+        Logger.d("intent effect", tag = "TEST")
+        intentFlow.transform(intentToEffect).onEach { helper.dispatchEffect(it) }.launchIn(scope)
     }
 
+    override val modelFlow: Flow<Model>
+        get() = helper.modelFlow
+
+    override val effectFlow: Flow<Effect>
+        get() = helper.effectFlow
 
     private fun dispatchModelAndEffect(): suspend FlowCollector<Model>.(PodcastDetailsStore.State, PlayerStore.State, PlaylistStore.State) -> Unit =
         { podcast, player, playlist ->
@@ -103,7 +116,7 @@ class PodcastDetailsVewBinder(
         }
 
 
-    private val podcastStateToPlayerAction: suspend (value: PodcastDetailsStore.State) -> PlaylistStore.Action =
+    private fun podcastStateToPlayerAction(): suspend (value: PodcastDetailsStore.State) -> PlaylistStore.Action =
         {
             PlaylistStore.Action.ObserveTracksMediaState(it.tracks)
         }

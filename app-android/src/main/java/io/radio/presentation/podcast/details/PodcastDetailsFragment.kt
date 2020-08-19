@@ -27,15 +27,15 @@ import io.radio.di.binder.viewBinder
 import io.radio.extensions.parseResourceString
 import io.radio.presentation.podcast.details.track.TracksAdapter
 import io.radio.presentation.routePlayer
+import io.shared.core.Logger
 import io.shared.imageloader.ImageLoaderParams
 import io.shared.imageloader.doOnFinallyImageCallback
 import io.shared.imageloader.loadImage
 import io.shared.imageloader.transformations.BlurTransformation
 import io.shared.imageloader.transformations.CircleTransformation
 import io.shared.imageloader.transformations.GranularRoundedCornersTransformation
-import io.shared.mvi.bind
 import io.shared.presentation.podcast.details.PodcastDetailsParams
-import io.shared.presentation.podcast.details.PodcastDetailsVewBinder
+import io.shared.presentation.podcast.details.PodcastDetailsViewBinder
 import io.shared.presentation.podcast.details.PodcastDetailsView
 import io.shared.presentation.podcast.details.PodcastDetailsView.*
 import io.shared.presentation.podcast.details.TrackPositionScrollerHelper
@@ -43,11 +43,12 @@ import kotlinx.android.synthetic.main.fragment_podcast_details.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.launch
 
 
 class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), PodcastDetailsView {
 
-    private val viewBinder by viewBinder<PodcastDetailsVewBinder>()
+    private val viewBinder by viewBinder<PodcastDetailsViewBinder>()
     private val adapterIntentsChannel = BroadcastChannel<Intent>(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,7 +99,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
         initTracksAdapter()
         initTrackPositionHandler()
 
-        this bind viewBinder
+        scope.attachBinder(viewBinder)
     }
 
     override val intents: Flow<Intent>
@@ -106,6 +107,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
 
 
     override fun render(model: Model) {
+        Logger.d("render $model", tag = "TEST")
         (podcastTracksRecycler.adapter as TracksAdapter).run {
             submitList(model.tracksWithState)
         }

@@ -7,6 +7,7 @@ import io.shared.presentation.player.PlayerView.*
 import io.shared.store.player.PlayerStore
 import io.shared.store.player.PlayerStore.Action
 import io.shared.store.player.PlayerStoreFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -19,7 +20,7 @@ class PlayerViewBinder(
     playerStoreFactory: PlayerStoreFactory,
     private val trackFormatter: TrackFormatter,
     private val errorFormatter: ErrorFormatter
-) : ViewBinder(), Binder<PlayerView> {
+) : ViewBinder(), Binder<Intent, Model, Effect> {
 
     private val store = playerStoreFactory.create(scope, stateStorage)
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
@@ -31,13 +32,19 @@ class PlayerViewBinder(
         }.launchIn(scope)
     }
 
-
-    override suspend fun bind(view: PlayerView) {
-        bind {
-            helper bindTo view
-            view.intents.mapToStoreActions() bindTo store
-        }
+    override fun bindIntents(
+        scope: CoroutineScope,
+        intentFlow: Flow<Intent>
+    ) {
+        intentFlow.mapToStoreActions().bindTo(store, scope)
     }
+
+    override val modelFlow: Flow<Model>
+        get() = helper.modelFlow
+
+    override val effectFlow: Flow<Effect>
+        get() = helper.effectFlow
+
 
     private fun Flow<Intent>.mapToStoreActions(): Flow<Action> {
         return map { intent ->

@@ -17,7 +17,6 @@ import io.radio.presentation.routeDetails
 import io.radio.views.SizeScrollOffsetListener
 import io.radio.views.addScrollOffsetListener
 import io.radio.views.updateScrollOffsetListener
-import io.shared.mvi.bind
 import io.shared.presentation.podcast.home.PodcastView
 import io.shared.presentation.podcast.home.PodcastView.*
 import io.shared.presentation.podcast.home.PodcastViewBinder
@@ -58,7 +57,7 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts), PodcastView {
             ) { postScrolledFraction(it) }
         )
 
-        this bind viewBinder
+        scope.attachBinder(viewBinder)
     }
 
     override fun onResume() {

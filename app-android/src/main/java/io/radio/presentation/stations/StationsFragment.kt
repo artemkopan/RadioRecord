@@ -14,7 +14,7 @@ import io.radio.presentation.routePlayer
 import io.radio.views.SizeScrollOffsetListener
 import io.radio.views.addScrollOffsetListener
 import io.radio.views.updateScrollOffsetListener
-import io.shared.mvi.bind
+import io.shared.core.Logger
 import io.shared.presentation.stations.StationView
 import io.shared.presentation.stations.StationView.*
 import io.shared.presentation.stations.StationViewBinder
@@ -44,7 +44,7 @@ class StationsFragment : BaseFragment(R.layout.fragment_stations), StationView {
             ) { postScrolledFraction(it) }
         )
 
-        this bind viewBinder
+        scope.attachBinder(viewBinder)
     }
 
     override fun onResume() {
@@ -56,6 +56,7 @@ class StationsFragment : BaseFragment(R.layout.fragment_stations), StationView {
         get() = adapterIntentsChannel.asFlow()
 
     override fun render(model: Model) = with(model) {
+        Logger.d("render $model")
         progressBar.isVisible = isLoading
         radioStationsRecycleView.isVisible = !isLoading
         (radioStationsRecycleView.tag as StationsAdapter).submitList(data)

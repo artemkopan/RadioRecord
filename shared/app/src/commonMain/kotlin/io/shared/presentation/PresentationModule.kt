@@ -3,7 +3,7 @@ package io.shared.presentation
 import io.shared.mvi.StateStorage
 import io.shared.presentation.player.PlayerViewBinder
 import io.shared.presentation.podcast.details.PodcastDetailsParams
-import io.shared.presentation.podcast.details.PodcastDetailsVewBinder
+import io.shared.presentation.podcast.details.PodcastDetailsViewBinder
 import io.shared.presentation.podcast.home.PodcastViewBinder
 import io.shared.presentation.stations.StationViewBinder
 import org.koin.core.parameter.parametersOf
@@ -17,7 +17,7 @@ val presentationModule = module {
     factory { (state: StateStorage) ->
         val params = state.get<PodcastDetailsParams>("params")
 
-        PodcastDetailsVewBinder(
+        PodcastDetailsViewBinder(
             state,
             get(parameters = { parametersOf(params!!.id) }),
             get(),
