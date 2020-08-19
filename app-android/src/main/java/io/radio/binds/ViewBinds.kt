@@ -21,7 +21,7 @@ fun Array<View>.bindOnClick() = callbackFlow {
     awaitClose { forEach { it.setOnClickListener(null) } }
 }
 
-fun SeekBar.bindOnChangeListener() = callbackFlow {
+fun SeekBar.bindOnChangeListener() = callbackFlow<SeekBarProgress> {
     setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
             offer(SeekBarProgress(progress, fromUser, fromUser))

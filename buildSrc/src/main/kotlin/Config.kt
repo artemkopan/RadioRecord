@@ -1,15 +1,15 @@
 @file:Suppress("UNUSED_VARIABLE")
 
 import com.android.build.gradle.BaseExtension
-import org.gradle.api.JavaVersion
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.tasks.Sync
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.getValue
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import java.io.File
 import java.io.FileNotFoundException
 
 fun Project.setupMultiplatform() {
@@ -22,10 +22,7 @@ fun Project.setupMultiplatform() {
     setupAndroidFilesPath()
 
     kotlin {
-        android {
-            publishLibraryVariants("release", "debug")
-        }
-
+        android ()
         iosX64("ios")
         iosArm64()
 
@@ -49,8 +46,7 @@ fun Project.setupMultiplatform() {
 
                 dependencies {
                     implementation(Deps.Jetbrains.Kotlin.StdLib.Jdk7)
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Core)
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Android)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Android)
                 }
             }
 
@@ -66,7 +62,6 @@ fun Project.setupMultiplatform() {
                 dependsOn(commonMain())
 
                 dependencies {
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Native.Core)
                 }
             }
 
