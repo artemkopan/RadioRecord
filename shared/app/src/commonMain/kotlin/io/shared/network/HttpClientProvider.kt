@@ -9,6 +9,7 @@ import io.ktor.client.features.logging.*
 import io.ktor.http.*
 import io.shared.configs.SystemConfig
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 
 interface HttpClientProvider {
 
@@ -28,10 +29,12 @@ class HttpClientProviderImpl(
             install(JsonFeature) {
                 acceptContentTypes = listOf(ContentType.Any)
                 serializer = KotlinxSerializer(
-                    Json(builderAction = {
-                        ignoreUnknownKeys = true
-                        useArrayPolymorphism = true
-                    })
+                    Json(
+                        JsonConfiguration(
+                            ignoreUnknownKeys = true,
+                            useArrayPolymorphism = true
+                        )
+                    )
                 )
             }
 

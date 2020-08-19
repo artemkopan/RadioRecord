@@ -2,7 +2,7 @@ object Deps {
 
     object Jetbrains {
         object Kotlin : Group(name = "org.jetbrains.kotlin") {
-            private const val version = "1.4.0"
+            private const val version = "1.3.72"
 
             object Plugin {
                 object Gradle :
@@ -39,37 +39,65 @@ object Deps {
 
         object Kotlinx : Group(name = "org.jetbrains.kotlinx") {
             object Serialization {
-                private const val version = "1.0.0-RC"
+                private const val version = "0.20.0"
 
-                object Core : Dependency(
+                object RuntimeCommon : Dependency(
                     group = Kotlinx,
-                    name = "kotlinx-serialization-core",
+                    name = "kotlinx-serialization-runtime-common",
+                    version = version
+                )
+
+                object Runtime : Dependency(
+                    group = Kotlinx,
+                    name = "kotlinx-serialization-runtime",
+                    version = version
+                )
+
+                object RuntimeNative : Dependency(
+                    group = Kotlinx,
+                    name = "kotlinx-serialization-runtime-native",
                     version = version
                 )
             }
 
             object Coroutine {
-                private const val version = "1.3.9"
+                private const val version = "1.3.8"
 
                 object Common {
+                    object Core : Dependency(
+                        group = Kotlinx,
+                        name = "kotlinx-coroutines-core-common",
+                        version = version
+                    )
+                }
+
+                object Native {
+                    object Core : Dependency(
+                        group = Kotlinx,
+                        name = "kotlinx-coroutines-core-native",
+                        version = version
+                    )
+                }
+
+                object Jvm {
                     object Core : Dependency(
                         group = Kotlinx,
                         name = "kotlinx-coroutines-core",
                         version = version
                     )
-                }
 
-                object Android : Dependency(
-                    group = Kotlinx,
-                    name = "kotlinx-coroutines-android",
-                    version = version
-                )
+                    object Android : Dependency(
+                        group = Kotlinx,
+                        name = "kotlinx-coroutines-android",
+                        version = version
+                    )
+                }
             }
         }
     }
 
     object Ktor : Group(name = "io.ktor") {
-        private const val version = "1.4.0"
+        private const val version = "1.3.2"
 
         object Core : Dependency(Ktor, name = "ktor-client-core", version = version)
         object Json : Dependency(Ktor, name = "ktor-client-json", version = version)
@@ -113,7 +141,7 @@ object Deps {
     object Android {
         object Tools {
             object Build : Group(name = "com.android.tools.build") {
-                object Gradle : Dependency(group = Build, name = "gradle", version = "4.2.0-alpha07")
+                object Gradle : Dependency(group = Build, name = "gradle", version = "4.0.1")
             }
         }
     }
@@ -219,31 +247,13 @@ object Deps {
         object Compose : Group(name = "androidx.compose") {
             const val version = "0.1.0-dev16"
 
-            object ComposeCompiler : Dependency(group = Compose, name = "compose-compiler", version = version)
+            object Ui {
+                object Layout : Dependency(group = AndroidX.Compose, name = "ui-layout", version = version)
+                object Material :
+                    Dependency(group = AndroidX.Compose, name = "ui-material", version = version)
 
-            object Runtime : Group(name = Compose.name + ".runtime") {
-                object Runtime : Dependency(group = Compose.Runtime, name = "runtime", version = version)
-                object SavedInstanceState : Dependency(group = Compose.Runtime, name = "runtime-saved-instance-state", version = version)
+                object Tooling : Dependency(group = AndroidX.Compose, name = "ui-tooling", version = version)
             }
-
-            object Ui : Group(name = Compose.name + ".ui") {
-                object Ui : Dependency(group = Compose.Ui, name = "ui", version = version)
-            }
-
-            object Foundation : Group(name = Compose.name + ".foundation") {
-                object Foundation : Dependency(group = Compose.Foundation, name = "foundation", version = version)
-                object FoundationLayout : Dependency(group = Compose.Foundation, name = "foundation-layout", version = version)
-
-            }
-
-            object Material : Group(name = Compose.name + ".material") {
-                object Material : Dependency(group = Compose.Material, name = "material", version = version)
-            }
-
-        }
-
-        object Ui : Group(name = "androidx.ui") {
-            object Tooling : Dependency(group = Ui, name = "ui-tooling", version = Compose.version)
         }
     }
 

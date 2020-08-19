@@ -1,8 +1,6 @@
 package io.shared.store.stations
 
-import io.shared.core.Optional
 import io.shared.mapper.TrackItemFromRadioStationMapper
-import io.shared.model.TrackItem
 import io.shared.mvi.Middleware
 import io.shared.store.player.MediaPlayer
 import io.shared.store.stations.StationStore.*
@@ -23,7 +21,7 @@ class PlayStationMiddleware(
                 if (mediaPlayer.trackFlow.value.data != track) {
                     mediaPlayer.prepare(track, null, true)
                 }
-                emitAll(mediaPlayer.trackFlow.transform<Optional<TrackItem>, Result> {
+                emitAll(mediaPlayer.trackFlow.transform {
                     emit(
                         Result.PlayingStation(
                             if (track == it.data) {

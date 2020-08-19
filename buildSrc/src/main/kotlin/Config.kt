@@ -14,15 +14,18 @@ import java.io.FileNotFoundException
 
 fun Project.setupMultiplatform() {
 
-    plugins.apply("kotlin-multiplatform")
     plugins.apply("com.android.library")
+    plugins.apply("kotlin-multiplatform")
     plugins.apply("kotlin-android-extensions")
 
     setupAndroidSdkVersions()
     setupAndroidFilesPath()
 
     kotlin {
-        android ()
+        android {
+            publishLibraryVariants("release", "debug")
+        }
+
         iosX64("ios")
         iosArm64()
 
@@ -46,7 +49,8 @@ fun Project.setupMultiplatform() {
 
                 dependencies {
                     implementation(Deps.Jetbrains.Kotlin.StdLib.Jdk7)
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Android)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Core)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Android)
                 }
             }
 
@@ -62,6 +66,7 @@ fun Project.setupMultiplatform() {
                 dependsOn(commonMain())
 
                 dependencies {
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Native.Core)
                 }
             }
 
