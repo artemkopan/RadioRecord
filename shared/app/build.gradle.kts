@@ -12,7 +12,7 @@ kotlin {
                 api(project(":shared:mvi"))
 
                 // SERIALIZATION
-                implementation(Deps.Jetbrains.Kotlinx.Serialization.RuntimeCommon)
+                implementation(Deps.Jetbrains.Kotlinx.Serialization.Core)
 
                 // KTOR
                 implementation(Deps.Ktor.Core)
@@ -27,14 +27,8 @@ kotlin {
         androidMain {
             dependencies {
 
-                // SERIALIZATION
-                implementation(Deps.Jetbrains.Kotlinx.Serialization.Runtime)
-
                 // KTOR
                 implementation(Deps.Ktor.Jvm.Okhttp)
-                implementation(Deps.Ktor.Jvm.Json)
-                implementation(Deps.Ktor.Jvm.Serialization)
-                implementation(Deps.Ktor.Jvm.Logging)
 
                 // DI
                 api(Deps.Koin.Android)
@@ -56,16 +50,10 @@ kotlin {
 
         iosMain {
             dependencies {
-                // COROUTINE
-                implementation(Deps.Jetbrains.Kotlinx.Coroutine.Native.Core)
-                // SERIALIZATION
-                implementation(Deps.Jetbrains.Kotlinx.Serialization.RuntimeNative)
+
                 // KTOR
                 implementation(Deps.Ktor.Native.Ios)
-                implementation(Deps.Ktor.Native.Core)
-                implementation(Deps.Ktor.Native.Json)
-                implementation(Deps.Ktor.Native.Serialization)
-                implementation(Deps.Ktor.Native.Logging)
+
             }
         }
     }

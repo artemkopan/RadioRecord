@@ -32,7 +32,6 @@ fun Project.setupMultiplatform() {
         sourceSets {
             commonMain {
                 dependencies {
-                    implementation(Deps.Jetbrains.Kotlin.StdLib.Common)
                     implementation(Deps.Jetbrains.Kotlinx.Coroutine.Common.Core)
                 }
             }
@@ -48,9 +47,7 @@ fun Project.setupMultiplatform() {
                 dependsOn(commonMain())
 
                 dependencies {
-                    implementation(Deps.Jetbrains.Kotlin.StdLib.Jdk7)
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Core)
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Jvm.Android)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Android)
                 }
             }
 
@@ -62,14 +59,7 @@ fun Project.setupMultiplatform() {
                 }
             }
 
-            iosMain {
-                dependsOn(commonMain())
-
-                dependencies {
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Native.Core)
-                }
-            }
-
+            iosMain().dependsOn(commonMain())
             iosTest().dependsOn(commonTest())
 
             iosX64Main().dependsOn(iosMain())

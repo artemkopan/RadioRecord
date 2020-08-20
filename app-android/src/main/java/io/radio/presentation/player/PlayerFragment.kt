@@ -12,12 +12,11 @@ import io.radio.base.popBack
 import io.radio.base.showToast
 import io.radio.di.binder.viewBinder
 import io.radio.extensions.parseResourceString
-import io.shared.core.Logger
 import io.shared.imageloader.ImageLoaderParams
 import io.shared.imageloader.loadImage
 import io.shared.imageloader.transformations.CircleTransformation
-import io.shared.mvi.bindOnChangeListener
-import io.shared.mvi.bindOnClick
+import io.radio.binds.bindOnChangeListener
+import io.radio.binds.bindOnClick
 import io.shared.presentation.player.PlayerView
 import io.shared.presentation.player.PlayerView.*
 import io.shared.presentation.player.PlayerViewBinder

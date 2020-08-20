@@ -2,14 +2,16 @@
 
 package io.shared.network
 
-import io.ktor.client.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logger
+import io.ktor.client.features.logging.Logging
+import io.ktor.http.ContentType
+import io.ktor.http.URLBuilder
 import io.shared.configs.SystemConfig
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 interface HttpClientProvider {
 
@@ -29,12 +31,10 @@ class HttpClientProviderImpl(
             install(JsonFeature) {
                 acceptContentTypes = listOf(ContentType.Any)
                 serializer = KotlinxSerializer(
-                    Json(
-                        JsonConfiguration(
-                            ignoreUnknownKeys = true,
-                            useArrayPolymorphism = true
-                        )
-                    )
+                    Json(builderAction = {
+                        ignoreUnknownKeys = true
+                        useArrayPolymorphism = true
+                    })
                 )
             }
 
