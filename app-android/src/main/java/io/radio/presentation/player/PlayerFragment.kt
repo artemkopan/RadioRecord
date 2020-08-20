@@ -4,6 +4,7 @@ import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
 import io.radio.R
@@ -17,10 +18,11 @@ import io.shared.imageloader.loadImage
 import io.shared.imageloader.transformations.CircleTransformation
 import io.radio.binds.bindOnChangeListener
 import io.radio.binds.bindOnClick
+import io.radio.databinding.FragmentPlayerBinding
+import io.radio.databinding.FragmentPodcastsBinding
 import io.shared.presentation.player.PlayerView
 import io.shared.presentation.player.PlayerView.*
 import io.shared.presentation.player.PlayerViewBinder
-import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -29,6 +31,9 @@ import kotlinx.coroutines.flow.transform
 class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
 
     private val viewBinder by viewBinder<PlayerViewBinder>()
+    private val binding: FragmentPlayerBinding by viewBinding { fragment ->
+        FragmentPlayerBinding.bind(fragment.requireView())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,17 +44,17 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        playerToolbar.setNavigationOnClickListener { popBack() }
-        playerSubTitleView.movementMethod = ScrollingMovementMethod.getInstance()
+        binding.playerToolbar.setNavigationOnClickListener { popBack() }
+        binding.playerSubTitleView.movementMethod = ScrollingMovementMethod.getInstance()
         scope.attachBinder(viewBinder)
     }
 
     override val intents: Flow<Intent>
         get() = merge(
-            playerPlayButton.bindOnClick().map { Intent.PlayPause },
-            playerSkipPreviousButton.bindOnClick().map { Intent.PlayPrevious },
-            playerSkipNextButton.bindOnClick().map { Intent.PlayNext },
-            playerTimeBar.bindOnChangeListener().transform {
+            binding.playerPlayButton.bindOnClick().map { Intent.PlayPause },
+            binding.playerSkipPreviousButton.bindOnClick().map { Intent.PlayPrevious },
+            binding.playerSkipNextButton.bindOnClick().map { Intent.PlayNext },
+            binding.playerTimeBar.bindOnChangeListener().transform {
                 if (it.fromUser) emit(
                     Intent.FindPosition(
                         it.progress,
@@ -57,36 +62,36 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
                     )
                 )
             },
-            playerRewindAreaView.bindOnClick().map { Intent.SlipRewind },
-            playerForwardAreaView.bindOnClick().map { Intent.SlipForward }
+           binding.playerRewindAreaView.bindOnClick().map { Intent.SlipRewind },
+           binding.playerForwardAreaView.bindOnClick().map { Intent.SlipForward }
         )
 
     override fun render(model: Model) {
         with(model) {
-            playerCoverImage.loadImage(
+            binding.playerCoverImage.loadImage(
                 cover, params = ImageLoaderParams(transformations = listOf(CircleTransformation()))
             )
-            playerTitleView.text = title
-            playerSubTitleView.text = subTitle
+            binding.playerTitleView.text = title
+            binding.playerSubTitleView.text = subTitle
 
-            playerCurrentDurationView.text = currentDurationFormatted
-            playerTotalDurationView.text = totalDurationFormatted
+            binding.playerCurrentDurationView.text = currentDurationFormatted
+            binding.playerTotalDurationView.text = totalDurationFormatted
 
-            playerSkipNextButton.isEnabled = isNextAvailable
-            playerSkipPreviousButton.isEnabled = isPreviousAvailable
-            playerRewindAreaView.isEnabled = isRewindAvailable
-            playerForwardAreaView.isEnabled = isFastForwardAvailable
+            binding.playerSkipNextButton.isEnabled = isNextAvailable
+            binding.playerSkipPreviousButton.isEnabled = isPreviousAvailable
+            binding.playerRewindAreaView.isEnabled = isRewindAvailable
+            binding.playerForwardAreaView.isEnabled = isFastForwardAvailable
 
-            playerPlayButton.isEnabled = !isLoading
+            binding.playerPlayButton.isEnabled = !isLoading
             if (isPlaying) {
-                playerPlayButton.pause(true)
+                binding.playerPlayButton.pause(true)
             } else {
-                playerPlayButton.play(true)
+                binding.playerPlayButton.play(true)
             }
 
-            playerTimeBar.isEnabled = isSeekingAvailable
-            playerTimeBar.progress = currentDuration
-            playerTimeBar.max = totalDuration
+            binding.playerTimeBar.isEnabled = isSeekingAvailable
+            binding.playerTimeBar.progress = currentDuration
+            binding.playerTimeBar.max = totalDuration
 
             model.slip?.let {
                 when (it) {
@@ -128,13 +133,13 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
         }
 
         if (isForward) {
-            playerForwardTimeView.text = timeOffset
-            showTime(playerForwardTimeView, playerRewindTimeView)
-            (playerForwardImage.drawable as Animatable).start()
+            binding.playerForwardTimeView.text = timeOffset
+            showTime(binding.playerForwardTimeView, binding.playerRewindTimeView)
+            (binding.playerForwardImage.drawable as Animatable).start()
         } else {
-            playerRewindTimeView.text = timeOffset
-            showTime(playerRewindTimeView, playerForwardTimeView)
-            (playerRewindImage.drawable as Animatable).start()
+            binding.playerRewindTimeView.text = timeOffset
+            showTime(binding.playerRewindTimeView, binding.playerForwardTimeView)
+            (binding.playerRewindImage.drawable as Animatable).start()
         }
     }
 

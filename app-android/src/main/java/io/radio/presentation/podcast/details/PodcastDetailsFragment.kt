@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialFadeThrough
 import com.google.android.material.transition.MaterialSharedAxis
@@ -23,6 +24,8 @@ import io.radio.R
 import io.radio.base.BaseFragment
 import io.radio.base.popBack
 import io.radio.base.showToast
+import io.radio.databinding.FragmentPodcastDetailsBinding
+import io.radio.databinding.FragmentPodcastsBinding
 import io.radio.di.binder.viewBinder
 import io.radio.extensions.parseResourceString
 import io.radio.presentation.podcast.details.track.TracksAdapter
@@ -39,7 +42,6 @@ import io.shared.presentation.podcast.details.PodcastDetailsViewBinder
 import io.shared.presentation.podcast.details.PodcastDetailsView
 import io.shared.presentation.podcast.details.PodcastDetailsView.*
 import io.shared.presentation.podcast.details.TrackPositionScrollerHelper
-import kotlinx.android.synthetic.main.fragment_podcast_details.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -50,6 +52,9 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
 
     private val viewBinder by viewBinder<PodcastDetailsViewBinder>()
     private val adapterIntentsChannel = BroadcastChannel<Intent>(1)
+    private val binding: FragmentPodcastDetailsBinding by viewBinding { fragment ->
+        FragmentPodcastDetailsBinding.bind(fragment.requireView())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +67,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
                 sharedElements: MutableMap<String, View>?
             ) {
                 if (names == null || sharedElements == null) return
-                sharedElements[names.first()] = podcastDetailsCoverView
+                sharedElements[names.first()] = binding.podcastDetailsCoverView
             }
         })
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false)
@@ -77,22 +82,22 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
         super.onViewCreated(view, savedInstanceState)
         val params = PodcastDetailsFragmentArgs.fromBundle(requireArguments()).params
 
-        podcastDetailsToolbar.navigationIcon?.setTint(params.toolbarColor)
-        podcastDetailsToolbar.setNavigationOnClickListener { popBack() }
-        podcastDetailsHeader.setCardBackgroundColor(params.headerColor)
-        podcastDetailsHeader.doOnPreDraw {
+        binding.podcastDetailsToolbar.navigationIcon?.setTint(params.toolbarColor)
+        binding.podcastDetailsToolbar.setNavigationOnClickListener { popBack() }
+        binding.podcastDetailsHeader.setCardBackgroundColor(params.headerColor)
+        binding.podcastDetailsHeader.doOnPreDraw {
             loadHeader(params)
             loadCover(params) {
                 startPostponedEnterTransition()
             }
         }
-        podcastDetailsTitle.setTextColor(params.toolbarColor)
-        podcastDetailsTitle.text = params.name
+        binding.podcastDetailsTitle.setTextColor(params.toolbarColor)
+        binding.podcastDetailsTitle.text = params.name
 
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            ViewCompat.onApplyWindowInsets(podcastDetailsHeader, insets)
-            ViewCompat.onApplyWindowInsets(podcastDetailsToolbar, insets)
-            ViewCompat.onApplyWindowInsets(podcastDetailsCoverView, insets)
+            ViewCompat.onApplyWindowInsets(binding.podcastDetailsHeader, insets)
+            ViewCompat.onApplyWindowInsets(binding.podcastDetailsToolbar, insets)
+            ViewCompat.onApplyWindowInsets(binding.podcastDetailsCoverView, insets)
             insets
         }
 
@@ -108,11 +113,11 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
 
     override fun render(model: Model) {
         Logger.d("render $model", tag = "TEST")
-        (podcastTracksRecycler.adapter as TracksAdapter).run {
+        (binding.podcastTracksRecycler.adapter as TracksAdapter).run {
             submitList(model.tracksWithState)
         }
 
-        (podcastTracksRecycler.tag as? TrackPositionScrollerHelper)?.run {
+        (binding.podcastTracksRecycler.tag as? TrackPositionScrollerHelper)?.run {
             model.playlist?.position?.let(::onTrackChanged)
         }
     }
@@ -142,21 +147,21 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
                 }
             }
         tracksAdapter.stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        podcastTracksRecycler.adapter = tracksAdapter
-        podcastTracksRecycler.setHasFixedSize(true)
+        binding.podcastTracksRecycler.adapter = tracksAdapter
+        binding.podcastTracksRecycler.setHasFixedSize(true)
     }
 
     private fun initTrackPositionHandler() {
-        val layoutManager = podcastTracksRecycler.layoutManager as LinearLayoutManager
+        val layoutManager = binding.podcastTracksRecycler.layoutManager as LinearLayoutManager
         val transition = Slide(Gravity.TOP).apply {
-            addTarget(podcastTrackScrollButton)
+            addTarget(binding.podcastTrackScrollButton)
             duration = resources.getInteger(android.R.integer.config_longAnimTime).toLong()
         }
 
         fun switchTrackScrollButtonVisibility(isVisible: Boolean) {
-            if (podcastTrackScrollButton.isVisible == isVisible) return
+            if (binding.podcastTrackScrollButton.isVisible == isVisible) return
             TransitionManager.beginDelayedTransition(requireView() as ViewGroup, transition)
-            podcastTrackScrollButton.isVisible = isVisible
+            binding.podcastTrackScrollButton.isVisible = isVisible
         }
 
         val trackPositionScrollerHelper =
@@ -164,11 +169,11 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
                 this,
                 { layoutManager.findFirstCompletelyVisibleItemPosition() to layoutManager.findLastCompletelyVisibleItemPosition() },
                 { switchTrackScrollButtonVisibility(it) },
-                { podcastTracksRecycler.smoothScrollToPosition(it) }
+                { binding.podcastTracksRecycler.smoothScrollToPosition(it) }
             )
 
-        podcastTracksRecycler.tag = trackPositionScrollerHelper
-        podcastTracksRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        binding.podcastTracksRecycler.tag = trackPositionScrollerHelper
+        binding.podcastTracksRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == SCROLL_STATE_DRAGGING) {
                     trackPositionScrollerHelper.wasScrolledByUser = true
@@ -176,14 +181,14 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
             }
         })
 
-        podcastTrackScrollButton.setOnClickListener {
+        binding.podcastTrackScrollButton.setOnClickListener {
             trackPositionScrollerHelper.onScrollButtonClicked()
         }
 
     }
 
     private fun loadHeader(params: PodcastDetailsParams) {
-        podcastDetailsHeaderImage.loadImage(
+        binding.podcastDetailsHeaderImage.loadImage(
             params.cover,
             ImageLoaderParams(
                 animate = ImageLoaderParams.Animation.CrossFade,
@@ -207,7 +212,7 @@ class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), 
     }
 
     private fun loadCover(params: PodcastDetailsParams, onLoaded: () -> Unit) {
-        podcastDetailsCoverView.loadImage(
+        binding.podcastDetailsCoverView.loadImage(
             params.cover,
             ImageLoaderParams(
                 loaderCallbacks = arrayOf(doOnFinallyImageCallback(onLoaded)),

@@ -12,13 +12,13 @@ import androidx.transition.Fade
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import io.radio.R
+import io.radio.databinding.ItemTrackBinding
 import io.radio.recycler.ItemHolder
 import io.radio.recycler.inflate
 import io.radio.recycler.plugins.ClickItemAdapterEvent
 import io.radio.recycler.plugins.ClickItemAdapterPlugin
 import io.shared.model.TrackPlaybackStateItem
 import io.shared.store.player.PlaybackState
-import kotlinx.android.synthetic.main.item_track.*
 
 class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackStateItem>) :
     ListAdapter<TrackPlaybackStateItem, TracksAdapter.TrackViewHolder>(Diff) {
@@ -50,18 +50,20 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackSt
         return getItem(position).track.id.toLong()
     }
 
-    inner class TrackViewHolder(override val containerView: View) :
+    inner class TrackViewHolder(val containerView: View) :
         ItemHolder<TrackPlaybackStateItem>(containerView) {
 
+        private val binding = ItemTrackBinding.bind(containerView)
+
         override fun bind(item: TrackPlaybackStateItem, payloads: List<Any>) {
-            clickPlugin.bindOnClickListener(this, playButton)
-            clickPlugin.bindOnClickListener(this, itemView)
-            clickPlugin.bindOnClickListener(this, warningIcon)
+            clickPlugin.bindOnClickListener(this, binding.playButton)
+            clickPlugin.bindOnClickListener(this, binding.root)
+            clickPlugin.bindOnClickListener(this, binding.warningIcon)
 
 
-            titleView.text = item.track.title
-            subTitleView.text = item.track.subTitle
-            subTitleView.isVisible = item.track.subTitle.isNotEmpty()
+            binding.titleView.text = item.track.title
+            binding.subTitleView.text = item.track.subTitle
+            binding.subTitleView.isVisible = item.track.subTitle.isNotEmpty()
 //            timeView.text = item.durationFormatted
 
             fun animatePlayPauseButton() = payloads.contains(PlayPausePayload)
@@ -69,45 +71,45 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackSt
             when (item.state) {
                 PlaybackState.Buffering -> {
                     switchProgress(true)
-                    playButton.play(false)
+                    binding.playButton.play(false)
                     switchError(false, payloads)
                 }
                 PlaybackState.Idle -> {
                     switchProgress(false)
-                    playButton.play(false)
+                    binding.playButton.play(false)
                     switchError(false, payloads)
                 }
                 PlaybackState.Play -> {
                     switchProgress(false)
-                    playButton.pause(animatePlayPauseButton())
+                    binding.playButton.pause(animatePlayPauseButton())
                     switchError(false, payloads)
                 }
                 PlaybackState.Ended,
                 PlaybackState.Pause -> {
                     switchProgress(false)
-                    playButton.play(animatePlayPauseButton())
+                    binding.playButton.play(animatePlayPauseButton())
                     switchError(false, payloads)
                 }
                 else -> throw NotImplementedError("Not implemented state: ${item.state}")
             }
             item.error?.let {
                 switchProgress(false)
-                playButton.play(false)
+                binding.playButton.play(false)
                 switchError(true, payloads)
             }
         }
 
         private fun switchProgress(isProgress: Boolean) {
-            (progressBar.drawable as Animatable).run {
+            (binding.progressBar.drawable as Animatable).run {
                 if (isProgress) start() else stop()
             }
-            progressBar.isVisible = isProgress
-            playButton.isInvisible = isProgress
-            playButton.isEnabled = !isProgress
+            binding.progressBar.isVisible = isProgress
+            binding.playButton.isInvisible = isProgress
+            binding.playButton.isEnabled = !isProgress
         }
 
         private fun switchError(isShow: Boolean, payloads: List<Any>) {
-            warningIcon.isVisible = isShow
+            binding.warningIcon.isVisible = isShow
             if (payloads.contains(ErrorPayload)) {
                 TransitionManager.beginDelayedTransition(
                     containerView as ViewGroup,
@@ -120,11 +122,11 @@ class TracksAdapter(clickItemAdapterEvent: ClickItemAdapterEvent<TrackPlaybackSt
             return TransitionSet().apply {
 
                 addTransition(Fade().apply {
-                    addTarget(warningIcon)
+                    addTarget(binding.warningIcon)
                 })
                 addTransition(ChangeBounds().apply {
-                    addTarget(timeView)
-                    addTarget(warningIcon)
+                    addTarget(binding.timeView)
+                    addTarget(binding.warningIcon)
                 })
             }
         }

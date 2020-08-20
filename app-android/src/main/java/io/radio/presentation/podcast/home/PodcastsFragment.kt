@@ -6,10 +6,12 @@ import androidx.core.view.isVisible
 import androidx.navigation.Navigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.RecyclerView
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.transition.Hold
 import io.radio.R
 import io.radio.base.BaseFragment
 import io.radio.base.showToast
+import io.radio.databinding.FragmentPodcastsBinding
 import io.radio.di.binder.viewBinder
 import io.radio.extensions.parseResourceString
 import io.radio.presentation.home.postScrolledFraction
@@ -20,7 +22,6 @@ import io.radio.views.updateScrollOffsetListener
 import io.shared.presentation.podcast.home.PodcastView
 import io.shared.presentation.podcast.home.PodcastView.*
 import io.shared.presentation.podcast.home.PodcastViewBinder
-import kotlinx.android.synthetic.main.fragment_podcasts.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -29,6 +30,10 @@ import java.lang.ref.WeakReference
 class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts), PodcastView {
 
     private val viewBinder by viewBinder<PodcastViewBinder>()
+    private val binding: FragmentPodcastsBinding by viewBinding { fragment ->
+        FragmentPodcastsBinding.bind(fragment.requireView())
+    }
+
     private val adapterIntentsChannel = BroadcastChannel<Intent>(1)
 
     private var selectedExtra: WeakReference<Navigator.Extras>? = null
@@ -49,9 +54,9 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts), PodcastView {
         podcastsAdapter.stateRestorationPolicy =
             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
-        radioPodcastRecycleView.adapter = podcastsAdapter
-        radioPodcastRecycleView.tag = podcastsAdapter
-        radioPodcastRecycleView.addScrollOffsetListener(
+        binding.radioPodcastRecycleView.adapter = podcastsAdapter
+        binding.radioPodcastRecycleView.tag = podcastsAdapter
+        binding.radioPodcastRecycleView.addScrollOffsetListener(
             SizeScrollOffsetListener(
                 resources.getDimensionPixelOffset(R.dimen.headerElevationOffset).toFloat()
             ) { postScrolledFraction(it) }
@@ -62,16 +67,16 @@ class PodcastsFragment : BaseFragment(R.layout.fragment_podcasts), PodcastView {
 
     override fun onResume() {
         super.onResume()
-        radioPodcastRecycleView.updateScrollOffsetListener()
+        binding.radioPodcastRecycleView.updateScrollOffsetListener()
     }
 
     override val intents: Flow<Intent>
         get() = adapterIntentsChannel.asFlow()
 
     override fun render(model: Model) = with(model) {
-        progressBar.isVisible = isLoading
-        radioPodcastRecycleView.isVisible = !isLoading
-        (radioPodcastRecycleView.tag as PodcastsAdapter).submitList(data)
+        binding.progressBar.isVisible = isLoading
+        binding.radioPodcastRecycleView.isVisible = !isLoading
+        (binding.radioPodcastRecycleView.tag as PodcastsAdapter).submitList(data)
     }
 
     override fun acceptEffect(effect: Effect) = with(effect) {

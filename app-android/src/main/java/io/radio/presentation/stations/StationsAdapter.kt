@@ -7,13 +7,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.radio.R
+import io.radio.databinding.ItemStationBinding
 import io.radio.recycler.plugins.ClickItemAdapterEvent
 import io.radio.recycler.plugins.ClickItemAdapterPlugin
 import io.shared.imageloader.ImageLoaderParams
 import io.shared.imageloader.loadImage
 import io.shared.model.Station
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.item_station.*
 
 class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<Station>) :
     ListAdapter<Station, StationsAdapter.StationHolder>(
@@ -34,17 +33,18 @@ class StationsAdapter(onClickItemAdapterEvent: ClickItemAdapterEvent<Station>) :
         clickPlugin.bindOnClickListener(holder, holder.itemView)
     }
 
-    class StationHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),
-        LayoutContainer {
+    class StationHolder( val containerView: View) : RecyclerView.ViewHolder(containerView) {
+
+        private val binding = ItemStationBinding.bind(containerView)
 
         fun bind(item: Station) {
-            stationPreviewImage.loadImage(
+            binding.stationPreviewImage.loadImage(
                 item.iconGray,
                 ImageLoaderParams(
                     animate = ImageLoaderParams.Animation.CrossFade
                 )
             )
-            stationTitleView.text = item.title
+            binding.stationTitleView.text = item.title
         }
 
     }

@@ -11,7 +11,7 @@
     app:layoutDescription="@xml/fragment_home_scene"
     tools:ignore="MissingConstraints">
 
-    <include layout="@layout/include_home_header" />
+    <include layout="@layout/include_home_header" android:id="@+id/headerLayout" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pagerView"

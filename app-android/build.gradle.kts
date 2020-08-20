@@ -32,6 +32,7 @@ android {
         exclude("META-INF/*.kotlin_module")
     }
 
+    buildFeatures.viewBinding = true
     buildFeatures.compose = true
 
     composeOptions {
@@ -41,7 +42,7 @@ android {
 }
 
 androidExtensions {
-    isExperimental = true
+    features = setOf("parcelize")
 }
 
 dependencies {
@@ -74,4 +75,8 @@ dependencies {
     implementation(Deps.AndroidX.Compose.Foundation.Foundation)
     implementation(Deps.AndroidX.Compose.Foundation.FoundationLayout)
     implementation(Deps.AndroidX.Compose.Material.Material)
+
+
+    //todo move to Deps file
+    implementation("com.kirich1409.viewbindingpropertydelegate:viewbindingpropertydelegate:1.0.0")
 }

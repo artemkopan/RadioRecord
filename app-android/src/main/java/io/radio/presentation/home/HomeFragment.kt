@@ -5,21 +5,25 @@ import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallback.OnPostEventListener
 import androidx.viewpager2.widget.ViewPager2
+import by.kirich1409.viewbindingdelegate.viewBinding
 import io.radio.R
 import io.radio.base.BaseFragment
+import io.radio.databinding.FragmentHomeBinding
 import io.radio.presentation.podcast.home.PodcastsSharedElementSupport
-import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_podcasts.*
-import kotlinx.android.synthetic.main.include_home_header.*
 
 class HomeFragment : BaseFragment(R.layout.fragment_home),
     HomePagerContentScroller,
     PodcastsSharedElementSupport {
 
     private var selectedPos = -1
+
+    private val binding: FragmentHomeBinding by viewBinding { fragment ->
+        FragmentHomeBinding.bind(fragment.requireView())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +35,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
                 if (selectedPos < 0 || names == null || sharedElements == null) return
 
                 val selectedHolder =
-                    radioPodcastRecycleView?.findViewHolderForAdapterPosition(selectedPos)
+                    view?.findViewById<RecyclerView>(R.id.radioPodcastRecycleView)
+                        ?.findViewHolderForAdapterPosition(selectedPos)
                 if (selectedHolder?.itemView == null) {
                     return
                 }
@@ -42,20 +47,21 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
         })
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postponeEnterTransition()
-        headerLayout.setTransition(R.id.stationsTitle, R.id.podcastsTitle)
+        binding.headerLayout.root.setTransition(R.id.stationsTitle, R.id.podcastsTitle)
 
         val pagesAdapter = HomePagesAdapter(this)
-        pagerView.adapter = pagesAdapter
-        pagerView.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.pagerView.adapter = pagesAdapter
+        binding.pagerView.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int,
                 positionOffset: Float,
                 positionOffsetPixels: Int
             ) {
-                headerLayout.progress = ((position + positionOffset) / (pagesAdapter.itemCount - 1))
+                binding.headerLayout.root.progress = ((position + positionOffset) / (pagesAdapter.itemCount - 1))
             }
         })
 
@@ -67,7 +73,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
             ): OnPostEventListener {
                 return OnPostEventListener {
                     if (maxLifecycleState.isAtLeast(Lifecycle.State.RESUMED)) {
-                        pagerView.post { startPostponedEnterTransition() }
+                        binding.pagerView.post { startPostponedEnterTransition() }
                     }
                 }
             }
@@ -75,7 +81,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
     }
 
     override fun onScrolled(fraction: Float) {
-        pagerElevation.isSelected = fraction == 1f
+        binding.pagerElevation.isSelected = fraction == 1f
     }
 
     override fun setSelectedPos(pos: Int) {

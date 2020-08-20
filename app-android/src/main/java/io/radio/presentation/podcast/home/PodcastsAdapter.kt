@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import io.radio.R
+import io.radio.databinding.ItemPodcastBinding
 import io.radio.recycler.ItemHolder
 import io.radio.recycler.plugins.ClickItemAdapterEvent
 import io.radio.recycler.plugins.ClickItemAdapterPlugin
@@ -16,7 +17,6 @@ import io.shared.imageloader.ImageLoaderParams
 import io.shared.imageloader.loadImage
 import io.shared.imageloader.transformations.RoundedCornersTransformation
 import io.shared.model.Podcast
-import kotlinx.android.synthetic.main.item_station.*
 
 class PodcastsAdapter(
     private val resources: Resources,
@@ -42,19 +42,21 @@ class PodcastsAdapter(
 
     override fun onBindViewHolder(holder: PodcastHolder, position: Int) {
         holder.bind(getItem(position))
-        holder.stationPreviewImage.transitionName = "preview_$position"
+        holder.binding.stationPreviewImage.transitionName = "preview_$position"
         clickPlugin.bindOnClickListener(
             holder,
             holder.itemView,
-            extras = holder.stationPreviewImage to holder.stationPreviewImage.transitionName
+            extras = holder.binding.stationPreviewImage to holder.binding.stationPreviewImage.transitionName
         )
     }
 
-    inner class PodcastHolder(override val containerView: View) :
+    inner class PodcastHolder(containerView: View) :
         ItemHolder<Podcast>(containerView) {
 
+        val binding = ItemPodcastBinding.bind(containerView)
+
         override fun bind(item: Podcast, payloads: List<Any>) {
-            stationPreviewImage.loadImage(
+            binding.stationPreviewImage.loadImage(
                 item.cover,
                 ImageLoaderParams(
                     cacheStrategy = CacheStrategy.All,
@@ -66,7 +68,7 @@ class PodcastsAdapter(
                     )
                 )
             )
-            stationTitleView.text = item.name
+            binding.stationTitleView.text = item.name
         }
 
     }
