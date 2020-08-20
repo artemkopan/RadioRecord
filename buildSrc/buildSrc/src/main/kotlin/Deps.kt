@@ -113,7 +113,7 @@ object Deps {
     object Android {
         object Tools {
             object Build : Group(name = "com.android.tools.build") {
-                object Gradle : Dependency(group = Build, name = "gradle", version = "4.0.1")
+                object Gradle : Dependency(group = Build, name = "gradle", version = "4.2.0-alpha07")
             }
         }
     }
@@ -217,7 +217,7 @@ object Deps {
         }
 
         object Compose : Group(name = "androidx.compose") {
-            const val version = "0.1.0-dev16"
+            const val version = "0.1.0-dev17"
 
             object ComposeCompiler : Dependency(group = Compose, name = "compose-compiler", version = version)
 

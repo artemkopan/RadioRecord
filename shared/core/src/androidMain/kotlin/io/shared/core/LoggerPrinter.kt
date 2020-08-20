@@ -5,6 +5,11 @@ import timber.log.Timber
 
 
 actual class LoggerPrinter {
+
+    init {
+        Timber.plant(Timber.DebugTree())
+    }
+
     actual fun performLog(
         priority: Logger.Level,
         message: String?,

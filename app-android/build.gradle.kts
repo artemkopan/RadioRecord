@@ -31,6 +31,13 @@ android {
     packagingOptions {
         exclude("META-INF/*.kotlin_module")
     }
+
+    buildFeatures.compose = true
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = Deps.AndroidX.Compose.version
+        kotlinCompilerVersion = "1.4.0"
+    }
 }
 
 androidExtensions {
@@ -59,5 +66,12 @@ dependencies {
 //    implementation(Deps.Koin.AndroidScope)
 
     implementation(Deps.Google.Android.Material.Material)
-    implementation(Deps.Timber.Timber)
+
+    implementation(Deps.AndroidX.Ui.Tooling)
+    implementation(Deps.AndroidX.Compose.Runtime.Runtime)
+//    implementation(Deps.AndroidX.Compose.Runtime.SavedInstanceState)
+    implementation(Deps.AndroidX.Compose.Ui.Ui)
+    implementation(Deps.AndroidX.Compose.Foundation.Foundation)
+    implementation(Deps.AndroidX.Compose.Foundation.FoundationLayout)
+    implementation(Deps.AndroidX.Compose.Material.Material)
 }
