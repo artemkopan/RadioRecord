@@ -6,32 +6,42 @@ import io.shared.presentation.podcast.details.PodcastDetailsParams
 import io.shared.presentation.podcast.details.PodcastDetailsViewBinder
 import io.shared.presentation.podcast.home.PodcastViewBinder
 import io.shared.presentation.stations.StationViewBinder
-import org.koin.core.parameter.parametersOf
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.factory
+import org.kodein.di.instance
 
-val presentationModule = module {
+val presentationModule = DI.Module("presentation") {
 
-    factory { (state: StateStorage) -> StationViewBinder(state, get(), get()) }
-    factory { (state: StateStorage) -> PodcastViewBinder(state, get(), get(), get(), get()) }
-
-    factory { (state: StateStorage) ->
-        val params = state.get<PodcastDetailsParams>("params")
-
-        PodcastDetailsViewBinder(
+    bind() from factory { state: StateStorage -> StationViewBinder(state, instance(), instance()) }
+    bind() from factory { state: StateStorage ->
+        PodcastViewBinder(
             state,
-            get(parameters = { parametersOf(params!!.id) }),
-            get(),
-            get(),
-            get()
+            instance(),
+            instance(),
+            instance(),
+            instance()
         )
     }
 
-    factory { (state: StateStorage) ->
+    bind() from factory { state: StateStorage ->
+        val params = state.get<PodcastDetailsParams>("params")!!
+
+        PodcastDetailsViewBinder(
+            state,
+            instance(arg = params.id),
+            instance(),
+            instance(),
+            instance()
+        )
+    }
+
+    bind() from factory { state: StateStorage ->
         PlayerViewBinder(
             state,
-            get(),
-            get(),
-            get()
+            instance(),
+            instance(),
+            instance()
         )
     }
 

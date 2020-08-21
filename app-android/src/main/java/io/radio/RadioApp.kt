@@ -4,18 +4,20 @@ import android.app.Application
 import io.radio.data.player.AndroidPlayerServiceHolder
 import io.radio.di.androidAppModule
 import io.shared.di.commonModules
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
+import org.kodein.di.DI
+import org.kodein.di.DIAware
+import org.kodein.di.android.x.androidXModule
 
-class RadioApp : Application() {
+class RadioApp : Application(), DIAware {
 
     override fun onCreate() {
         super.onCreate()
-        startKoin {
-            androidContext(this@RadioApp)
-            modules(commonModules.plus(androidAppModule))
-        }
         AndroidPlayerServiceHolder.initialize(this)
+    }
+
+    override val di: DI by DI.lazy {
+        importAll(commonModules)
+        importAll(androidAppModule, androidXModule(this@RadioApp))
     }
 
 }

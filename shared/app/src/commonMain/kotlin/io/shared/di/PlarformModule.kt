@@ -1,5 +1,6 @@
 package io.shared.di
 
-import org.koin.core.module.Module
+import org.kodein.di.DI.Module
+
 
 expect val platformModule: Module

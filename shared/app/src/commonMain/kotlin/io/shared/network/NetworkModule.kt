@@ -1,17 +1,17 @@
 package io.shared.network
 
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.singleton
 
-val networkModule = module {
 
-    single<RadioApiSource> {
-        RadioApiSourceImpl(
-            get(),
-            get(),
-            get(),
-            get()
-        )
+val networkModule = DI.Module("network") {
+
+    bind<RadioApiSource>() with singleton {
+        RadioApiSourceImpl(instance(), instance(), instance(), instance())
     }
-    single<HttpClientProvider> { HttpClientProviderImpl(get(), get()) }
+
+    bind<HttpClientProvider>() with singleton { HttpClientProviderImpl(instance(), instance()) }
 
 }

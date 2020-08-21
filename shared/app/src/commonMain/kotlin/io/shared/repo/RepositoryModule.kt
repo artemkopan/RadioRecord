@@ -1,9 +1,12 @@
 package io.shared.repo
 
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.provider
 
-val repositoryModule = module {
+val repositoryModule = DI.Module("repository") {
 
-    factory<RadioRepository> { RadioRepositoryImpl(get()) }
+    bind<RadioRepository>() with provider { RadioRepositoryImpl(instance()) }
 
 }

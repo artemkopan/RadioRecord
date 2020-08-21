@@ -1,9 +1,12 @@
 package io.shared.store.playlist
 
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.provider
 
-val playlistModule = module {
+val playlistModule = DI.Module("playlist") {
 
-    factory { PlaylistObserveTracksStateMiddleware(get(), get()) }
-    factory { PlaylistStoreFactory(get()) }
+    bind() from provider { PlaylistObserveTracksStateMiddleware(instance(), instance()) }
+    bind() from provider { PlaylistStoreFactory(instance()) }
 }

@@ -9,20 +9,21 @@ import io.shared.formatters.TrackFormatterImpl
 import io.shared.image.ImageProcessor
 import io.shared.network.HttpEngineProvider
 import io.shared.store.player.MediaPlayer
-import org.koin.core.module.Module
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.singleton
 
-actual val platformModule: Module = module {
+actual val platformModule = DI.Module("platform") {
 
-    single { DateProvider() }
-    single<SystemConfig> { SystemConfigImpl() }
+    bind<DateProvider>() with singleton { DateProvider() }
+    bind<SystemConfig>() with singleton { SystemConfigImpl() }
 
-    single { MediaPlayer() }
-    single { ImageProcessor() }
+    bind<MediaPlayer>() with singleton { MediaPlayer() }
+    bind<ImageProcessor>() with singleton { ImageProcessor() }
 
-    single { ErrorFormatter() }
-    single<TrackFormatter> { TrackFormatterImpl() }
+    bind<ErrorFormatter>() with singleton { ErrorFormatter() }
+    bind<TrackFormatter>() with singleton { TrackFormatterImpl() }
 
-    single { HttpEngineProvider() }
+    bind<HttpEngineProvider>() with singleton { HttpEngineProvider() }
 
 }

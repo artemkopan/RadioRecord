@@ -99,21 +99,10 @@ object Deps {
         }
     }
 
-    object Koin : Group(name = "org.koin") {
-        private const val version = "3.0.0-alpha-2"
-
-        object Core : Dependency(Koin, name = "koin-core", version = version)
-
-        object Android : Dependency(Koin, name = "koin-android", version = version)
-        object AndroidScope : Dependency(Koin, name = "koin-android-scope", version = version)
-        object AndroidViewModel :
-            Dependency(Koin, name = "koin-android-viewmodel", version = version)
-    }
-
     object Android {
         object Tools {
             object Build : Group(name = "com.android.tools.build") {
-                object Gradle : Dependency(group = Build, name = "gradle", version = "4.2.0-alpha07")
+                object Gradle : Dependency(group = Build, name = "gradle", version = "4.0.1")
             }
         }
     }
@@ -278,6 +267,12 @@ object Deps {
 
     object Timber : Group(name = "com.jakewharton.timber") {
         object Timber : Dependency(group = Deps.Timber, name = "timber", version = "4.7.1")
+    }
+
+    object Kodein: Group(name ="org.kodein.di"){
+        private const val version = "7.1.0-master-87"
+        object Di: Dependency(group = Kodein, name ="kodein-di", version = version)
+        object DiAndroidX: Dependency(group = Kodein, name="kodein-di-framework-android-x", version = version)
     }
 
     open class Group(val name: String)

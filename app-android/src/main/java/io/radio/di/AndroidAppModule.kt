@@ -1,5 +1,6 @@
 package io.radio.di
 
+import android.content.Context
 import io.radio.data.AppResourcesImpl
 import io.radio.di.Qualifier.PlayerCoroutineQualifier
 import io.radio.presentation.createPlayerPendingIntent
@@ -8,26 +9,28 @@ import io.shared.store.player.PlayerNotificationController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.singleton
 import java.util.concurrent.Executors
 
-val androidAppModule = module {
+val androidAppModule = DI.Module("android-app") {
 
-    single<AppResources> { AppResourcesImpl(get()) }
+    bind<AppResources>() with singleton { AppResourcesImpl(instance()) }
 
-    single(named(PlayerCoroutineQualifier)) {
+    //share PlayerCoroutineQualifier between Service Holder and Notification Controller
+    bind(tag = PlayerCoroutineQualifier) from singleton {
         CoroutineScope(
             SupervisorJob() + Executors.newFixedThreadPool(1).asCoroutineDispatcher()
         )
     }
 
-    single {
+    bind() from singleton {
         PlayerNotificationController(
-            get(),
-            get(named(PlayerCoroutineQualifier)),
-            androidContext().createPlayerPendingIntent()
+            instance(),
+            instance(tag = PlayerCoroutineQualifier),
+            instance<Context>().createPlayerPendingIntent()
         )
     }
 

@@ -12,7 +12,7 @@ import io.radio.R
 import io.radio.base.BaseFragment
 import io.radio.base.showToast
 import io.radio.databinding.FragmentPodcastsBinding
-import io.radio.di.binder.viewBinder
+import io.radio.di.viewBinder
 import io.radio.extensions.parseResourceString
 import io.radio.presentation.home.postScrolledFraction
 import io.radio.presentation.routeDetails

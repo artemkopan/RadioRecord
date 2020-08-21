@@ -1,17 +1,15 @@
 package io.radio.presentation.stations
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import io.radio.R
 import io.radio.base.BaseFragment
 import io.radio.base.showToast
-import io.radio.databinding.FragmentHomeBinding
 import io.radio.databinding.FragmentStationsBinding
-import io.radio.di.binder.viewBinder
+import io.radio.di.viewBinder
 import io.radio.extensions.parseResourceString
 import io.radio.presentation.home.postScrolledFraction
 import io.radio.presentation.routePlayer
@@ -24,7 +22,6 @@ import io.shared.presentation.stations.StationView.*
 import io.shared.presentation.stations.StationViewBinder
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import androidx.core.view.isVisible
 import kotlinx.coroutines.flow.asFlow
 
 class StationsFragment : BaseFragment(R.layout.fragment_stations), StationView {

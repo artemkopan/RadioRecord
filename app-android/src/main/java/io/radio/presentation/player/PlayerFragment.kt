@@ -11,15 +11,14 @@ import io.radio.R
 import io.radio.base.BaseFragment
 import io.radio.base.popBack
 import io.radio.base.showToast
-import io.radio.di.binder.viewBinder
+import io.radio.binds.bindOnChangeListener
+import io.radio.binds.bindOnClick
+import io.radio.databinding.FragmentPlayerBinding
+import io.radio.di.viewBinder
 import io.radio.extensions.parseResourceString
 import io.shared.imageloader.ImageLoaderParams
 import io.shared.imageloader.loadImage
 import io.shared.imageloader.transformations.CircleTransformation
-import io.radio.binds.bindOnChangeListener
-import io.radio.binds.bindOnClick
-import io.radio.databinding.FragmentPlayerBinding
-import io.radio.databinding.FragmentPodcastsBinding
 import io.shared.presentation.player.PlayerView
 import io.shared.presentation.player.PlayerView.*
 import io.shared.presentation.player.PlayerViewBinder
@@ -62,8 +61,8 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
                     )
                 )
             },
-           binding.playerRewindAreaView.bindOnClick().map { Intent.SlipRewind },
-           binding.playerForwardAreaView.bindOnClick().map { Intent.SlipForward }
+            binding.playerRewindAreaView.bindOnClick().map { Intent.SlipRewind },
+            binding.playerForwardAreaView.bindOnClick().map { Intent.SlipForward }
         )
 
     override fun render(model: Model) {

@@ -1,28 +1,27 @@
 package io.shared.store.podcasts.details
 
-import org.koin.core.parameter.parametersOf
-import org.koin.dsl.module
+import org.kodein.di.*
 
 
-val podcastDetailsModule = module {
+val podcastDetailsModule = DI.Module("podcastDetails") {
 
-    factory { (podcastId: Int) ->
+    bind() from factory { podcastId: Int ->
         PodcastDetailsByIdBootstrapper(
             podcastId
         )
     }
 
-    factory {
+    bind<PodcastDetailsLoadMiddleware>() with provider {
         PodcastDetailsLoadMiddleware(
-            get(),
-            get()
+            instance(),
+            instance()
         )
     }
 
-    factory { (podcastId: Int) ->
+    bind() from factory { podcastId: Int ->
         PodcastDetailsStoreFactory(
-            get(),
-            get(parameters = { parametersOf(podcastId) })
+            instance(),
+            instance(arg = podcastId)
         )
     }
 

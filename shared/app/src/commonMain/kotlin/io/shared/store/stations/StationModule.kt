@@ -1,12 +1,15 @@
 package io.shared.store.stations
 
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.provider
 
-val stationModule = module {
+val stationModule = DI.Module("station") {
 
-    factory { LoadStationMiddleware(get()) }
-    factory { PlayStationMiddleware(get(), get()) }
+    bind() from provider { LoadStationMiddleware(instance()) }
+    bind() from provider { PlayStationMiddleware(instance(), instance()) }
 
-    factory { StationStoreFactory(get(), get()) }
+    bind() from provider { StationStoreFactory(instance(), instance()) }
 
 }

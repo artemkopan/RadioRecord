@@ -1,10 +1,14 @@
 package io.shared.store.podcasts.home
 
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.provider
 
-val podcastModule = module {
 
-    factory { PodcastStoreFactory(get()) }
-    factory { LoadPodcastMiddleware(get()) }
+val podcastModule = DI.Module("podcast") {
+
+    bind() from provider{ PodcastStoreFactory(instance()) }
+    bind() from provider{ LoadPodcastMiddleware(instance()) }
 
 }

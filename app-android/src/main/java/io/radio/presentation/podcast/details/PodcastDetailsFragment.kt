@@ -25,8 +25,7 @@ import io.radio.base.BaseFragment
 import io.radio.base.popBack
 import io.radio.base.showToast
 import io.radio.databinding.FragmentPodcastDetailsBinding
-import io.radio.databinding.FragmentPodcastsBinding
-import io.radio.di.binder.viewBinder
+import io.radio.di.viewBinder
 import io.radio.extensions.parseResourceString
 import io.radio.presentation.podcast.details.track.TracksAdapter
 import io.radio.presentation.routePlayer
@@ -38,14 +37,13 @@ import io.shared.imageloader.transformations.BlurTransformation
 import io.shared.imageloader.transformations.CircleTransformation
 import io.shared.imageloader.transformations.GranularRoundedCornersTransformation
 import io.shared.presentation.podcast.details.PodcastDetailsParams
-import io.shared.presentation.podcast.details.PodcastDetailsViewBinder
 import io.shared.presentation.podcast.details.PodcastDetailsView
 import io.shared.presentation.podcast.details.PodcastDetailsView.*
+import io.shared.presentation.podcast.details.PodcastDetailsViewBinder
 import io.shared.presentation.podcast.details.TrackPositionScrollerHelper
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.launch
 
 
 class PodcastDetailsFragment : BaseFragment(R.layout.fragment_podcast_details), PodcastDetailsView {

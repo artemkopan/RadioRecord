@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import io.radio.di.Qualifier.PlayerCoroutineQualifier
-import io.radio.di.named
 import io.shared.core.MainDispatcher
 import io.shared.store.player.MediaPlayer
 import io.shared.store.player.PlayerNotification
@@ -13,13 +12,18 @@ import io.shared.store.player.PlayerNotificationController
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.koin.android.ext.android.inject
+import org.kodein.di.DI
+import org.kodein.di.DIAware
+import org.kodein.di.android.di
+import org.kodein.di.instance
 
-class AndroidPlayerServiceHolder : Service() {
+class AndroidPlayerServiceHolder : Service(), DIAware {
 
-    private val playerScope: CoroutineScope by inject(PlayerCoroutineQualifier.named())
-    private val playerController: MediaPlayer by inject()
-    private val notificationController by inject<PlayerNotificationController>()
+    override val di: DI by di()
+
+    private val playerScope: CoroutineScope by instance(PlayerCoroutineQualifier)
+    private val playerController: MediaPlayer by instance()
+    private val notificationController by instance<PlayerNotificationController>()
 
     override fun onCreate() {
         super.onCreate()

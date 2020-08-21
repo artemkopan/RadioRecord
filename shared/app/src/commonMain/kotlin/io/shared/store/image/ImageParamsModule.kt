@@ -1,10 +1,14 @@
 package io.shared.store.image
 
-import org.koin.dsl.module
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.instance
+import org.kodein.di.provider
 
-val imageModule = module {
 
-    factory { ImageParamsStoreFactory(get()) }
-    factory { GetImageParamsByUrlMiddleware(get()) }
+val imageModule = DI.Module("image-processing") {
+
+    bind() from provider { ImageParamsStoreFactory(instance()) }
+    bind() from provider { GetImageParamsByUrlMiddleware(instance()) }
 
 }

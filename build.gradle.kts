@@ -22,6 +22,7 @@ allprojects {
         google()
         jcenter()
         maven("https://dl.bintray.com/ekito/koin")
+        maven("https://dl.bintray.com/kodein-framework/kodein-dev")
     }
 
     tasks {

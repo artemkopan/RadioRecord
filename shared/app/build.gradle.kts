@@ -20,8 +20,7 @@ kotlin {
                 implementation(Deps.Ktor.Serialization)
                 implementation(Deps.Ktor.Logging)
 
-                //KOIN
-                api(Deps.Koin.Core)
+                api(Deps.Kodein.Di)
             }
         }
         androidMain {
@@ -29,10 +28,6 @@ kotlin {
 
                 // KTOR
                 implementation(Deps.Ktor.Jvm.Okhttp)
-
-                // DI
-                api(Deps.Koin.Android)
-                api(Deps.Koin.AndroidViewModel)
 
                 // EXO PLAYER
                 api(Deps.Google.Android.ExoPlayer.Core)

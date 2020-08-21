@@ -33,12 +33,12 @@ android {
     }
 
     buildFeatures.viewBinding = true
-    buildFeatures.compose = true
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = Deps.AndroidX.Compose.version
-        kotlinCompilerVersion = "1.4.0"
-    }
+//    buildFeatures.compose = false
+//
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = Deps.AndroidX.Compose.version
+//        kotlinCompilerVersion = "1.4.0"
+//    }
 }
 
 androidExtensions {
@@ -50,7 +50,6 @@ dependencies {
     implementation(project(":shared:core"))
     implementation(project(":shared:mvi"))
 
-//    implementation(Deps.Jetbrains.Kotlin.StdLib.Jdk7)
     implementation(Deps.AndroidX.Core.CoreKtx)
     implementation(Deps.AndroidX.AppCompat.AppCompat)
     implementation(Deps.AndroidX.Fragment.Ktx)
@@ -64,17 +63,17 @@ dependencies {
     implementation(Deps.AndroidX.ViewPager2.ViewPager2)
     implementation(Deps.AndroidX.Navigation.FragmentKtx)
 
-//    implementation(Deps.Koin.AndroidScope)
+    implementation(Deps.Kodein.DiAndroidX)
 
     implementation(Deps.Google.Android.Material.Material)
 
-    implementation(Deps.AndroidX.Ui.Tooling)
-    implementation(Deps.AndroidX.Compose.Runtime.Runtime)
-//    implementation(Deps.AndroidX.Compose.Runtime.SavedInstanceState)
-    implementation(Deps.AndroidX.Compose.Ui.Ui)
-    implementation(Deps.AndroidX.Compose.Foundation.Foundation)
-    implementation(Deps.AndroidX.Compose.Foundation.FoundationLayout)
-    implementation(Deps.AndroidX.Compose.Material.Material)
+//    implementation(Deps.AndroidX.Ui.Tooling)
+//    implementation(Deps.AndroidX.Compose.Runtime.Runtime)
+////    implementation(Deps.AndroidX.Compose.Runtime.SavedInstanceState)
+//    implementation(Deps.AndroidX.Compose.Ui.Ui)
+//    implementation(Deps.AndroidX.Compose.Foundation.Foundation)
+//    implementation(Deps.AndroidX.Compose.Foundation.FoundationLayout)
+//    implementation(Deps.AndroidX.Compose.Material.Material)
 
 
     //todo move to Deps file
