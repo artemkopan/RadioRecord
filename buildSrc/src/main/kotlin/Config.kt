@@ -10,6 +10,7 @@ import org.gradle.kotlin.dsl.getValue
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.FatFrameworkTask
 import java.io.FileNotFoundException
 
 fun Project.setupMultiplatform() {
@@ -110,6 +111,7 @@ fun Project.setupAppBinaries(baseName: String, vararg dependencies: Any) {
                 this.baseName = baseName
                 freeCompilerArgs = freeCompilerArgs.plus("-Xobjc-generics").toMutableList()
                 dependencies.forEach { export(it) }
+                transitiveExport = true
             }
         }
 
@@ -126,11 +128,16 @@ fun Project.setupAppBinaries(baseName: String, vararg dependencies: Any) {
     }
 
     kotlin {
-        iosX64 {
+        configure(listOf(iosX64(), iosArm64())) {
             setupIosBinaries()
         }
-        iosArm64 {
-            setupIosBinaries()
+        tasks.create("debugFatFramework", FatFrameworkTask::class.java) {
+            this.baseName = baseName
+            destinationDir = buildDir.resolve("framework/debug")
+            from(
+                iosX64().binaries.getFramework("DEBUG"),
+                iosArm64().binaries.getFramework("DEBUG")
+            )
         }
     }
 }

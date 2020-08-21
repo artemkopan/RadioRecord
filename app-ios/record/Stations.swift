@@ -27,7 +27,7 @@ struct Stations: View{
         if (self.holder == nil) {
             self.holder = ServiceBinderHolder()
         }
-        self.disposable = self.holder!.binder.bindDisposable(view: self.proxy)
+        self.disposable = proxy.attachBinder(viewBinder: holder!.binder)
         UITableView.appearance().separatorStyle = .none
     }
     

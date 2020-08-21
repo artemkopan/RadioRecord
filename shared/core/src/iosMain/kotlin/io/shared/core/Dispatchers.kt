@@ -4,10 +4,10 @@ import kotlinx.coroutines.*
 import platform.darwin.*
 import kotlin.coroutines.CoroutineContext
 
-actual val MainDispatcher: CoroutineDispatcher get() = MainLoopDispatcher
+actual val MainDispatcher: CoroutineDispatcher get() = Dispatchers.Main
 
 //todo waiting for coroutines 1.4
-actual val IoDispatcher: CoroutineDispatcher get() = MainLoopDispatcher
+actual val IoDispatcher: CoroutineDispatcher get() = Dispatchers.Main
 
 
 private object MainLoopDispatcher: CoroutineDispatcher(), Delay {

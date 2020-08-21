@@ -49,7 +49,7 @@ object Deps {
             }
 
             object Coroutine {
-                private const val version = "1.3.9"
+                private const val version = "1.3.9-native-mt"
 
                 object Common {
                     object Core : Dependency(
