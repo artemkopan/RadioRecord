@@ -64,8 +64,8 @@ actual class MediaPlayer {
 
     init {
         setupAudioSession()
-        combine(listOf(trackMutableFlow, playbackStateMutableFlow)) {
-            updateNotificationView()
+        combine(trackMutableFlow, playbackStateMutableFlow) { track, _ ->
+            updateNotificationView(track)
         }.launchIn(coroutineScope)
     }
 
@@ -251,8 +251,8 @@ actual class MediaPlayer {
         }
     }
 
-    private fun updateNotificationView() {
-        val track = trackMutableFlow.value.data ?: return
+    private fun updateNotificationView(trackOpt: Optional<TrackItem>) {
+        val track = trackOpt.data ?: return
         MPNowPlayingInfoCenter.defaultCenter().nowPlayingInfo = mapOf(
             MPMediaItemPropertyTitle to track.title,
             MPNowPlayingInfoPropertyPlaybackRate to (player?.rate ?: 0f)
@@ -262,7 +262,12 @@ actual class MediaPlayer {
     private fun setupAudioSession() {
         try {
             AVAudioSession.sharedInstance()
-                .setCategory(AVAudioSessionCategoryPlayback, null)
+                .setCategory(
+                    category = AVAudioSessionCategoryPlayback,
+                    mode = AVAudioSessionModeDefault,
+                    options = 0,
+                    error = null
+                )
             AVAudioSession.sharedInstance().setActive(true, null)
         } catch (throwable: Throwable) {
             Logger.e("Error while set up audio session", throwable, tag)

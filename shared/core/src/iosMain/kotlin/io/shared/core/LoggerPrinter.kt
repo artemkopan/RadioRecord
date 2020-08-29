@@ -5,7 +5,7 @@ import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSThread
 
 private const val CALL_STACK_INDEX = 8
-private val defaultTag: String = "app"
+private const val defaultTag: String = "app"
 
 actual class LoggerPrinter {
 

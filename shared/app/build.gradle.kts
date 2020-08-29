@@ -1,5 +1,6 @@
 plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
+    `maven-publish`
 }
 setupMultiplatform()
 setupAppBinaries("RadioRecord", project(":shared:mvi"), project(":shared:core"))
@@ -58,3 +59,13 @@ kotlin {
 ////https://youtrack.jetbrains.com/issue/KT-27170
 configurations.create("compileClasspath")
 //
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "io.radio.record"
+            artifactId = "shared"
+            version = "1.0"
+        }
+    }
+}

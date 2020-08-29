@@ -12,13 +12,8 @@ object Deps {
                     Dependency(group = Kotlin, name = "kotlin-serialization", version = version)
             }
 
-            object StdLib {
-                object Common :
-                    Dependency(group = Kotlin, name = "kotlin-stdlib-common", version = version)
-
-                object Jdk7 :
-                    Dependency(group = Kotlin, name = "kotlin-stdlib-jdk7", version = version)
-            }
+            object StdLib : Dependency(group = Kotlin, name = "kotlin-stdlib", version = version)
+            object Reflect : Dependency(group = Kotlin, name = "kotlin-reflect", version = version)
 
             object Test {
                 object Common :
@@ -49,15 +44,13 @@ object Deps {
             }
 
             object Coroutine {
-                private const val version = "1.3.9-native-mt"
+                const val version = "1.3.9-native-mt"
 
-                object Common {
-                    object Core : Dependency(
-                        group = Kotlinx,
-                        name = "kotlinx-coroutines-core",
-                        version = version
-                    )
-                }
+                object Core : Dependency(
+                    group = Kotlinx,
+                    name = "kotlinx-coroutines-core",
+                    version = version
+                )
 
                 object Android : Dependency(
                     group = Kotlinx,
@@ -102,7 +95,8 @@ object Deps {
     object Android {
         object Tools {
             object Build : Group(name = "com.android.tools.build") {
-                object Gradle : Dependency(group = Build, name = "gradle", version = "4.0.1")
+                object Gradle :
+                    Dependency(group = Build, name = "gradle", version = "4.1.0-rc01")
             }
         }
     }
@@ -208,11 +202,18 @@ object Deps {
         object Compose : Group(name = "androidx.compose") {
             const val version = "0.1.0-dev17"
 
-            object ComposeCompiler : Dependency(group = Compose, name = "compose-compiler", version = version)
+            object ComposeCompiler :
+                Dependency(group = Compose, name = "compose-compiler", version = version)
 
             object Runtime : Group(name = Compose.name + ".runtime") {
-                object Runtime : Dependency(group = Compose.Runtime, name = "runtime", version = version)
-                object SavedInstanceState : Dependency(group = Compose.Runtime, name = "runtime-saved-instance-state", version = version)
+                object Runtime :
+                    Dependency(group = Compose.Runtime, name = "runtime", version = version)
+
+                object SavedInstanceState : Dependency(
+                    group = Compose.Runtime,
+                    name = "runtime-saved-instance-state",
+                    version = version
+                )
             }
 
             object Ui : Group(name = Compose.name + ".ui") {
@@ -220,13 +221,20 @@ object Deps {
             }
 
             object Foundation : Group(name = Compose.name + ".foundation") {
-                object Foundation : Dependency(group = Compose.Foundation, name = "foundation", version = version)
-                object FoundationLayout : Dependency(group = Compose.Foundation, name = "foundation-layout", version = version)
+                object Foundation :
+                    Dependency(group = Compose.Foundation, name = "foundation", version = version)
+
+                object FoundationLayout : Dependency(
+                    group = Compose.Foundation,
+                    name = "foundation-layout",
+                    version = version
+                )
 
             }
 
             object Material : Group(name = Compose.name + ".material") {
-                object Material : Dependency(group = Compose.Material, name = "material", version = version)
+                object Material :
+                    Dependency(group = Compose.Material, name = "material", version = version)
             }
 
         }
@@ -269,10 +277,12 @@ object Deps {
         object Timber : Dependency(group = Deps.Timber, name = "timber", version = "4.7.1")
     }
 
-    object Kodein: Group(name ="org.kodein.di"){
+    object Kodein : Group(name = "org.kodein.di") {
         private const val version = "7.1.0-master-87"
-        object Di: Dependency(group = Kodein, name ="kodein-di", version = version)
-        object DiAndroidX: Dependency(group = Kodein, name="kodein-di-framework-android-x", version = version)
+
+        object Di : Dependency(group = Kodein, name = "kodein-di", version = version)
+        object DiAndroidX :
+            Dependency(group = Kodein, name = "kodein-di-framework-android-x", version = version)
     }
 
     open class Group(val name: String)

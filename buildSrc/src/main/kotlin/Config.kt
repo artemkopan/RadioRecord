@@ -23,8 +23,9 @@ fun Project.setupMultiplatform() {
     setupAndroidFilesPath()
 
     kotlin {
+
         android {
-            publishLibraryVariants("release", "debug")
+            publishLibraryVariants("debug", "release")
         }
 
         iosX64("ios")
@@ -33,7 +34,7 @@ fun Project.setupMultiplatform() {
         sourceSets {
             commonMain {
                 dependencies {
-                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Common.Core)
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Core.toString())
                 }
             }
 
@@ -60,7 +61,17 @@ fun Project.setupMultiplatform() {
                 }
             }
 
-            iosMain().dependsOn(commonMain())
+            iosMain {
+                dependsOn(commonMain())
+                dependencies {
+                    implementation(Deps.Jetbrains.Kotlinx.Coroutine.Core.toString()) {
+                        version {
+                            strictly(Deps.Jetbrains.Kotlinx.Coroutine.version)
+                        }
+                    }
+                }
+            }
+
             iosTest().dependsOn(commonTest())
 
             iosX64Main().dependsOn(iosMain())
@@ -100,6 +111,7 @@ private fun Project.setupAndroidFilesPath() {
     android {
         sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
         sourceSets["main"].res.srcDirs("src/androidMain/res")
+//        sourceSets["main"].java.srcDirs("src/androidMain/kotlin")
     }
 }
 

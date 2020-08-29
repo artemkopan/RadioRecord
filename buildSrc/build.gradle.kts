@@ -10,6 +10,8 @@ repositories {
 dependencies {
     implementation(Deps.Jetbrains.Kotlin.Plugin.Gradle)
     implementation(Deps.Jetbrains.Kotlin.Plugin.Serialization)
+    implementation(Deps.Jetbrains.Kotlin.StdLib)
+    implementation(Deps.Jetbrains.Kotlin.Reflect)
     implementation(Deps.Android.Tools.Build.Gradle)
 }
 

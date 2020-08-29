@@ -15,8 +15,6 @@ import io.shared.store.stations.PlayStationMiddleware
 import io.shared.store.stations.StationStoreFactory
 import kotlinx.coroutines.Dispatchers
 import org.kodein.di.DI
-import org.kodein.di.direct
-import org.kodein.di.instance
 
 class ServiceLocator {
 
@@ -25,21 +23,21 @@ class ServiceLocator {
     }
 
     fun getStationViewBinder(): StationViewBinder {
-//        val radioApiSource = RadioApiSourceImpl(
-//            HttpClientProviderImpl(SystemConfigImpl(), HttpEngineProvider()),
-//            RadioStationMapper(),
-//            RadioPodcastMapper(),
-//            RadioPodcastDetailsMapper(RadioPodcastDetailsItemMapper())
-//        )
-//        val radioRepository = RadioRepositoryImpl(radioApiSource)
-//Dispatchers.Main
-//        return StationViewBinder(
-//            StateStorage(), StationStoreFactory(
-//                LoadStationMiddleware(radioRepository),
-//                PlayStationMiddleware(MediaPlayer(), TrackItemFromRadioStationMapper())
-//            ), ErrorFormatter()
-//        )
-        return di.direct.instance(arg = StateStorage())
+        val radioApiSource = RadioApiSourceImpl(
+            HttpClientProviderImpl(SystemConfigImpl(), HttpEngineProvider()),
+            RadioStationMapper(),
+            RadioPodcastMapper(),
+            RadioPodcastDetailsMapper(RadioPodcastDetailsItemMapper())
+        )
+        val radioRepository = RadioRepositoryImpl(radioApiSource)
+Dispatchers.Main
+        return StationViewBinder(
+            StateStorage(), StationStoreFactory(
+                LoadStationMiddleware(radioRepository),
+                PlayStationMiddleware(MediaPlayer(), TrackItemFromRadioStationMapper())
+            ), ErrorFormatter()
+        )
+//        return di.direct.instance(arg = StateStorage())
     }
 
 }

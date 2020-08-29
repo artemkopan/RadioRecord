@@ -84,8 +84,8 @@ class PodcastDetailsViewBinder(
 
     private val intentToEffect: suspend FlowCollector<Effect>.(Intent) -> Unit =
         {
-            when (it) {
-                is Intent.TrackClick -> emit(Effect.NavigateToPlayer)
+            if (it is Intent.TrackClick) {
+                emit(Effect.NavigateToPlayer)
             }
         }
 

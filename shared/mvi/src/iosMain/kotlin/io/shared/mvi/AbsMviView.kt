@@ -31,9 +31,6 @@ abstract class AbsMviView<Intent : Any, Model : Persistable, Effect : Persistabl
         }
     }
 
-    override fun CoroutineScope.attachBinder(viewBinder: Binder<Intent, Model, Effect>) {
-    }
-
     override fun render(model: Model) {
     }
 
