@@ -7,10 +7,12 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-setupAndroidSdkVersions()
-
 android {
+    compileSdkVersion(29)
+
     defaultConfig {
+        targetSdkVersion(29)
+        minSdkVersion(21)
         applicationId = "io.radio"
         versionCode = 1
         versionName = "1.0"
