@@ -33,12 +33,12 @@ android {
     }
 
     buildFeatures.viewBinding = true
-//    buildFeatures.compose = false
-//
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = Deps.AndroidX.Compose.version
-//        kotlinCompilerVersion = "1.4.0"
-//    }
+    buildFeatures.compose = true
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = Deps.AndroidX.Compose.version
+        kotlinCompilerVersion = "1.4.0"
+    }
 }
 
 androidExtensions {
@@ -67,15 +67,14 @@ dependencies {
 
     implementation(Deps.Google.Android.Material.Material)
 
-//    implementation(Deps.AndroidX.Ui.Tooling)
-//    implementation(Deps.AndroidX.Compose.Runtime.Runtime)
-////    implementation(Deps.AndroidX.Compose.Runtime.SavedInstanceState)
-//    implementation(Deps.AndroidX.Compose.Ui.Ui)
-//    implementation(Deps.AndroidX.Compose.Foundation.Foundation)
-//    implementation(Deps.AndroidX.Compose.Foundation.FoundationLayout)
-//    implementation(Deps.AndroidX.Compose.Material.Material)
+    implementation(Deps.AndroidX.Ui.Tooling)
+    implementation(Deps.AndroidX.Compose.Runtime.Runtime)
+//    implementation(Deps.AndroidX.Compose.Runtime.SavedInstanceState)
+    implementation(Deps.AndroidX.Compose.Ui.Ui)
+    implementation(Deps.AndroidX.Compose.Foundation.Foundation)
+    implementation(Deps.AndroidX.Compose.Foundation.FoundationLayout)
+    implementation(Deps.AndroidX.Compose.Material.Material)
 
-
-    //todo move to Deps file
-    implementation("com.kirich1409.viewbindingpropertydelegate:viewbindingpropertydelegate:1.0.0")
+    implementation(Deps.ViewBindingDelegate.ViewBindingDelegate)
+    implementation(Deps.Glide.Glide)
 }
