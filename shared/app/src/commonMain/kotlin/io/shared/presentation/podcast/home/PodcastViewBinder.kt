@@ -32,8 +32,8 @@ class PodcastViewBinder(
 
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
 
-    private val podcastStore = podcastStoreFactory.create(scope, stateStorage)
-    private val imageStore = imageParamsStoreFactory.create(scope, stateStorage)
+    private val podcastStore = podcastStoreFactory.create("podcast", scope, stateStorage)
+    private val imageStore = imageParamsStoreFactory.create("podcast", scope, stateStorage)
 
     init {
         podcastStore.stateFlow.onEach {

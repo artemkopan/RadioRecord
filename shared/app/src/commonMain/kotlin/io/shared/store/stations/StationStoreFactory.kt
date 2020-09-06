@@ -10,15 +10,17 @@ class StationStoreFactory(
 ) : StoreFactory<Action, Result, State> {
 
     override fun create(
+        tag: String,
         coroutineScope: CoroutineScope,
         stateStorage: StateStorage
     ): StationStore {
         return object : StoreImpl<Action, Result, State>(
-            coroutineScope,
-            listOf(loadStationMiddleware, playStationMiddleware),
-            listOf(SimpleBootstrapper(Action.LoadStations)),
-            ReducerImpl,
-            State()
+            tag = tag,
+            coroutineScope = coroutineScope,
+            middlewareList = listOf(loadStationMiddleware, playStationMiddleware),
+            bootstrapperList = listOf(SimpleBootstrapper(Action.LoadStations)),
+            reducer = ReducerImpl,
+            initialState = stateStorage.getOrDefault("station-store_$tag") { State() }
         ), StationStore {}
     }
 

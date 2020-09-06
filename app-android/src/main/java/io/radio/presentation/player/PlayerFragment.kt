@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.transform
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
 
@@ -56,7 +58,7 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
             binding.playerTimeBar.bindOnChangeListener().transform {
                 if (it.fromUser) emit(
                     Intent.FindPosition(
-                        it.progress,
+                        it.progress.toDuration(DurationUnit.SECONDS),
                         it.isScrubbing
                     )
                 )
@@ -89,8 +91,8 @@ class PlayerFragment : BaseFragment(R.layout.fragment_player), PlayerView {
             }
 
             binding.playerTimeBar.isEnabled = isSeekingAvailable
-            binding.playerTimeBar.progress = currentDuration
-            binding.playerTimeBar.max = totalDuration
+            binding.playerTimeBar.progress = currentDuration.toInt(DurationUnit.SECONDS)
+            binding.playerTimeBar.max = totalDuration.toInt(DurationUnit.SECONDS)
 
             model.slip?.let {
                 when (it) {

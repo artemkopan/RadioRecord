@@ -1,9 +1,6 @@
 package io.shared.store.image
 
-import io.shared.mvi.Reducer
-import io.shared.mvi.StateStorage
-import io.shared.mvi.StoreFactory
-import io.shared.mvi.StoreImpl
+import io.shared.mvi.*
 import io.shared.store.image.ImageParamsStore.*
 import kotlinx.coroutines.CoroutineScope
 
@@ -12,15 +9,17 @@ class ImageParamsStoreFactory(
 ) : StoreFactory<Action, Result, State> {
 
     override fun create(
+        tag: String,
         coroutineScope: CoroutineScope,
         stateStorage: StateStorage
     ): ImageParamsStore {
         return object : StoreImpl<Action, Result, State>(
+            tag,
             coroutineScope,
             listOf(getImageParamsByUrlMiddleware),
             emptyList(),
             ReducerImpl,
-            State()
+            stateStorage.getOrDefault("image-params-store_$tag") { State() }
         ), ImageParamsStore {}
     }
 

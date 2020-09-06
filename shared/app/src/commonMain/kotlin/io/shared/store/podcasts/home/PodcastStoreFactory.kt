@@ -9,15 +9,17 @@ class PodcastStoreFactory(
 ) : StoreFactory<Action, Result, State> {
 
     override fun create(
+        tag: String,
         coroutineScope: CoroutineScope,
         stateStorage: StateStorage
     ): PodcastStore {
         return object : StoreImpl<Action, Result, State>(
-            coroutineScope,
-            listOf(loadPodcastMiddleware),
-            listOf(SimpleBootstrapper(Action.LoadPodcast)),
-            ReducerImpl,
-            State()
+            tag = tag,
+            coroutineScope = coroutineScope,
+            middlewareList = listOf(loadPodcastMiddleware),
+            bootstrapperList = listOf(SimpleBootstrapper(Action.LoadPodcast)),
+            reducer = ReducerImpl,
+            initialState = stateStorage.getOrDefault("podcast-store_$tag") { State() }
         ), PodcastStore {}
     }
 

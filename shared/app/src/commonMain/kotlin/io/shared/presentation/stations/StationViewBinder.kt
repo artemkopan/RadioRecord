@@ -22,7 +22,7 @@ class StationViewBinder(
 ) : ViewBinder(), Binder<Intent, Model, Effect> {
 
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
-    private val store = storeFactory.create(scope, stateStorage)
+    private val store = storeFactory.create("station", scope, stateStorage)
 
     init {
         store.stateFlow

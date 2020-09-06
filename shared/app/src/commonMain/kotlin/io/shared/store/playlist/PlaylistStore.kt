@@ -1,5 +1,6 @@
 package io.shared.store.playlist
 
+import io.shared.core.Loggable
 import io.shared.core.Persistable
 import io.shared.model.Playlist
 import io.shared.model.TrackItem
@@ -19,27 +20,44 @@ interface PlaylistStore : Store<Action, Result, State> {
         data class TracksWithMediaState(
             val playlist: Playlist,
             val tracks: List<TrackPlaybackStateItem>
-        ) : Result()
+        ) : Result(), Loggable {
+            override fun toLogMessage(): String {
+                return playlist.toLogMessage() + "\n${
+                    tracks.joinToString {
+                        """Track[id = ${it.track.id}, title = ${it.track.title}]; State[${it.state}]"; Error[${it.error}]"""
+                    }
+                }"
+            }
+        }
 
     }
 
     data class State(
         val playlist: Playlist? = null,
         val tracks: List<TrackPlaybackStateItem> = emptyList()
-    ) : Persistable
+    ) : Persistable, Loggable {
+        override fun toLogMessage(): String {
+            return playlist?.toLogMessage().orEmpty()
+        }
+    }
 }
 
 class PlaylistStoreFactory(
     private val playlistObserveTracksStateMiddleware: PlaylistObserveTracksStateMiddleware
 ) : StoreFactory<Action, Result, State> {
 
-    override fun create(coroutineScope: CoroutineScope, stateStorage: StateStorage): PlaylistStore {
+    override fun create(
+        tag: String,
+        coroutineScope: CoroutineScope,
+        stateStorage: StateStorage
+    ): PlaylistStore {
         return object : StoreImpl<Action, Result, State>(
+            tag,
             coroutineScope,
             listOf(playlistObserveTracksStateMiddleware),
             emptyList(),
             ReducerImpl,
-            State()
+            stateStorage.getOrDefault(tag) { State() }
         ), PlaylistStore {}
     }
 

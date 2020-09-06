@@ -1,9 +1,6 @@
 package io.shared.store.player
 
-import io.shared.mvi.Reducer
-import io.shared.mvi.StateStorage
-import io.shared.mvi.StoreFactory
-import io.shared.mvi.StoreImpl
+import io.shared.mvi.*
 import io.shared.store.player.PlayerStore.*
 import io.shared.store.player.middleware.*
 import kotlinx.coroutines.CoroutineScope
@@ -22,8 +19,13 @@ class PlayerStoreFactory(
     private val playerPrepareMiddleware: PlayerPrepareMiddleware
 ) : StoreFactory<Action, Result, State> {
 
-    override fun create(coroutineScope: CoroutineScope, stateStorage: StateStorage): PlayerStore {
+    override fun create(
+        tag: String,
+        coroutineScope: CoroutineScope,
+        stateStorage: StateStorage
+    ): PlayerStore {
         return object : StoreImpl<Action, Result, State>(
+            tag = tag,
             coroutineScope = coroutineScope,
             middlewareList = listOf(
                 playerChangeTrackMiddleware,
@@ -39,7 +41,7 @@ class PlayerStoreFactory(
             ),
             bootstrapperList = emptyList(),
             reducer = ReducerImpl,
-            initialState = State()
+            initialState = stateStorage.getOrDefault("player-store_$tag") { State() }
         ), PlayerStore {}
     }
 

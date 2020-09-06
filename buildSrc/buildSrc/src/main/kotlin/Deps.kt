@@ -96,7 +96,7 @@ object Deps {
         object Tools {
             object Build : Group(name = "com.android.tools.build") {
                 object Gradle :
-                    Dependency(group = Build, name = "gradle", version = "4.1.0-rc01")
+                    Dependency(group = Build, name = "gradle", version = "4.1.0-rc02")
             }
         }
     }
@@ -104,7 +104,7 @@ object Deps {
     object AndroidX {
 
         object Core : Group(name = "androidx.core") {
-            object CoreKtx : Dependency(group = Core, name = "core-ktx", version = "1.5.0-alpha01")
+            object CoreKtx : Dependency(group = Core, name = "core-ktx", version = "1.5.0-alpha02")
         }
 
         object AppCompat : Group(name = "androidx.appcompat") {
@@ -112,7 +112,7 @@ object Deps {
                 Dependency(
                     group = AndroidX.AppCompat,
                     name = "appcompat",
-                    version = "1.3.0-alpha01"
+                    version = "1.3.0-alpha02"
                 )
         }
 
@@ -129,7 +129,7 @@ object Deps {
             object ConstraintLayout : Dependency(
                 group = AndroidX.ConstraintLayout,
                 name = "constraintlayout",
-                version = "2.0.0-rc1"
+                version = "2.0.0"
             )
         }
 
@@ -140,14 +140,14 @@ object Deps {
 
         object Fragment : Group(name = "androidx.fragment") {
             object Ktx : Dependency(
-                group = AndroidX.Fragment,
+                group = Fragment,
                 name = "fragment-ktx",
-                version = "1.3.0-alpha07"
+                version = "1.3.0-alpha08"
             )
         }
 
         object LifeCycle : Group(name = "androidx.lifecycle") {
-            private const val version = "2.3.0-alpha06"
+            private const val version = "2.3.0-alpha07"
 
             object RuntimeKtx :
                 Dependency(group = LifeCycle, name = "lifecycle-runtime-ktx", version = version)
@@ -200,7 +200,7 @@ object Deps {
         }
 
         object Compose : Group(name = "androidx.compose") {
-            const val version = "0.1.0-dev17"
+            const val version = "1.0.0-alpha02"
 
             object ComposeCompiler :
                 Dependency(group = Compose, name = "compose-compiler", version = version)
@@ -283,6 +283,16 @@ object Deps {
         object Di : Dependency(group = Kodein, name = "kodein-di", version = version)
         object DiAndroidX :
             Dependency(group = Kodein, name = "kodein-di-framework-android-x", version = version)
+    }
+
+    object ViewBindingDelegate : Group(name = "com.kirich1409.viewbindingpropertydelegate") {
+        private const val version = "1.0.0"
+
+        object ViewBindingDelegate : Dependency(
+            group = Deps.ViewBindingDelegate,
+            name = "viewbindingpropertydelegate",
+            version = version
+        )
     }
 
     open class Group(val name: String)

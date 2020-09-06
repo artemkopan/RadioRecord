@@ -159,8 +159,8 @@ fun Project.android(block: BaseExtension.() -> Unit) {
     extensions.getByType<BaseExtension>().block()
 }
 
-fun Project.kotlin(block: KotlinMultiplatformExtension.() -> Unit) {
-    extensions.getByType<KotlinMultiplatformExtension>().block()
+fun Project.kotlin(block: KotlinMultiplatformExtension.() -> Unit): KotlinMultiplatformExtension {
+    return extensions.getByType<KotlinMultiplatformExtension>().apply(block)
 }
 
 typealias SourceSets = NamedDomainObjectContainer<KotlinSourceSet>

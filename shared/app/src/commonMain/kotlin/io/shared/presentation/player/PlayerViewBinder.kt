@@ -2,7 +2,10 @@ package io.shared.presentation.player
 
 import io.shared.formatters.ErrorFormatter
 import io.shared.formatters.TrackFormatter
-import io.shared.mvi.*
+import io.shared.mvi.Binder
+import io.shared.mvi.StateStorage
+import io.shared.mvi.ViewBinder
+import io.shared.mvi.ViewBinderHelper
 import io.shared.presentation.player.PlayerView.*
 import io.shared.store.player.PlayerStore
 import io.shared.store.player.PlayerStore.Action
@@ -12,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlin.time.DurationUnit
 import kotlin.time.seconds
 
 class PlayerViewBinder(
@@ -22,7 +24,7 @@ class PlayerViewBinder(
     private val errorFormatter: ErrorFormatter
 ) : ViewBinder(), Binder<Intent, Model, Effect> {
 
-    private val store = playerStoreFactory.create(scope, stateStorage)
+    private val store = playerStoreFactory.create("player-view-binder", scope, stateStorage)
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
 
     init {
@@ -45,7 +47,6 @@ class PlayerViewBinder(
     override val effectFlow: Flow<Effect>
         get() = helper.effectFlow
 
-
     private fun Flow<Intent>.mapToStoreActions(): Flow<Action> {
         return map { intent ->
             when (intent) {
@@ -55,7 +56,7 @@ class PlayerViewBinder(
                 Intent.SlipForward -> Action.SlipForward
                 Intent.SlipRewind -> Action.SlipForward
                 is Intent.FindPosition -> Action.FindPosition(
-                    intent.position.seconds,
+                    intent.position,
                     intent.isScrubbing
                 )
             }
@@ -63,10 +64,8 @@ class PlayerViewBinder(
     }
 
     private suspend fun PlayerStore.State.dispatchModel() {
-        val currentDuration = scrubbingPosition ?: currentDuration
-        val currentDurationSec = currentDuration?.toInt(DurationUnit.SECONDS) ?: 0
-        val currentDurationFormatted = currentDuration?.let(trackFormatter::formatDuration)
-            .orEmpty()
+        val currentDuration = scrubbingPosition ?: currentDuration ?: 0.seconds
+        val currentDurationFormatted = currentDuration.let(trackFormatter::formatDuration)
 
         Model(
             title = track?.title.orEmpty(),
@@ -77,9 +76,9 @@ class PlayerViewBinder(
             isSeekingAvailable = isSeekAvailable,
             isFastForwardAvailable = isFastForwardAvailable,
             isRewindAvailable = isRewindAvailable,
-            currentDuration = currentDurationSec,
+            currentDuration = currentDuration,
             currentDurationFormatted = currentDurationFormatted,
-            totalDuration = totalDuration?.toInt(DurationUnit.SECONDS) ?: 0,
+            totalDuration = totalDuration ?: 0.seconds,
             totalDurationFormatted = totalDuration?.let(trackFormatter::formatDuration)
                 .orEmpty(),
             isLoading = isPreparing,

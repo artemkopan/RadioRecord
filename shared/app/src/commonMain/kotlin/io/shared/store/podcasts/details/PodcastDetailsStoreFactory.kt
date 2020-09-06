@@ -1,9 +1,6 @@
 package io.shared.store.podcasts.details
 
-import io.shared.mvi.Reducer
-import io.shared.mvi.StateStorage
-import io.shared.mvi.StoreFactory
-import io.shared.mvi.StoreImpl
+import io.shared.mvi.*
 import io.shared.store.podcasts.details.PodcastDetailsStore.*
 import kotlinx.coroutines.CoroutineScope
 
@@ -13,18 +10,18 @@ class PodcastDetailsStoreFactory(
 ) : StoreFactory<Action, Result, State> {
 
     override fun create(
+        tag: String,
         coroutineScope: CoroutineScope,
         stateStorage: StateStorage
     ): PodcastDetailsStore {
-        return object :
-            StoreImpl<Action, Result, State>(
-                coroutineScope,
-                listOf(podcastDetailsLoadMiddleware),
-                listOf(podcastDetailsByIdBootstrapper),
-                ReducerImpl,
-                State()
-            ),
-            PodcastDetailsStore {}
+        return object : StoreImpl<Action, Result, State>(
+            tag = tag,
+            coroutineScope = coroutineScope,
+            middlewareList = listOf(podcastDetailsLoadMiddleware),
+            bootstrapperList = listOf(podcastDetailsByIdBootstrapper),
+            reducer = ReducerImpl,
+            initialState = stateStorage.getOrDefault("podcast-details-state") { State() }
+        ), PodcastDetailsStore {}
     }
 
     private object ReducerImpl :

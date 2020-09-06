@@ -16,7 +16,7 @@ import org.kodein.di.singleton
 
 actual val platformModule = DI.Module("platform") {
 
-    bind<DateProvider>() with singleton { DateProvider(instance()) }
+    bind<DateProvider>() with singleton { DateProvider() }
     bind<SystemConfig>() with singleton { SystemConfigImpl() }
 
     bind<MediaPlayer>() with singleton { MediaPlayer(instance(), instance()) }

@@ -21,17 +21,13 @@ import io.shared.app.R
 import io.shared.core.Logger
 import io.shared.core.MainDispatcher
 import io.shared.core.Optional
-import io.shared.core.extensions.JobRunner
 import io.shared.core.toOptional
 import io.shared.model.Playlist
 import io.shared.model.TrackItem
 import io.shared.model.TrackSource
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ticker
+import kotlinx.coroutines.flow.*
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -66,7 +62,6 @@ actual class MediaPlayer(
         get() = errorMutableStateFlow
 
     private val playerDispatcher = MainDispatcher
-    private val timelineJobRunner = JobRunner()
     private val window = Timeline.Window()
 
     private var _exoPlayer: SimpleExoPlayer? = null
@@ -82,6 +77,9 @@ actual class MediaPlayer(
         get() {
             return currentTag as? TrackItem
         }
+
+    private val playerScope = CoroutineScope(SupervisorJob() + playerDispatcher)
+    private var tickerJob: Job? = null
 
     actual suspend fun prepare(trackItem: TrackItem, playlist: Playlist?, autoPlay: Boolean) =
         withContext(playerDispatcher) {
@@ -120,6 +118,8 @@ actual class MediaPlayer(
                 windowIndex = 0
             }
 
+            startTicker()
+
             exoPlayer.prepare(source)
             exoPlayer.seekTo(windowIndex, C.TIME_UNSET)
             if (autoPlay) {
@@ -129,6 +129,7 @@ actual class MediaPlayer(
 
     actual suspend fun release() {
         withContext(playerDispatcher) {
+            playerScope.coroutineContext.cancelChildren()
             val exoPlayer = _exoPlayer ?: return@withContext
             _exoPlayer = null
             notificationManger.setPlayer(null)
@@ -338,18 +339,8 @@ actual class MediaPlayer(
     }
 
     private fun updateTimeLine() {
-        timelineJobRunner.cancel()
         val player = exoPlayer
         val playbackState = player.playbackState
-
-        fun postUpdate() {
-            timelineJobRunner.runAndCancelPrevious {
-                GlobalScope.launch(playerDispatcher) {
-                    delay(1000L)
-                    updateTimeLine()
-                }
-            }
-        }
 
         if (playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE) {
             return
@@ -364,9 +355,14 @@ actual class MediaPlayer(
                 contentDuration.toDuration(DurationUnit.MILLISECONDS)
             ).toOptional()
         }
-        postUpdate()
     }
 
+    private fun startTicker() {
+        tickerJob?.cancel()
+        tickerJob = ticker(1000L, 0L, playerDispatcher).consumeAsFlow()
+            .onEach { updateTimeLine() }
+            .launchIn(playerScope)
+    }
 
     private companion object {
         const val TAG = "ExoPlayer"
