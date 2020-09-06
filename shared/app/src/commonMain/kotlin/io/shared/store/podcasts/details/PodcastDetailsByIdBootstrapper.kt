@@ -11,7 +11,6 @@ class PodcastDetailsByIdBootstrapper(
 
     override fun accept(
         actionFlow: Flow<Action>,
-        resultFlow: Flow<Result>,
         state: (State) -> Unit
     ): Flow<Action> {
         return flow { emit(Action.LoadPodcastById(podcastId)) }

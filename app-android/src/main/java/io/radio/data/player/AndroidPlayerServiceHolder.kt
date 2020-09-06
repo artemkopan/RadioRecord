@@ -3,6 +3,8 @@ package io.radio.data.player
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import io.radio.di.Qualifier.PlayerCoroutineQualifier
 import io.shared.core.MainDispatcher
@@ -33,7 +35,15 @@ class AndroidPlayerServiceHolder : Service(), DIAware {
                     when (it) {
                         is PlayerNotification.Posted -> {
                             if (it.ongoing) {
-                                startForeground(it.id, it.notification)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    startForeground(
+                                        it.id,
+                                        it.notification,
+                                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                                    )
+                                } else {
+                                    startForeground(it.id, it.notification)
+                                }
                             } else {
                                 stopForeground(false)
                             }

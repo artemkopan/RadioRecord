@@ -23,7 +23,7 @@ actual class LoggerPrinter {
         Logger.Level.ERROR to "❤️ ERROR"
     )
 
-    actual fun performLog(
+    actual inline fun performLog(
         priority: Logger.Level,
         message: String?,
         throwable: Throwable?,
@@ -42,7 +42,7 @@ actual class LoggerPrinter {
 
     private fun getCurrentTime() = dateFormatter.stringFromDate(NSDate())
 
-    private fun buildLog(priority: Logger.Level, tag: String?, message: String?): String {
+    fun buildLog(priority: Logger.Level, tag: String?, message: String?): String {
         return "${getCurrentTime()} ${tagMap[priority]} ${tag ?: performTag(defaultTag)} - $message"
     }
 

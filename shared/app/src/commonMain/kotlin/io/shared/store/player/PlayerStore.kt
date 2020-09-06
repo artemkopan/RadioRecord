@@ -15,8 +15,8 @@ interface PlayerStore : Store<Action, Result, State> {
             val tracks: List<TrackItem>,
             val autoPlay: Boolean,
             val forcePrepareIfTrackPrepared: Boolean = false,
-            val switchPlaybackIfTrackPrepared:Boolean = false
-        ) :  Action()
+            val switchPlaybackIfTrackPrepared: Boolean = false
+        ) : Action()
 
         object PlayNext : Action()
 

@@ -3,6 +3,7 @@ package io.shared.mvi
 import io.shared.core.IoDispatcher
 import io.shared.core.Logger
 import io.shared.core.Persistable
+import io.shared.core.getLogMessageOrDefault
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -18,6 +19,7 @@ interface Store<Action : Any, Result : Any, State : Persistable> {
 }
 
 open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
+    private val tag: String,
     private val coroutineScope: CoroutineScope,
     private val middlewareList: List<Middleware<Action, Result, State>>,
     private val bootstrapperList: List<Bootstrapper<Action, Result, State>>,
@@ -30,7 +32,6 @@ open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
         get() = stateChannel.asFlow()
 
     private val actions = BroadcastChannel<Action>(1)
-    private val results = BroadcastChannel<Result>(1)
 
     init {
         wire()
@@ -38,16 +39,15 @@ open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
 
     override fun dispatchAction(action: Action) {
         coroutineScope.launch {
-            actions.send(action).also { Logger.d("Dispatch action: $action", tag = TAG) }
+            actions.send(action).also { Logger.d("Dispatch action: $action", tag = tag) }
         }
     }
 
     private fun wire() {
         coroutineScope.launch(IoDispatcher) {
             val actionsFlow = actions.asFlow()
-            val resultsFlow = results.asFlow()
 
-            bootstrapperList.map { it.accept(actionsFlow, resultsFlow) { stateChannel.value } }
+            bootstrapperList.map { it.accept(actionsFlow) { stateChannel.value } }
                 .merge()
                 .onEach {
                     dispatchAction(it)
@@ -57,13 +57,13 @@ open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
             middlewareList.map { it.accept(actionsFlow) { stateChannel.value } }
                 .merge()
                 .onEach { result ->
-                    launch { results.send(result) }
+
                     val state = stateChannel.value
                     stateChannel.send(reducer.reduce(result, state)
                         .also {
                             Logger.d(
-                                "Reduce result: $it, old state -> $state, new sate -> $it",
-                                tag = TAG
+                                "Reduce result: ${result.getLogMessageOrDefault()}, old state -> ${state.getLogMessageOrDefault()}, new sate -> ${it.getLogMessageOrDefault()}",
+                                tag = tag
                             )
                         })
                 }
@@ -71,7 +71,4 @@ open class StoreImpl<Action : Any, Result : Any, State : Persistable>(
         }
     }
 
-    private companion object {
-        const val TAG = "Store"
-    }
 }

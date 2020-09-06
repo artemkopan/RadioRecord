@@ -4,6 +4,8 @@ import io.shared.core.Persistable
 import io.shared.model.ResourceString
 import io.shared.mvi.MviView
 import io.shared.presentation.player.PlayerView.*
+import kotlin.time.Duration
+import kotlin.time.seconds
 
 
 interface PlayerView : MviView<Intent, Model, Effect> {
@@ -16,26 +18,26 @@ interface PlayerView : MviView<Intent, Model, Effect> {
         object SlipForward : Intent()
         object SlipRewind : Intent()
 
-        data class FindPosition(val position: Int, val isScrubbing: Boolean) : Intent()
+        data class FindPosition(val position: Duration, val isScrubbing: Boolean) : Intent()
 
     }
 
     data class Model(
-        val title: String,
-        val subTitle: String,
-        val cover: String,
-        val isNextAvailable: Boolean,
-        val isPreviousAvailable: Boolean,
-        val isSeekingAvailable: Boolean,
-        val isFastForwardAvailable: Boolean,
-        val isRewindAvailable: Boolean,
-        val currentDuration: Int,
-        val currentDurationFormatted: String,
-        val totalDuration: Int,
-        val totalDurationFormatted: String,
-        val isLoading: Boolean,
-        val isPlaying: Boolean,
-        val slip: Slip?
+        val title: String = "",
+        val subTitle: String = "",
+        val cover: String = "",
+        val isNextAvailable: Boolean = false,
+        val isPreviousAvailable: Boolean = false,
+        val isSeekingAvailable: Boolean = false,
+        val isFastForwardAvailable: Boolean = false,
+        val isRewindAvailable: Boolean = false,
+        val currentDuration: Duration = 0.seconds,
+        val currentDurationFormatted: String = "",
+        val totalDuration: Duration = 0.seconds,
+        val totalDurationFormatted: String = "",
+        val isLoading: Boolean = false,
+        val isPlaying: Boolean = false,
+        val slip: Slip? = null
     ) : Persistable {
 
         sealed class Slip {

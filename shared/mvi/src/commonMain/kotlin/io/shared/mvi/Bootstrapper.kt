@@ -8,7 +8,6 @@ interface Bootstrapper<Action : Any, Result : Any, State : Any> {
 
     fun accept(
         actionFlow: Flow<Action>,
-        resultFlow: Flow<Result>,
         state: (State) -> Unit
     ): Flow<Action>
 
@@ -22,7 +21,6 @@ fun <Action : Any, Result : Any, State : Persistable> StoreFactory<Action, Resul
     return object : Bootstrapper<Action, Result, State> {
         override fun accept(
             actionFlow: Flow<Action>,
-            resultFlow: Flow<Result>,
             state: (State) -> Unit
         ): Flow<Action> {
             return flowOf(action)

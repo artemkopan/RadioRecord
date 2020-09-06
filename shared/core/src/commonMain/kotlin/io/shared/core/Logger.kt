@@ -1,27 +1,27 @@
 package io.shared.core
 
-@Suppress("unused")
+@Suppress("unused", "NOTHING_TO_INLINE")
 object Logger {
 
-    private val printer = LoggerPrinter()
+    val printer = LoggerPrinter()
 
-    fun d(message: String, throwable: Throwable? = null, tag: String? = null) {
+    inline fun d(message: String, throwable: Throwable? = null, tag: String? = null) {
         printer.performLog(Level.DEBUG, message, throwable, tag)
     }
 
-    fun v(message: String, throwable: Throwable? = null, tag: String? = null) {
+    inline fun v(message: String, throwable: Throwable? = null, tag: String? = null) {
         printer.performLog(Level.VERBOSE, message, throwable, tag)
     }
 
-    fun i(message: String, throwable: Throwable? = null, tag: String? = null) {
+    inline fun i(message: String, throwable: Throwable? = null, tag: String? = null) {
         printer.performLog(Level.INFO, message, throwable, tag)
     }
 
-    fun w(message: String, throwable: Throwable? = null, tag: String? = null) {
+    inline fun w(message: String, throwable: Throwable? = null, tag: String? = null) {
         printer.performLog(Level.WARNING, message, throwable, tag)
     }
 
-    fun e(message: String, throwable: Throwable? = null, tag: String? = null) {
+    inline fun e(message: String, throwable: Throwable? = null, tag: String? = null) {
         printer.performLog(Level.ERROR, message, throwable, tag)
     }
 

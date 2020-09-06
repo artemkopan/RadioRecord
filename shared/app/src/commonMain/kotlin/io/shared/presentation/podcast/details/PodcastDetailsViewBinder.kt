@@ -28,9 +28,11 @@ class PodcastDetailsViewBinder(
 
     private val helper = ViewBinderHelper<Model, Effect>(stateStorage)
 
-    private val podcastStore = podcastDetailsStoreFactory.create(scope, stateStorage)
-    private val playerStore = playerStoreFactory.create(scope, stateStorage)
-    private val playlistStore: PlaylistStore = playlistStoreFactory.create(scope, stateStorage)
+    private val podcastStore =
+        podcastDetailsStoreFactory.create("podcast-details", scope, stateStorage)
+    private val playerStore = playerStoreFactory.create("podcast-details", scope, stateStorage)
+    private val playlistStore: PlaylistStore =
+        playlistStoreFactory.create("podcast-details", scope, stateStorage)
 
     init {
         combineTransform(

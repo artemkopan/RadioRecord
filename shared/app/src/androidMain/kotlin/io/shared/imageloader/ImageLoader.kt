@@ -22,6 +22,8 @@ import io.shared.core.Logger
 import io.shared.imageloader.ImageLoaderParams.Scale.*
 import java.io.File
 
+const val SIZE_ORIGINAL = -1
+
 @SuppressLint("CheckResult")
 fun ImageView.loadImage(
     source: Any,
@@ -159,7 +161,7 @@ fun Context.loadImage(
 
 val defaultParams = ImageLoaderParams()
 
-class ImageLoaderParams(
+data class ImageLoaderParams(
     val animate: Animation = Animation.None,
     val scale: Scale = CenterCrop,
     val errorHolder: PlaceHolder? = null,

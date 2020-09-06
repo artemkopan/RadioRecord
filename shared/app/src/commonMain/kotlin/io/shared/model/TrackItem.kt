@@ -2,6 +2,7 @@
 
 package io.shared.model
 
+import io.shared.core.Loggable
 import io.shared.core.Optional
 import kotlin.time.Duration
 
@@ -12,7 +13,11 @@ data class TrackItem(
     val cover: Optional<CoverImage>,
     val duration: Duration,
     val source: TrackSource
-)
+) : Loggable {
+    override fun toLogMessage(): String {
+        return "TrackItem(id=$id, title='$title', subTitle='$subTitle', cover=${cover.data?.img}, duration=$duration, source=${source.getLinkFromSource()})"
+    }
+}
 
 
 sealed class TrackSource {

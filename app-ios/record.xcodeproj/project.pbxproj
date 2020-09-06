@@ -136,6 +136,7 @@
 				CE8F312524EFAD0F00CA46F2 /* Frameworks */,
 				CE8F312624EFAD0F00CA46F2 /* Resources */,
 				CEDEF15B24F017CC000EEE51 /* Embed Frameworks */,
+				CEB09D672500D4CC00C25A78 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -192,6 +193,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		CEB09D672500D4CC00C25A78 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd ${SRCROOT}/..\n./gradlew :shared:app:packForXCode \\\n  -PCONFIGURATION=${CONFIGURATION} \\\n  -PARCHS=${ARCHS}\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		CE8F312424EFAD0F00CA46F2 /* Sources */ = {
