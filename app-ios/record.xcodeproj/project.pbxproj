@@ -11,6 +11,8 @@
 		CE8F313524EFAD1100CA46F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE8F313424EFAD1100CA46F2 /* Assets.xcassets */; };
 		CE8F313824EFAD1100CA46F2 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE8F313724EFAD1100CA46F2 /* Preview Assets.xcassets */; };
 		CE8F313B24EFAD1100CA46F2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE8F313924EFAD1100CA46F2 /* LaunchScreen.storyboard */; };
+		CED6EBB3250CF602009C6E0F /* RadioRecord.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CED6EBB2250CF602009C6E0F /* RadioRecord.framework */; };
+		CED6EBB4250CF602009C6E0F /* RadioRecord.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CED6EBB2250CF602009C6E0F /* RadioRecord.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CEDEF14424EFB1C8000EEE51 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDEF13B24EFB1C8000EEE51 /* AppDelegate.swift */; };
 		CEDEF14524EFB1C8000EEE51 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDEF13C24EFB1C8000EEE51 /* RemoteImage.swift */; };
 		CEDEF14724EFB1C8000EEE51 /* Stations.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDEF13E24EFB1C8000EEE51 /* Stations.swift */; };
@@ -20,18 +22,16 @@
 		CEDEF14B24EFB1C8000EEE51 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDEF14224EFB1C8000EEE51 /* Extension.swift */; };
 		CEDEF14C24EFB1C8000EEE51 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDEF14324EFB1C8000EEE51 /* SceneDelegate.swift */; };
 		CEDEF14E24EFB26B000EEE51 /* StationsViewProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDEF14D24EFB26B000EEE51 /* StationsViewProxy.swift */; };
-		CEDEF15D24F01802000EEE51 /* RadioRecord.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEDEF15C24F01802000EEE51 /* RadioRecord.framework */; };
-		CEDEF15E24F01802000EEE51 /* RadioRecord.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CEDEF15C24F01802000EEE51 /* RadioRecord.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		CEDEF15B24F017CC000EEE51 /* Embed Frameworks */ = {
+		CED6EBB5250CF602009C6E0F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				CEDEF15E24F01802000EEE51 /* RadioRecord.framework in Embed Frameworks */,
+				CED6EBB4250CF602009C6E0F /* RadioRecord.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,6 +45,7 @@
 		CE8F313724EFAD1100CA46F2 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		CE8F313A24EFAD1100CA46F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CE8F313C24EFAD1100CA46F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CED6EBB2250CF602009C6E0F /* RadioRecord.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RadioRecord.framework; path = ../shared/app/build/bin/iosArm64/debugFramework/RadioRecord.framework; sourceTree = "<group>"; };
 		CEDEF13A24EFB1C7000EEE51 /* record-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "record-Bridging-Header.h"; sourceTree = "<group>"; };
 		CEDEF13B24EFB1C8000EEE51 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CEDEF13C24EFB1C8000EEE51 /* RemoteImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
@@ -63,7 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CEDEF15D24F01802000EEE51 /* RadioRecord.framework in Frameworks */,
+				CED6EBB3250CF602009C6E0F /* RadioRecord.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +121,7 @@
 		CEDEF11E24EFAFD7000EEE51 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CED6EBB2250CF602009C6E0F /* RadioRecord.framework */,
 				CEDEF15C24F01802000EEE51 /* RadioRecord.framework */,
 			);
 			name = Frameworks;
@@ -135,8 +137,8 @@
 				CE8F312424EFAD0F00CA46F2 /* Sources */,
 				CE8F312524EFAD0F00CA46F2 /* Frameworks */,
 				CE8F312624EFAD0F00CA46F2 /* Resources */,
-				CEDEF15B24F017CC000EEE51 /* Embed Frameworks */,
 				CEB09D672500D4CC00C25A78 /* ShellScript */,
+				CED6EBB5250CF602009C6E0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -369,7 +371,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"record/Preview Content\"";
 				DEVELOPMENT_TEAM = F45Q26FM9M;
 				ENABLE_PREVIEWS = YES;
-				FRAMEWORK_SEARCH_PATHS = ../shared/app/build/bin/iosX64/debugFramework;
+				FRAMEWORK_SEARCH_PATHS = ../shared/app/build/bin/iosArm64/debugFramework;
 				INFOPLIST_FILE = record/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

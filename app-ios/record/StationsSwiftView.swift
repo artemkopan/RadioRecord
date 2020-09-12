@@ -31,7 +31,7 @@ struct StationsSwiftView: View {
     
     private var content: some View {
         let stations = self.proxy.model?.data
-        
+    
         return Group{
             if(stations == nil){
                 EmptyView()

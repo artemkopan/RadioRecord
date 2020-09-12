@@ -5,13 +5,14 @@ package io.shared.network
 import io.ktor.client.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import io.ktor.http.*
 import io.shared.configs.SystemConfig
 import kotlinx.serialization.json.Json
 
 interface HttpClientProvider {
 
-    val httpClient: HttpClient
+    val client: HttpClient
 
     val urlBuilder: URLBuilder
 
@@ -22,7 +23,7 @@ class HttpClientProviderImpl(
     private val httpEngineProvider: HttpEngineProvider
 ) : HttpClientProvider {
 
-    override val httpClient: HttpClient by lazy {
+     override val client: HttpClient by lazy {
         HttpClient(httpEngineProvider.provideEngine()) {
             install(JsonFeature) {
                 acceptContentTypes = listOf(ContentType.Any)
@@ -36,14 +37,14 @@ class HttpClientProviderImpl(
 
             if (systemConfig.isNetworkLogsEnabled) {
                 //TODO bug with Logging on ktor version 1.3.9 https://youtrack.jetbrains.com/issue/KTOR-924
-//                install(Logging) {
-//                    logger = object : Logger {
-//                        override fun log(message: String) {
-//                            io.shared.core.Logger.d(message, tag = "ApiClient")
-//                        }
-//                    }
-//                    level = LogLevel.ALL
-//                }
+                install(Logging) {
+                    logger = object : Logger {
+                        override fun log(message: String) {
+                            io.shared.core.Logger.d(message, tag = "ApiClient")
+                        }
+                    }
+                    level = LogLevel.INFO
+                }
             }
         }
     }

@@ -41,8 +41,10 @@ class HomeFragment : BaseFragment(R.layout.fragment_home),
                     return
                 }
 
-                sharedElements[names.first()] =
-                    selectedHolder.itemView.findViewById(R.id.stationPreviewImage)
+                names.firstOrNull()?.let {
+                    sharedElements[it] =
+                        selectedHolder.itemView.findViewById(R.id.stationPreviewImage)
+                }
             }
         })
     }
